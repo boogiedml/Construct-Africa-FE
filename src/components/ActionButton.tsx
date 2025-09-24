@@ -11,6 +11,7 @@ interface ActionButtonProps {
   attributes?: ButtonHTMLAttributes<HTMLButtonElement>;
   loading?: boolean;
   fullyRounded?: boolean;
+  paddingX?: string;
 }
 
 const ActionButton = ({
@@ -22,6 +23,7 @@ const ActionButton = ({
   attributes,
   loading = false,
   fullyRounded = false,
+  paddingX = "px-3"
 }: ActionButtonProps) => {
   return (
     <>
@@ -35,7 +37,7 @@ const ActionButton = ({
           className={`action-button text-center inline-block`}
         >
           <div
-            className={`w-full px-3 font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
+            className={`w-full ${paddingX} font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
               } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"} 
             ${outline
                 ? "text-[#414651] border border-[#D5D7DA]"
@@ -53,7 +55,7 @@ const ActionButton = ({
               width === "full" ? "100%" : width === "fit" ? "fit-content" : "",
           }}
           {...attributes}
-            className={`w-full px-3 font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
+            className={`w-full ${paddingX}  font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
             } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"}
           ${outline
               ? "text-[#414651] border border-[#D5D7DA]"
@@ -64,7 +66,7 @@ const ActionButton = ({
           <div className="w-fit mx-auto flex items-center">
             {loading ? (
               <>
-                <span className="mr-2 flex items-center gap-2">
+                <span className="mr-2 flex items-center gap-2 text-nowrap">
                   {buttonText}
                 </span>{" "}
                 <ClipLoader
@@ -77,7 +79,7 @@ const ActionButton = ({
                 />
               </>
             ) : (
-              <span className="flex items-center gap-2">{buttonText}</span>
+              <span className="flex items-center gap-2 text-nowrap">{buttonText}</span>
             )}
           </div>
         </button>
