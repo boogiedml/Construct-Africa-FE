@@ -1,5 +1,5 @@
-import { ActionButton, ActivityList, ProjectCard, SectionHeader } from "../components";
-import { favouriteItems, recentlyViewedItems, recentProjects, sidebarArticles, tenders } from "../data/home.data";
+import { ActionButton, ActivityList, ExpertCard, ProjectCard, SectionHeader } from "../components";
+import { favouriteItems, featuredOpinions, recentlyViewedItems, recentProjects, sidebarArticles, tenders } from "../data/home.data";
 
 const Home = () => {
     const handleShowMore = () => {
@@ -58,7 +58,7 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-7 gap-5 mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-7 gap-10 lg:gap-5 mt-8">
                 <div className="lg:col-span-5 flex flex-col gap-10 md:gap-14">
                     <section className="">
                         <SectionHeader title="Recently added projects" />
@@ -78,7 +78,6 @@ const Home = () => {
                             ))}
                         </div>
                     </section>
-
                     <section>
                         <SectionHeader title="Tenders" />
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -96,6 +95,20 @@ const Home = () => {
                             ))}
                         </div>
                     </section>
+                    <section>
+                        <SectionHeader title="Expert opinion" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-4 mt-5 lg:mt-10">
+                            {featuredOpinions.map((expert, index) => (
+                                <ExpertCard
+                                    key={expert.id || index}
+                                    expertImage={expert.image}
+                                    expertName={expert.name}
+                                    title={expert.title}
+                                    opinion={expert.opinion}
+                                />
+                            ))}
+                        </div>
+                    </section>
                 </div>
                 <div className="lg:col-span-2 flex flex-col gap-5">
                     <ActivityList
@@ -103,7 +116,6 @@ const Home = () => {
                         items={recentlyViewedItems}
                         showMore={true}
                         onShowMore={() => handleShowMore()}
-                        // onItemClick={handleItemClick}
                         maxHeight="400px"
                     />
 
@@ -112,7 +124,6 @@ const Home = () => {
                         items={favouriteItems}
                         showMore={true}
                         onShowMore={() => handleShowMore()}
-                        // onItemClick={handleItemClick}
                         maxHeight="400px"
                     />
                 </div>

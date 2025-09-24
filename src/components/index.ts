@@ -7,6 +7,7 @@ import Select from "./form-fields/Select";
 import ProjectCard from "./ProjectCard";
 import SectionHeader from "./SectionHeader";
 import ActivityList from "./ActivityList";
+import ExpertCard from "./ExpertCard";
 
 export {
   Navbar,
@@ -18,4 +19,5 @@ export {
   ProjectCard,
   SectionHeader,
   ActivityList,
+  ExpertCard,
 };

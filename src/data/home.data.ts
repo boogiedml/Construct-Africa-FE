@@ -200,3 +200,26 @@ export const favouriteItems = [
     isUpdated: false,
   },
 ];
+
+export const featuredOpinions = [
+  {
+    id: 1,
+    name: "Amara Okafor",
+    title:
+      "African Construction Market Reaches Record $180 Billion in 2025 Reports",
+    opinion:
+      "Lagos–Calabar Coastal Railway is a 1,400-kilometre standard gauge railway line designed to connect Nigeria’s major coastal cities, states and villages.",
+    image:
+      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=400&h=400&fit=crop",
+  },
+  {
+    id: 2,
+    name: "David Lawson",
+    title:
+      "African Construction Market Reaches Record $180 Billion in 2025 Reports",
+    opinion:
+      "Lagos–Calabar Coastal Railway is a 1,400-kilometre standard gauge railway line designed to connect Nigeria’s major coastal cities, states and villages.",
+    image:
+      "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?q=80&w=400&h=400&fit=crop",
+  },
+];
