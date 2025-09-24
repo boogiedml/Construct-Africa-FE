@@ -1,0 +1,13 @@
+* {
+  font-family: "Source Sans 3", sans-serif;
+  font-optical-sizing: auto;
+}
+
+.font-bitter {
+  font-family: "Bitter", serif;
+  font-optical-sizing: auto;
+}
+
+button{
+  cursor: pointer !important;
+}
