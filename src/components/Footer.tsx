@@ -12,7 +12,7 @@ const Footer = () => {
             <div className="w-[60px] md:w-[80px] h-full">
                 <img className='w-full h-full object-cover' src="/images/logo-black.png" alt="" />
             </div>
-            <div className="flex flex-col items-center gap-3 md:gap-5">
+            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5">
                 {navItems.map((item) => (
                     <a
                         key={item.name}
