@@ -1,20 +1,87 @@
 import { useState } from "react";
-import { ActionButton, ProjectCard } from "../components";
-import { LuBookMarked, LuTable } from "react-icons/lu";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
+import { LuBookMarked, LuTable, LuFilter } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { GoColumns } from "react-icons/go";
+import { HiOutlineChartBar } from "react-icons/hi";
+import type { TabItem } from "../components/Tabs";
+import type { TableColumn } from "../components/DataTable";
 
 const Companies = () => {
-  const [activeView, setActiveView] = useState('grid');
-  // const [sortBy, setSortBy] = useState('recently-added');
+  const [activeView, setActiveView] = useState('table');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [grouping, setGrouping] = useState('country');
+  const [sortBy, setSortBy] = useState('recently-added');
 
-  // const sortOptions = [
-  //   { value: 'recently-added', label: 'Recently added' },
-  //   { value: 'oldest', label: 'Oldest first' },
-  //   { value: 'alphabetical', label: 'Alphabetical' },
-  //   { value: 'value-high', label: 'Value (High to Low)' },
-  //   { value: 'value-low', label: 'Value (Low to High)' }
-  // ];
+  const groupingOptions = [
+    { value: 'country', label: 'By country' },
+    { value: 'sector', label: 'By sector' },
+    { value: 'type', label: 'By type' },
+    { value: 'projects', label: 'By projects' }
+  ];
+
+  const viewTabs: TabItem[] = [
+    {
+      id: 'table',
+      label: 'Table',
+      icon: <LuTable size={16} />
+    },
+    {
+      id: 'grid',
+      label: 'Grid',
+      icon: <CiGrid41 size={16} />
+    },
+    {
+      id: 'stage',
+      label: 'Stage',
+      icon: <GoColumns size={16} />
+    }
+  ];
+
+  const sortOptions = [
+    { value: 'recently-added', label: 'Recently added' },
+    { value: 'oldest', label: 'Oldest first' },
+    { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'value-high', label: 'Value (High to Low)' },
+    { value: 'value-low', label: 'Value (Low to High)' }
+  ];
+
+  const tableColumns: TableColumn<typeof companies[0]>[] = [
+    {
+      key: 'title',
+      label: 'Name',
+      sortable: true,
+      width: '40%'
+    },
+    {
+      key: 'location',
+      label: 'Country',
+      sortable: true,
+      width: '25%'
+    },
+    {
+      key: 'website',
+      label: 'Website',
+      sortable: false,
+      width: '25%',
+      render: (value) => (
+        <a
+          href={String(value)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          {String(value)}
+        </a>
+      )
+    },
+    {
+      key: 'projectsCount',
+      label: 'Projects count',
+      sortable: true,
+      width: '10%'
+    }
+  ];
 
   const companies = [
     {
@@ -23,8 +90,11 @@ const Companies = () => {
       status: "Contractor",
       title: "Green Innov Industry Investment, Morocco",
       description: "Green Innov Industry Investment (Gi3) launched the construction of a plant for the first Moroccan. Green Innov Industry Investment.",
-      location: "Cape Town, South Africa",
+      location: "Republic of Mozambique",
       category: "Transport/Infrastructure",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
+      stage: "Study",
       isFavorite: true
     },
     {
@@ -33,8 +103,11 @@ const Companies = () => {
       status: "Supplier",
       title: "Alpha Construction Solutions",
       description: "Specializing in large-scale commercial and residential construction projects across West Africa.",
-      location: "Accra, Ghana",
+      location: "Mozambique Republic",
       category: "Construction/Development",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
+      stage: "Design",
       isFavorite: true
     },
     {
@@ -43,8 +116,11 @@ const Companies = () => {
       status: "Developer",
       title: "Mega Urban Planners Inc.",
       description: "Focused on enhancing city infrastructure and creating sustainable community spaces in Southern Africa.",
-      location: "Johannesburg, South Africa",
+      location: "Mozambique Nation",
       category: "Real Estate/Consulting",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
+      stage: "Bid",
       isFavorite: false
     },
     {
@@ -53,8 +129,11 @@ const Companies = () => {
       status: "Subcontractor",
       title: "East African Transport Technologies",
       description: "Provides cutting-edge public transport systems and technological integrations for African cities.",
-      location: "Nairobi, Kenya",
+      location: "Mozambique State",
       category: "Technology/Transport",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
+      stage: "Build",
       isFavorite: false
     },
     {
@@ -63,8 +142,10 @@ const Companies = () => {
       status: "Contractor",
       title: "West Coast Infrastructure Group",
       description: "Aims to enhance urban mobility and reduce traffic congestion through innovative infrastructure solutions.",
-      location: "Lagos, Nigeria",
+      location: "Mozambique Republic",
       category: "Transport/Infrastructure",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
       isFavorite: false
     },
     {
@@ -73,8 +154,10 @@ const Companies = () => {
       status: "Supplier",
       title: "Green Build Materials LTD",
       description: "Seeks to promote sustainability through supplying eco-conscious, green building materials.",
-      location: "Cairo, Egypt",
+      location: "Mozambique Nation",
       category: "Materials/Manufacturing",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
       isFavorite: false
     },
     {
@@ -83,8 +166,10 @@ const Companies = () => {
       status: "Developer",
       title: "Gauteng Property Holdings",
       description: "Specializes in developing mixed-use properties and commercial spaces.",
-      location: "Cape Town, South Africa",
+      location: "Mozambique State",
       category: "Real Estate/Development",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
       isFavorite: false
     },
     {
@@ -93,8 +178,10 @@ const Companies = () => {
       status: "Subcontractor",
       title: "Horizon Rail & Roadworks",
       description: "Focuses on developing rail and road infrastructure projects across the sub-Saharan region.",
-      location: "Durban, South Africa",
+      location: "Republic of Mozambique",
       category: "Transport/Infrastructure",
+      website: "https://www.transport.gov.mz",
+      projectsCount: 24,
       isFavorite: false
     }
   ];
@@ -119,59 +206,39 @@ const Companies = () => {
             width="fit"
           />
 
-          {/* <Select
+          <CustomSelect
             options={sortOptions}
-            attributes={{
-              value: sortBy,
-              onChange: (e) => setSortBy(e.target.value)
-            }}
+            value={sortBy}
+            onChange={setSortBy}
             placeholder="Recently added"
-          /> */}
+          />
         </div>
       </div>
 
       {/* View Controls */}
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setActiveView('table')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'table'
-              ? 'bg-white text-[#181D27] shadow-sm'
-              : 'text-[#535862] hover:text-[#181D27]'
-              }`}
-          >
-            <LuTable size={16} />
-            Table
-          </button>
+        <Tabs
+          tabs={viewTabs}
+          activeTab={activeView}
+          onTabChange={setActiveView}
+          variant="pills"
+        />
 
-          <button
-            onClick={() => setActiveView('grid')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'grid'
-              ? 'bg-white text-[#181D27] shadow-sm'
-              : 'text-[#535862] hover:text-[#181D27]'
-              }`}
-          >
-            <CiGrid41 size={16} />
-            Grid
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[#535862]">Grouping:</span>
+            <CustomSelect
+              options={groupingOptions}
+              value={grouping}
+              onChange={setGrouping}
+              placeholder="By country"
+            />
+          </div>
 
-          <button
-            onClick={() => setActiveView('stage')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'stage'
-              ? 'bg-white text-[#181D27] shadow-sm'
-              : 'text-[#535862] hover:text-[#181D27]'
-              }`}
-          >
-            <GoColumns size={16} />
-            Stage
-          </button>
-        </div>
-
-        {/* <div className="flex items-center gap-3">
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
-                <Filter size={16} />
+                <LuFilter size={16} />
                 Filters
               </div>
             }
@@ -182,14 +249,14 @@ const Companies = () => {
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
-                <BarChart3 size={16} />
+                <HiOutlineChartBar size={16} />
                 Show charts
               </div>
             }
             outline={true}
             width="fit"
           />
-        </div> */}
+        </div>
       </div>
 
       {/* Grid Content */}
@@ -210,14 +277,30 @@ const Companies = () => {
         </div>
       )}
 
-      {/* Table View Placeholder */}
+      {/* Table View */}
       {activeView === 'table' && (
-        <div></div>
+        <DataTable
+          data={companies}
+          columns={tableColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={(row) => {
+            // Handle favorite toggle
+            console.log('Toggle favorite:', row);
+          }}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={Math.ceil(companies.length / 5)}
+          showCheckboxes={true}
+          showFavorites={true}
+        />
       )}
 
-      {/* Stage View Placeholder */}
+      {/* Stage View */}
       {activeView === 'stage' && (
-        <div></div>
+        <StageView
+          data={companies}
+          stageKey="stage"
+        />
       )}
     </div>
   )

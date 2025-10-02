@@ -12,6 +12,7 @@ interface ActionButtonProps {
   loading?: boolean;
   fullyRounded?: boolean;
   paddingX?: string;
+  borderless?: boolean;
 }
 
 const ActionButton = ({
@@ -23,7 +24,8 @@ const ActionButton = ({
   attributes,
   loading = false,
   fullyRounded = false,
-  paddingX = "px-3"
+  paddingX = "px-3",
+  borderless = false
 }: ActionButtonProps) => {
   return (
     <>
@@ -39,8 +41,8 @@ const ActionButton = ({
           <div
             className={`w-full ${paddingX} font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
               } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"} 
-            ${outline
-                ? "text-[#414651] border border-[#D5D7DA]"
+            ${outline || borderless
+                ? `text-[#414651] ${borderless ? "" : "border border-[#D5D7DA]"}`
                 : "bg-[#F89822] text-white"
               }   
               `}
@@ -55,10 +57,10 @@ const ActionButton = ({
               width === "full" ? "100%" : width === "fit" ? "fit-content" : "",
           }}
           {...attributes}
-            className={`w-full ${paddingX}  font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
+          className={`w-full ${paddingX}  font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 text-xs md:text-sm"
             } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"}
-          ${outline
-              ? "text-[#414651] border border-[#D5D7DA]"
+          ${outline || borderless
+              ? `text-[#414651] ${borderless ? "" : "border border-[#D5D7DA]"}`
               : "bg-[#F89822] text-white"
             }    
               `}
@@ -72,7 +74,7 @@ const ActionButton = ({
                 <ClipLoader
                   size={15}
                   color={
-                    outline
+                    outline || borderless
                       ? "#414651"
                       : "white"
                   }

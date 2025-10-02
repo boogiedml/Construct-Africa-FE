@@ -8,6 +8,11 @@ import ProjectCard from "./ProjectCard";
 import SectionHeader from "./SectionHeader";
 import ActivityList from "./ActivityList";
 import ExpertCard from "./ExpertCard";
+import Tabs from "./Tabs";
+import DataTable from "./DataTable";
+import Checkbox from "./Checkbox";
+import CustomSelect from "./CustomSelect";
+import StageView from "./StageView";
 
 export {
   Navbar,
@@ -20,4 +25,9 @@ export {
   SectionHeader,
   ActivityList,
   ExpertCard,
+  Tabs,
+  DataTable,
+  Checkbox,
+  CustomSelect,
+  StageView,
 };

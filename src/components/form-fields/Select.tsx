@@ -26,15 +26,14 @@ const Select = ({
   return (
     <div>
       <label
-        className={`${
-          labelColor ? "text-[" + labelColor + "] " : "text-[#101928]"
-        } text-sm mona-sans-medium`}
+        className={`${labelColor ? "text-[" + labelColor + "] " : "text-[#101928]"
+          } text-sm mona-sans-medium`}
         htmlFor={labelFor}
       >
         {label}
       </label>
       <select
-        className="mt-1 w-full p-3 text-[15px] border-[1.5px] border-[#D0D5DD] font-medium group rounded-md outline-none focus-within:border-[#0E1333] focus-within:bg-[#F1FEF14D] transition-all duration-300"
+        className="w-full px-3 py-1.5 text-sm text-[#414651] border border-[#D5D7DA] rounded-lg outline-none transition-all duration-200"
         {...attributes}
       >
         <option className="text-gray-400" value="">
