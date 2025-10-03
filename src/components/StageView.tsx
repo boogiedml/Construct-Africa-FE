@@ -52,14 +52,14 @@ const StageView: React.FC<StageViewProps> = ({
     return (
         <div className={`w-full ${className}`}>
             {/* Stage Navigation */}
-            <div className="bg-gray-800 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
+            <div className="bg-[#535862] rounded-lg p-4 mb-6">
+                <div className="grid grid-cols-4 gap-8">
                     {stages.map((stage, index) => {
                         const items = getItemsByStage(stage);
                         const isLast = index === stages.length - 1;
 
                         return (
-                            <React.Fragment key={stage}>
+                            <div className="flex items-center justify-between" key={stage}>
                                 <div className="flex items-center">
                                     <div className="text-white font-medium text-sm">
                                         {stage} ({items.length})
@@ -72,7 +72,7 @@ const StageView: React.FC<StageViewProps> = ({
                                         </svg>
                                     </div>
                                 )}
-                            </React.Fragment>
+                            </div>
                         );
                     })}
                 </div>

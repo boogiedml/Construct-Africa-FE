@@ -1,8 +1,16 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, Input } from '../components';
+import { useLoginMutation } from '../store/services/auth';
+import { useAppDispatch } from '../store/hooks';
+import { login } from '../store/features/authSlice';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const [loginMutation, { isLoading, error }] = useLoginMutation();
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -20,7 +28,19 @@ const Login = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      console.log(values)
+      try {
+        const response = await loginMutation(values).unwrap();
+        dispatch(login({
+          access_token: response.data.access_token,
+          refresh_token: response.data.refresh_token,
+          expires: response.data.expires
+        }));
+        // Redirect to the page they were trying to access or default to home
+        const fromPath = location.state?.from?.pathname || '/';
+        navigate(fromPath, { replace: true });
+      } catch (err) {
+        console.error('Login failed:', err);
+      }
     }
   });
 
@@ -69,7 +89,7 @@ const Login = () => {
               <img className='w-full h-full object-cover' src="/images/logo-black.png" alt="" />
             </div>
             <h1 className="text-lg md:text-xl lg:text-[30px] font-semibold text-[#181D27] font-bitter mb-1">
-              Welcome Muez
+              Welcome back
             </h1>
             <p className="text-sm md:text-base font-base">
               Let's get you started on Construct Africa
@@ -80,36 +100,45 @@ const Login = () => {
             <div className="space-y-4">
               <Input
                 label='Email'
-
                 attributes={{
                   type: "email",
+                  name: "email",
                   placeholder: "Enter your email",
                   value: formik.values.email,
                   onChange: formik.handleChange,
                   onBlur: formik.handleBlur
                 }}
-                error={formik.errors.email}
+                error={formik.touched.email && formik.errors.email ? formik.errors.email : undefined}
               />
               <Input
                 passwordInput
-                label='Reenter password'
-
+                label='Password'
                 attributes={{
-                  placeholder: "******",
+                  name: "password",
+                  placeholder: "Enter your password",
                   value: formik.values.password,
                   onChange: formik.handleChange,
                   onBlur: formik.handleBlur
                 }}
-                error={formik.errors.password}
+                error={formik.touched.password && formik.errors.password ? formik.errors.password : undefined}
               />
 
-              <ActionButton attributes={{
-                type: "button",
-                disabled: !formik.isValid
-              }}
-                buttonText="Sign in"
+              <ActionButton
+                attributes={{
+                  type: "button",
+                  disabled: !formik.isValid || isLoading,
+                  onClick: () => formik.handleSubmit()
+                }}
+                buttonText={isLoading ? "Signing in..." : "Sign in"}
+                loading={isLoading}
                 fullyRounded
               />
+
+              {error && (
+                <div className="text-red-500 text-sm text-center mt-2">
+                  Login failed. Please check your credentials.
+                </div>
+              )}
             </div>
           </div>
         </div>

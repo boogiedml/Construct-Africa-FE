@@ -41,7 +41,7 @@ const Tabs: React.FC<TabsProps> = ({
             case 'underline':
                 return 'border-b border-gray-200';
             default:
-                return 'bg-gray-100 rounded-lg p-1';
+                return 'bg-[#FAFAFA] rounded-lg border border-[#E9EAEB] overflow-hidden';
         }
     };
 
@@ -55,9 +55,12 @@ const Tabs: React.FC<TabsProps> = ({
                 }`;
         }
 
-        return `${baseClasses} ${isActive
+        return `${baseClasses} ${isActive && variant === 'pills'
             ? 'bg-[#FAFAFA] text-[#252B37]'
-            : 'text-[#717680] hover:text-[#252B37]'
+            :
+            isActive && variant === 'default'
+                ? 'text-[#252B37] border-[#D5D7DA] bg-white rounded-lg'
+                : 'text-[#717680] hover:text-[#252B37]'
             }`;
     };
 
