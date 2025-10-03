@@ -5,8 +5,7 @@ import type { LoginRequest, LoginResponse } from "../../types/auth.types";
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    // baseUrl: import.meta.env.VITE_API_URL,
-    baseUrl: "https://cavally-sightable-jamel.ngrok-free.dev/",
+    baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as RootState;
       const token = state.auth.token;
@@ -21,7 +20,7 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
-        url: "login",
+        url: "auth/login",
         method: "POST",
         body: credentials,
       }),
