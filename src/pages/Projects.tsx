@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -7,12 +7,26 @@ import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
+import { useGetProjectsQuery } from "../store/services/projects";
 
 const Projects = () => {
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
+
+  // Fetch projects from API
+  const { data: projectsResponse, error, isLoading } = useGetProjectsQuery();
+
+  // Log the response
+  useEffect(() => {
+    if (projectsResponse) {
+      console.log('Projects API Response:', projectsResponse);
+    }
+    if (error) {
+      console.error('Projects API Error:', error);
+    }
+  }, [projectsResponse, error]);
 
   const groupingOptions = [
     { value: 'country', label: 'By country' },
