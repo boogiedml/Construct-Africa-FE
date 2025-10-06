@@ -17,6 +17,9 @@ const Projects = () => {
 
   // Fetch projects from API
   const { data: projectsResponse, error, isLoading } = useGetProjectsQuery();
+  console.log('Projects API Response:', projectsResponse);
+  console.log('Projects API Error:', error);
+  console.log('Projects API Loading:', isLoading);
 
   // Log the response
   useEffect(() => {
