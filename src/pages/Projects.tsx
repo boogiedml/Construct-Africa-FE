@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -8,6 +8,8 @@ import type { TableColumn } from "../components/DataTable";
 import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
 import { useGetProjectsQuery } from "../store/services/projects";
+import { useGetCountriesQuery } from "../store/services/common";
+import { getCountryName } from "../utils";
 
 const Projects = () => {
   const [activeView, setActiveView] = useState('table');
@@ -15,21 +17,9 @@ const Projects = () => {
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
 
-  // Fetch projects from API
-  const { data: projectsResponse, error, isLoading } = useGetProjectsQuery();
-  console.log('Projects API Response:', projectsResponse);
-  console.log('Projects API Error:', error);
-  console.log('Projects API Loading:', isLoading);
+  const { data: projectsResponse } = useGetProjectsQuery();
 
-  // Log the response
-  useEffect(() => {
-    if (projectsResponse) {
-      console.log('Projects API Response:', projectsResponse);
-    }
-    if (error) {
-      console.error('Projects API Error:', error);
-    }
-  }, [projectsResponse, error]);
+  const { data: countriesResponse } = useGetCountriesQuery();
 
   const groupingOptions = [
     { value: 'country', label: 'By country' },
@@ -72,33 +62,36 @@ const Projects = () => {
       width: '35%'
     },
     {
-      key: 'sector',
+      key: 'sector_uuid',
       label: 'Sector',
       sortable: true,
-      width: '15%'
+      width: '15%',
+      render: () => 'Sector'
     },
     {
-      key: 'location',
+      key: 'country_id_directus',
       label: 'Country',
       sortable: true,
-      width: '15%'
+      width: '15%',
+      render: (value) => getCountryName(value as number | null, countries)
     },
     {
-      key: 'value',
+      key: 'contract_value_usd',
       label: 'Value ($mn)',
       sortable: true,
       width: '15%',
       render: (value) => {
+        if (!value) return 'N/A';
         const numericValue = String(value).replace(/[^0-9.]/g, '');
         return `${parseFloat(numericValue).toLocaleString()}`;
       }
     },
     {
-      key: 'stage',
+      key: 'stage_uuid',
       label: 'Stage',
       sortable: true,
       width: '20%',
-      render: (value) => {
+      render: () => {
         const stageStyles = {
           'Build': {
             dot: 'bg-[#12B76A]',
@@ -121,7 +114,8 @@ const Projects = () => {
             bg: 'bg-[#FDF5E8]'
           }
         };
-        const styles = stageStyles[value as keyof typeof stageStyles] || {
+        const stageName = 'Build';
+        const styles = stageStyles[stageName as keyof typeof stageStyles] || {
           dot: 'bg-gray-500',
           text: 'text-gray-600',
           bg: 'bg-gray-50'
@@ -129,119 +123,18 @@ const Projects = () => {
         return (
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${styles.bg}`}>
             <div className={`w-2 h-2 rounded-full ${styles.dot}`}></div>
-            <span className={`text-sm font-medium ${styles.text}`}>{String(value)}</span>
+            <span className={`text-sm font-medium ${styles.text}`}>{stageName}</span>
           </div>
         );
       }
     }
   ];
 
-  const projects = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80",
-      status: "Ongoing",
-      title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion through innovative infrastructure solutions.",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Study",
-      value: "$ 1,900 (USD million)",
-      isFavorite: true
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
-      description: "The Nairobi Green Transit Initiative seeks to promote sustainability through eco-conscious development and green building practices.",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Design",
-      value: "$ 1,900 (USD million)",
-      isFavorite: false
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor) - Phase 2",
-      description: "The Johannesburg Urban Revitalization Project is focused on enhancing city infrastructure and creating sustainable community spaces.",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Bid",
-      value: "$ 1,900 (USD million)",
-      isFavorite: true
-    },
-    {
-      id: 4,
-      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Greater Cairo Air Pollution Management and Climate Change, Egypt - Extension",
-      description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and promotes sustainable mobility.",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Build",
-      value: "$ 1,900 (USD million)",
-      isFavorite: false
-    },
-    {
-      id: 5,
-      image: "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80",
-      status: "Ongoing",
-      title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor) - Phase 3",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce...",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Build",
-      value: "$ 1,900 (USD million)",
-      isFavorite: false
-    },
-    {
-      id: 6,
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Greater Cairo Air Pollution Management and Climate Change, Egypt - Phase 2",
-      description: "The Nairobi Green Transit Initiative seeks to promote sustainability through eco-conscious...",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Design",
-      value: "$ 1,900 (USD million)",
-      isFavorite: true
-    },
-    {
-      id: 7,
-      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor) - Final Phase",
-      description: "The Johannesburg Urban Revitalization Project is focused on enhancing city infra...",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Plan",
-      value: "$ 1,900 (USD million)",
-      isFavorite: false
-    },
-    {
-      id: 8,
-      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-      status: "Ongoing",
-      title: "Greater Cairo Air Pollution Management and Climate Change, Egypt - Final Phase",
-      description: "This project aims to develop a cutting-edge public transport system that reduces traffic...",
-      location: "Burkina Faso",
-      category: "Transport/Infrastructure",
-      sector: "Transportation",
-      stage: "Build",
-      value: "$ 1,900 (USD million)",
-      isFavorite: false
-    }
-  ];
+  const projects = projectsResponse?.data || [];
+  const countries = countriesResponse?.data || [];
+  // const regions = regionsResponse?.data || [];
+
+  // const { countriesMap, regionsMap } = createLookupMaps(countries, regions);
 
   return (
     <div className="min-h-screen mx-auto py-5 md:py-8">
@@ -322,14 +215,14 @@ const Projects = () => {
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
-              image={project.image}
-              status={project.status}
+              image={project.image || "/images/null-image.svg"}
+              status="Ongoing"
               title={project.title}
-              description={project.description}
-              location={project.location}
-              category={project.category}
-              value={project.value}
-              isFavorite={project.isFavorite}
+              description={project.body}
+              location={getCountryName(project.country_id_directus, countries)}
+              category="Project"
+              value={`$${project.contract_value_usd || 0} million`}
+              isFavorite={false}
             />
           ))}
         </div>
@@ -338,11 +231,10 @@ const Projects = () => {
       {/* Table View */}
       {activeView === 'table' && (
         <DataTable
-          data={projects}
+          data={projects as []}
           columns={tableColumns}
           onRowSelect={(rows) => console.log('Selected rows:', rows)}
           onToggleFavorite={(row) => {
-            // Handle favorite toggle
             console.log('Toggle favorite:', row);
           }}
           currentPage={currentPage}
@@ -356,7 +248,17 @@ const Projects = () => {
       {/* Stage View */}
       {activeView === 'stage' && (
         <StageView
-          data={projects}
+          data={projects.map(project => ({
+            ...project,
+            stage: 'Build',
+            image: project.image || "/images/null-image.svg",
+            status: "Ongoing",
+            description: project.body,
+            location: getCountryName(project.country_id_directus, countries),
+            category: "Project",
+            value: `$${project.contract_value_usd || 0} million`,
+            isFavorite: false
+          }))}
           stageKey="stage"
         />
       )}

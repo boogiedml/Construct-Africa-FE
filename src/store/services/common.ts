@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
-import type { ProjectsResponse } from "../../types/project.types";
+import type { CountriesResponse, RegionsResponse } from "../../types/commom.types";
 
-export const projectsApi = createApi({
-  reducerPath: "projectsApi",
+export const commonApi = createApi({
+  reducerPath: "commonApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: (headers, { getState }) => {
@@ -15,7 +15,6 @@ export const projectsApi = createApi({
         // headers.set("Authorization", `Bearer ${token}`);
       }
 
-      //   headers.set("ngrok-skip-browser-warning", "true");
       headers.set("Accept", "application/json");
       headers.set("Content-Type", "application/json");
       headers.set("User-Agent", "MyApp/1.0");
@@ -24,13 +23,19 @@ export const projectsApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsResponse, void>({
+    getCountries: builder.query<CountriesResponse, void>({
       query: () => ({
-        url: `items/projects`,
+        url: `items/countries`,
+        method: "GET",
+      }),
+    }),
+    getRegions: builder.query<RegionsResponse, void>({
+      query: () => ({
+        url: `items/regions`,
         method: "GET",
       }),
     }),
   }),
 });
 
-export const { useGetProjectsQuery } = projectsApi;
+export const { useGetCountriesQuery, useGetRegionsQuery } = commonApi;
