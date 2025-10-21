@@ -45,7 +45,7 @@ const Input = ({
       <div className="relative mt-1">
         <span className="text-[#A4A7AE] text-lg absolute left-2.5 top-1/2 -translate-y-1/2">{icon}</span>
         <input
-          className={`w-full px-3 py-2 border text-[15px] ${passwordInput && "pr-10"} ${icon && "pl-9"} border-[#D5D7DA] group rounded-lg outline-none transition-all duration-300`}
+          className={`w-full px-3 py-2.5 border text-[15px] ${passwordInput && "pr-10"} ${icon && "pl-9"} border-[#D5D7DA] group rounded-lg outline-none transition-all duration-300`}
           type={inputType}
           id={labelFor}
           {...attributes}

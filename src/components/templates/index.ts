@@ -1,3 +1,4 @@
 import RootLayout from "./RootLayout";
+import NonSubscriberLayout from "./NonSubscriberLayout";
 
-export { RootLayout };
+export { RootLayout, NonSubscriberLayout };

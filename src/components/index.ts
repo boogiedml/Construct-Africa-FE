@@ -5,6 +5,7 @@ import Input from "./form-fields/Input";
 import Textarea from "./form-fields/Textarea";
 import Select from "./form-fields/Select";
 import ProjectCard from "./ProjectCard";
+import ProjectCard2 from "./ProjectCard2";
 import SectionHeader from "./SectionHeader";
 import ActivityList from "./ActivityList";
 import ExpertCard from "./ExpertCard";
@@ -22,6 +23,7 @@ export {
   Textarea,
   Select,
   ProjectCard,
+  ProjectCard2,
   SectionHeader,
   ActivityList,
   ExpertCard,

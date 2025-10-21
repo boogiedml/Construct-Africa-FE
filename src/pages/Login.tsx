@@ -35,8 +35,8 @@ const Login = () => {
           refresh_token: response.data.refresh_token,
           expires: response.data.expires
         }));
-        // Redirect to the page they were trying to access or default to home
-        const fromPath = location.state?.from?.pathname || '/';
+        // Redirect to the page they were trying to access or default to admin home
+        const fromPath = location.state?.from?.pathname || '/admin';
         navigate(fromPath, { replace: true });
       } catch (err) {
         console.error('Login failed:', err);

@@ -24,7 +24,7 @@ const Select = ({
   note,
 }: SelectProps) => {
   return (
-    <div>
+    <div className="w-full">
       <label
         className={`${labelColor ? "text-[" + labelColor + "] " : "text-[#101928]"
           } text-sm mona-sans-medium`}
@@ -33,7 +33,7 @@ const Select = ({
         {label}
       </label>
       <select
-        className="w-full px-3 py-1.5 text-sm text-[#414651] border border-[#D5D7DA] rounded-lg outline-none transition-all duration-200"
+        className="w-full mt-1 px-3 py-2.5 text-sm text-[#414651] border border-[#D5D7DA] rounded-lg outline-none transition-all duration-200"
         {...attributes}
       >
         <option className="text-gray-400" value="">

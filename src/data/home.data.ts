@@ -222,4 +222,69 @@ export const featuredOpinions = [
     image:
       "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?q=80&w=400&h=400&fit=crop",
   },
+  {
+    id: 3,
+    name: "Amina Abdi",
+    title:
+      "Building Trust in Africa's Construction Industry",
+    opinion:
+      "Building trust in Africa's construction industry requires a collaborative approach that values local knowledge, embraces innovation, and prioritizes sustainable practices.",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+  },
 ];
+
+export const teamMembers = [
+  {
+    name: "Amélie Laurent",
+    role: "Founder & CEO",
+    description:
+      "Former co-founder of Opendoor. Early staff at Spotify and Clearbit.",
+    image: "https://randomuser.me/api/portraits/women/45.jpg",
+  },
+  {
+    name: "Nikolas Gibbons",
+    role: "Engineering Manager",
+    description: "Lead engineering teams at Figma, Pitch, and Protocol Labs.",
+    image: "https://randomuser.me/api/portraits/men/75.jpg",
+  },
+  {
+    name: "Sienna Hewitt",
+    role: "Product Manager",
+    description: "Former PM for Linear, Lambda School, and On Deck.",
+    image: "https://randomuser.me/api/portraits/women/32.jpg",
+  },
+  {
+    name: "Lily-Rose Chedjou",
+    role: "Frontend Developer",
+    description: "Former frontend dev for Linear, Coinbase, and Postscript.",
+    image: "https://randomuser.me/api/portraits/women/68.jpg",
+  },
+  {
+    name: "Zahra Christensen",
+    role: "Backend Developer",
+    description: "Lead backend dev at Clearbit. Former Clearbit and Loom.",
+    image: "https://randomuser.me/api/portraits/women/28.jpg",
+  },
+  {
+    name: "Caitlyn King",
+    role: "Product Designer",
+    description:
+      "Founding design team at Figma. Former Pleo, Stripe, and Tile.",
+    image: "https://randomuser.me/api/portraits/women/14.jpg",
+  },
+  {
+    name: "Zaid Schwartz",
+    role: "UX Researcher",
+    description:
+      "Lead user research for Slack. Contractor for Netflix and Udacity.",
+    image: "https://randomuser.me/api/portraits/men/22.jpg",
+  },
+  {
+    name: "Marco Kelly",
+    role: "Customer Success",
+    description: "Lead CX at Wealthsimple. Former PagerDuty and Sqreen.",
+    image: "https://randomuser.me/api/portraits/men/44.jpg",
+  },
+];
+

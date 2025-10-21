@@ -13,6 +13,9 @@ interface ActionButtonProps {
   fullyRounded?: boolean;
   paddingX?: string;
   borderless?: boolean;
+  textColor?: string;
+  backgroundColor?: string
+  borderColor?: string
 }
 
 const ActionButton = ({
@@ -25,7 +28,10 @@ const ActionButton = ({
   loading = false,
   fullyRounded = false,
   paddingX = "px-3",
-  borderless = false
+  borderless = false,
+  textColor = "#ffffff",
+  backgroundColor = "#F89822",
+  borderColor
 }: ActionButtonProps) => {
   return (
     <>
@@ -34,16 +40,19 @@ const ActionButton = ({
           style={{
             width:
               width === "full" ? "100%" : width === "fit" ? "fit-content" : "",
+            backgroundColor: outline || borderless ? 'transparent' : backgroundColor,
+            color: outline || borderless ? '#414651' : textColor,
+            borderColor: borderColor ? borderColor : "transparent"
           }}
           to={link || ""}
           className={`action-button text-center inline-block`}
         >
           <div
-            className={`w-full ${paddingX} font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
+            className={`w-full ${borderColor ? "border" : ""} ${paddingX} font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"
               } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"} 
             ${outline || borderless
                 ? `text-[#414651] ${borderless ? "" : "border border-[#D5D7DA]"}`
-                : "bg-[#F89822] text-white"
+                : ""
               }   
               `}
           >
@@ -55,13 +64,16 @@ const ActionButton = ({
           style={{
             width:
               width === "full" ? "100%" : width === "fit" ? "fit-content" : "",
+            backgroundColor: outline || borderless ? 'transparent' : backgroundColor,
+            color: outline || borderless ? '#414651' : textColor,
+            borderColor: borderColor ? borderColor : "transparent"
           }}
           {...attributes}
-          className={`w-full ${paddingX}  font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 text-xs md:text-sm"
+          className={`w-full ${borderColor ? "border" : ""} ${paddingX}  font-semibold ${textSize ? "py-2.5 text-" + textSize : "py-2 text-xs md:text-sm"
             } flex items-center ${fullyRounded ? "rounded-full" : "rounded-lg"}
           ${outline || borderless
-              ? `text-[#414651] ${borderless ? "" : "border border-[#D5D7DA]"}`
-              : "bg-[#F89822] text-white"
+              ? `${borderless ? "" : "border border-[#D5D7DA]"}`
+              : ""
             }    
               `}
         >
@@ -76,7 +88,7 @@ const ActionButton = ({
                   color={
                     outline || borderless
                       ? "#414651"
-                      : "white"
+                      : textColor
                   }
                 />
               </>

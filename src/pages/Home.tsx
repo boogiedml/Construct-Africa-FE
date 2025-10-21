@@ -98,7 +98,7 @@ const Home = () => {
                     <section>
                         <SectionHeader title="Expert opinion" />
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-4 mt-5 lg:mt-10">
-                            {featuredOpinions.map((expert, index) => (
+                            {featuredOpinions.slice(0, 2).map((expert, index) => (
                                 <ExpertCard
                                     key={expert.id || index}
                                     expertImage={expert.image}

@@ -14,7 +14,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
     opinion,
 }) => {
     return (
-        <div className="md:px-16 flex flex-col gap-4 md:gap-6">
+        <div className="md:px-16 flex flex-col gap-4 md:gap-6 bg-white py-10">
             <div className="flex justify-center">
                 <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200">
                     <img
