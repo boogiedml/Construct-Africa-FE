@@ -42,7 +42,7 @@ const NsNavbar = () => {
         ? isScrolled
             ? 'bg-white border-b shadow-sm'
             : 'bg-transparent fixed'
-        : 'bg-white border-b'
+        : 'bg-white'
         }`;
 
 

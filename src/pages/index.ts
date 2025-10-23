@@ -7,8 +7,10 @@ import Projects from "./Projects";
 import Tenders from "./Tenders";
 import PublicHome from "./PublicHome";
 import PublicEvents from "./PublicEvents";
+import PublicInsights from "./PublicInsights";
 import InsightDetails from "./InsightDetails";
 import EventDetails from "./EventDetails";
+import AdvisoryBoard from "./AdvisoryBoard";
 
 export {
   Login,
@@ -20,6 +22,8 @@ export {
   Tenders,
   PublicHome,
   PublicEvents,
+  PublicInsights,
   InsightDetails,
   EventDetails,
+  AdvisoryBoard,
 };

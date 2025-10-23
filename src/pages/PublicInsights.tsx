@@ -2,12 +2,11 @@ import { FiLock } from 'react-icons/fi'
 import { sidebarArticles } from '../data/home.data'
 import { ActionButton, Select } from '../components'
 import ProjectCard2 from '../components/ProjectCard2'
-import { useState } from 'react'
 
 const PublicInsights = () => {
-    const [selectedRegion, setSelectedRegion] = useState("All");
-    const [selectedCountry, setSelectedCountry] = useState("All");
-    const [selectedSector, setSelectedSector] = useState("All");
+    // const [selectedRegion, setSelectedRegion] = useState("All");
+    // const [selectedCountry, setSelectedCountry] = useState("All");
+    // const [selectedSector, setSelectedSector] = useState("All");
 
     const newsArticles = [
         {
@@ -257,11 +256,11 @@ const PublicInsights = () => {
     const countries = ["All", "Nigeria", "Kenya", "South Africa", "Egypt", "Ghana"];
     const sectors = ["All", "Infrastructure", "Energy", "Transportation", "Housing", "Technology"];
 
-    const clearAllFilters = () => {
-        setSelectedRegion("All");
-        setSelectedCountry("All");
-        setSelectedSector("All");
-    };
+    // const clearAllFilters = () => {
+    //     setSelectedRegion("All");
+    //     setSelectedCountry("All");
+    //     setSelectedSector("All");
+    // };
 
     return (
         <div className="min-h-screen">
@@ -380,7 +379,7 @@ const PublicInsights = () => {
                                 buttonText="Clear All"
                                 outline
                                 width="fit"
-                                attributes={{ type: "button", onClick: clearAllFilters }}
+                                // attributes={{ type: "button", onClick: clearAllFilters }}
                             />
                         </div>
                     </div>

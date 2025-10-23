@@ -1,17 +1,21 @@
 import { FaRegCircleCheck } from 'react-icons/fa6'
 import { FiUsers, FiBriefcase } from 'react-icons/fi'
 import { IoBookOutline } from 'react-icons/io5'
+import ActionButton from '../components/ActionButton'
 
 const InsightDetails = () => {
 
     return (
         <div className="min-h-screen bg-white">
             <section>
-                <div className="py-10 max-md:pt-20 md:py-16 lg:py-20 max-w-4xl mx-auto text-center px-5 sm:px-10 lg:px-20">
+                <div className="py-10 max-md:pt-20 md:py-16 lg:py-20 max-w-5xl mx-auto text-center px-5 sm:px-10 lg:px-20">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">Construction intelligence for smarter decisions</h2>
                     <p className="text-base sm:text-lg text-[#535862] mb-6 leading-relaxed max-w-2xl mx-auto">
                         Your one-stop-shop for information and actionable intelligence on the construction and infrastructure pipeline in African countries
                     </p>
+                    <div className='flex justify-center'>
+                        <ActionButton buttonText="Subscribe to Projects" width="fit" paddingX="px-6" />
+                    </div>
                 </div>
             </section>
 
@@ -44,7 +48,7 @@ const InsightDetails = () => {
                 </div>
                 <div className='flex-1 order-1 lg:order-2'>
                     <div className='w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none sm:rounded-l-2xl'>
-                        <img className='w-full h-full object-cover' src="https://plus.unsplash.com/premium_photo-1760932334268-7a88a6fdd612?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070" alt="" />
+                        <img className='w-full h-full object-cover' src="/images/01screen-mockup.svg" alt="" />
                     </div>
                 </div>
             </section>
