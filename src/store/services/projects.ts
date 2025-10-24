@@ -24,7 +24,7 @@ export const projectsApi = createApi({
   endpoints: (builder) => ({
     getProjects: builder.query<ProjectsResponse, void>({
       query: () => ({
-        url: `items/projects`,
+        url: `items/projects?fields=*,featured_image.*,countries.countries_id.*,sectors.sectors_id.*`,
         method: "GET",
       }),
     }),

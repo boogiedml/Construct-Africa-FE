@@ -1,9 +1,10 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import ActionButton from './ActionButton';
 
 const NsNavbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const isPublicHome = location.pathname === '/';
     const [isScrolled, setIsScrolled] = useState(false);
 
@@ -74,6 +75,9 @@ const NsNavbar = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
+                        <ActionButton buttonText="Login" textColor='#414651' backgroundColor='white' paddingX="px-8" attributes={{
+                            onClick: () => navigate('/login')
+                        }} />
                         <ActionButton buttonText="Book a demo" paddingX="px-5" />
                     </div>
                 </div>

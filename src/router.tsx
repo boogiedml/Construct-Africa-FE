@@ -15,6 +15,7 @@ export const routes: RouteObject[] = [
       { path: "events", element: <PublicEvents /> },
       { path: "events/:id", element: <EventDetails /> },
       { path: "advisory-board", element: <AdvisoryBoard /> },
+      { path: "projects", element: <InsightDetails /> },
       { path: "*", element: <Navigate to="/" /> },
     ],
   },

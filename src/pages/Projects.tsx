@@ -8,8 +8,7 @@ import type { TableColumn } from "../components/DataTable";
 import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
 import { useGetProjectsQuery } from "../store/services/projects";
-import { useGetCountriesQuery } from "../store/services/common";
-import { getCountryName } from "../utils";
+import type { Project } from "../types/project.types";
 
 const Projects = () => {
   const [activeView, setActiveView] = useState('table');
@@ -17,9 +16,8 @@ const Projects = () => {
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
 
-  const { data: projectsResponse } = useGetProjectsQuery();
+  const { data: projectsResponse, isLoading } = useGetProjectsQuery();
 
-  const { data: countriesResponse } = useGetCountriesQuery();
 
   const groupingOptions = [
     { value: 'country', label: 'By country' },
@@ -62,18 +60,24 @@ const Projects = () => {
       width: '35%'
     },
     {
-      key: 'sector_uuid',
+      key: 'sectors',
       label: 'Sector',
       sortable: true,
       width: '15%',
-      render: () => 'Sector'
+      render: (value: unknown) => {
+        const sectors = value as { sectors_id: { name: string } }[];
+        return sectors?.map(sector => sector.sectors_id.name).join(', ') || '---';
+      }
     },
     {
-      key: 'country_id_directus',
+      key: 'countries',
       label: 'Country',
       sortable: true,
       width: '15%',
-      render: (value) => getCountryName(value as number | null, countries)
+      render: (value: unknown) => {
+        const countries = value as { countries_id: { name: string } }[];
+        return countries?.map(country => country.countries_id.name).join(', ') || '---';
+      }
     },
     {
       key: 'contract_value_usd',
@@ -87,11 +91,11 @@ const Projects = () => {
       }
     },
     {
-      key: 'stage_uuid',
+      key: 'current_stage',
       label: 'Stage',
       sortable: true,
       width: '20%',
-      render: () => {
+      render: (value: unknown) => {
         const stageStyles = {
           'Build': {
             dot: 'bg-[#12B76A]',
@@ -114,7 +118,7 @@ const Projects = () => {
             bg: 'bg-[#FDF5E8]'
           }
         };
-        const stageName = 'Build';
+        const stageName = value as string;
         const styles = stageStyles[stageName as keyof typeof stageStyles] || {
           dot: 'bg-gray-500',
           text: 'text-gray-600',
@@ -131,10 +135,6 @@ const Projects = () => {
   ];
 
   const projects = projectsResponse?.data || [];
-  const countries = countriesResponse?.data || [];
-  // const regions = regionsResponse?.data || [];
-
-  // const { countriesMap, regionsMap } = createLookupMaps(countries, regions);
 
   return (
     <div className="min-h-screen mx-auto py-5 md:py-8">
@@ -212,15 +212,15 @@ const Projects = () => {
       {/* Grid Content */}
       {activeView === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {projects.map((project) => (
+          {projects.map((project: Project) => (
             <ProjectCard
               key={project.id}
-              image={project.image || "/images/null-image.svg"}
-              status="Ongoing"
+              image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
+              status={project.current_stage}
               title={project.title}
-              description={project.body}
-              location={getCountryName(project.country_id_directus, countries)}
-              category="Project"
+              description={project.description || ''}
+              location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
+              category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
               value={`$${project.contract_value_usd || 0} million`}
               isFavorite={false}
             />
@@ -242,20 +242,21 @@ const Projects = () => {
           totalPages={Math.ceil(projects.length / 5)}
           showCheckboxes={true}
           showFavorites={true}
+          loading={isLoading}
         />
       )}
 
       {/* Stage View */}
       {activeView === 'stage' && (
         <StageView
-          data={projects.map(project => ({
+          data={projects.map((project: Project) => ({
             ...project,
-            stage: 'Build',
-            image: project.image || "/images/null-image.svg",
-            status: "Ongoing",
-            description: project.body,
-            location: getCountryName(project.country_id_directus, countries),
-            category: "Project",
+            stage: project.current_stage,
+            image: project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg",
+            status: project.current_stage,
+            description: project.description || '',
+            location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
+            category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',
             value: `$${project.contract_value_usd || 0} million`,
             isFavorite: false
           }))}

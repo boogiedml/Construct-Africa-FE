@@ -24,7 +24,7 @@ export const companiesApi = createApi({
   endpoints: (builder) => ({
     getCompanies: builder.query<CompaniesResponse, void>({
       query: () => ({
-        url: `items/companies`,
+        url: `items/companies?fields=*,logo.*,countries.countries_id.*`,
         method: "GET",
       }),
     }),

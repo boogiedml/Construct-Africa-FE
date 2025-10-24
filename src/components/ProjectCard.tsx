@@ -78,7 +78,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                         )}
                     </div>
                 </div>
-                <h3 className="font-semibold text-[#181D27] text-base md:text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#F89822] transition-colors duration-200">
+                <h3 className="font-semibold text-[#181D27] text-base md:text-lg mb-2 line-clamp-1 leading-tight group-hover:text-[#F89822] transition-colors duration-200">
                     {title}
                 </h3>
 

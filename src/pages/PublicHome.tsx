@@ -1,10 +1,10 @@
 import { ActionButton, ExpertCard, Input, Select } from "../components";
 import Marquee from "react-fast-marquee";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
-import { HiLockClosed } from 'react-icons/hi2';
-import { HiArrowUpRight } from 'react-icons/hi2';
+// import { Swiper, SwiperSlide } from 'swiper/react';
+// import { Navigation } from 'swiper/modules';
+// import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
+// import { HiLockClosed } from 'react-icons/hi2';
+// import { HiArrowUpRight } from 'react-icons/hi2';
 import { useState } from 'react';
 import { featuredOpinions, teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
@@ -45,53 +45,53 @@ const PublicHome = () => {
         }
     ];
 
-    const trendingProjects = [
-        {
-            id: 1,
-            image: "/images/projects/project1.jpg",
-            location: "West Africa",
-            title: "Egypt seeks consultants for an administration building",
-            description: "The Egyptian Environmental Affairs Agency invites consulting firms to indicate interest. The Egyptian Environmental Affairs Agenc...",
-            author: "Phoenix Baker",
-            date: "19 Jan 2025"
-        },
-        {
-            id: 2,
-            image: "/images/projects/project2.jpg",
-            location: "East Africa",
-            title: "Kenya Infrastructure Development Project",
-            description: "Major infrastructure development initiative across multiple regions in Kenya including roads, bridges, and public facilities...",
-            author: "Sarah Johnson",
-            date: "18 Jan 2025"
-        },
-        {
-            id: 3,
-            image: "/images/projects/project3.jpg",
-            location: "South Africa",
-            title: "Cape Town Smart City Initiative",
-            description: "Comprehensive smart city development project focusing on sustainable urban planning and digital infrastructure...",
-            author: "Michael Chen",
-            date: "17 Jan 2025"
-        },
-        {
-            id: 4,
-            image: "/images/projects/project4.jpg",
-            location: "Central Africa",
-            title: "Renewable Energy Grid Expansion",
-            description: "Large-scale renewable energy infrastructure project to expand the national grid across multiple provinces...",
-            author: "Aisha Okafor",
-            date: "16 Jan 2025"
-        },
-        {
-            id: 5,
-            image: "/images/projects/project5.jpg",
-            location: "North Africa",
-            title: "Port Modernization Program",
-            description: "Comprehensive modernization of major port facilities including container terminals and logistics infrastructure...",
-            author: "David Rodriguez",
-            date: "15 Jan 2025"
-        }
-    ];
+    // const trendingProjects = [
+    //     {
+    //         id: 1,
+    //         image: "/images/projects/project1.jpg",
+    //         location: "West Africa",
+    //         title: "Egypt seeks consultants for an administration building",
+    //         description: "The Egyptian Environmental Affairs Agency invites consulting firms to indicate interest. The Egyptian Environmental Affairs Agenc...",
+    //         author: "Phoenix Baker",
+    //         date: "19 Jan 2025"
+    //     },
+    //     {
+    //         id: 2,
+    //         image: "/images/projects/project2.jpg",
+    //         location: "East Africa",
+    //         title: "Kenya Infrastructure Development Project",
+    //         description: "Major infrastructure development initiative across multiple regions in Kenya including roads, bridges, and public facilities...",
+    //         author: "Sarah Johnson",
+    //         date: "18 Jan 2025"
+    //     },
+    //     {
+    //         id: 3,
+    //         image: "/images/projects/project3.jpg",
+    //         location: "South Africa",
+    //         title: "Cape Town Smart City Initiative",
+    //         description: "Comprehensive smart city development project focusing on sustainable urban planning and digital infrastructure...",
+    //         author: "Michael Chen",
+    //         date: "17 Jan 2025"
+    //     },
+    //     {
+    //         id: 4,
+    //         image: "/images/projects/project4.jpg",
+    //         location: "Central Africa",
+    //         title: "Renewable Energy Grid Expansion",
+    //         description: "Large-scale renewable energy infrastructure project to expand the national grid across multiple provinces...",
+    //         author: "Aisha Okafor",
+    //         date: "16 Jan 2025"
+    //     },
+    //     {
+    //         id: 5,
+    //         image: "/images/projects/project5.jpg",
+    //         location: "North Africa",
+    //         title: "Port Modernization Program",
+    //         description: "Comprehensive modernization of major port facilities including container terminals and logistics infrastructure...",
+    //         author: "David Rodriguez",
+    //         date: "15 Jan 2025"
+    //     }
+    // ];
 
     return (
         <div>
@@ -152,7 +152,7 @@ const PublicHome = () => {
                         </h3>
                     </div>
 
-                    <div className="relative">
+                    {/* <div className="relative">
                         <Swiper
                             modules={[Navigation]}
                             spaceBetween={24}
@@ -179,20 +179,17 @@ const PublicHome = () => {
                             {trendingProjects.map((project) => (
                                 <SwiperSlide key={project.id}>
                                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
-                                        {/* Project Image */}
                                         <div className="relative">
                                             <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                                                 <span className="text-gray-400 text-sm">Project Image</span>
                                             </div>
 
-                                            {/* Paid Tag */}
                                             <div className="absolute top-3 left-3 bg-[#D4A574] text-white px-2 py-1 rounded-md flex items-center gap-1 text-xs font-medium">
                                                 <HiLockClosed size={12} />
                                                 Paid
                                             </div>
                                         </div>
 
-                                        {/* Project Content */}
                                         <div className="p-6 relative">
                                             <p className="text-sm text-[#F89822] font-semibold mb-2">{project.location}</p>
                                             <h4 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
@@ -202,7 +199,6 @@ const PublicHome = () => {
                                                 {project.description}
                                             </p>
 
-                                            {/* Author and Date */}
                                             <div className="flex items-center gap-2 text-xs text-gray-500">
                                                 <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center">
                                                     <span className="text-xs">👤</span>
@@ -212,7 +208,6 @@ const PublicHome = () => {
                                                 <span>{project.date}</span>
                                             </div>
 
-                                            {/* Arrow Icon */}
                                             <div className="absolute top-6 right-6 text-gray-400 hover:text-[#F89822] cursor-pointer">
                                                 <HiArrowUpRight size={20} />
                                             </div>
@@ -222,14 +217,13 @@ const PublicHome = () => {
                             ))}
                         </Swiper>
 
-                        {/* Custom Navigation Buttons */}
                         <button className="swiper-button-prev-custom absolute left-[-20px] top-[96px] z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
                             <IoArrowBack size={20} className="text-gray-600" />
                         </button>
                         <button className="swiper-button-next-custom absolute right-[-20px] top-[96px] z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
                             <IoArrowForward size={20} className="text-gray-600" />
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </section>
 

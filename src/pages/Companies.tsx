@@ -15,7 +15,7 @@ const Companies = () => {
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
 
-  const { data: companiesResponse } = useGetCompaniesQuery();
+  const { data: companiesResponse, isLoading } = useGetCompaniesQuery();
 
   // const { data: countriesResponse } = useGetCountriesQuery();
   // const { data: regionsResponse } = useGetRegionsQuery();
@@ -55,7 +55,7 @@ const Companies = () => {
 
   const tableColumns: TableColumn<typeof companies[0]>[] = [
     {
-      key: 'title',
+      key: 'name',
       label: 'Name',
       sortable: true,
       width: '40%'
@@ -68,20 +68,24 @@ const Companies = () => {
       render: (value) => cleanHtmlContent(value as string | null)
     },
     {
-      key: 'title',
+      key: 'website',
       label: 'Website',
       sortable: false,
       width: '25%',
-      render: () => (
-        <span className="text-gray-500">N/A</span>
+      render: (value: unknown) => value ? (
+        <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+          {value as string}
+        </a>
+      ) : (
+        <span className="text-gray-500">---</span>
       )
     },
     {
-      key: 'title',
+      key: 'projects',
       label: 'Projects count',
       sortable: true,
       width: '10%',
-      render: () => '0'
+      render: (value) => (value as number[]).length
     }
   ];
 
@@ -170,10 +174,10 @@ const Companies = () => {
           {companies.map((company) => (
             <ProjectCard
               key={company.id}
-              image={company.image || "/images/null-image.svg"}
+              image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
               status={company.company_role || "Company"}
-              title={company.title}
-              description={company.body || "No description available"}
+              title={company.name}
+              description={cleanHtmlContent(company.description) || "No description available"}
               location={cleanHtmlContent(company.location_details)}
               category="Company"
               isFavorite={false}
@@ -196,6 +200,7 @@ const Companies = () => {
           totalPages={Math.ceil(companies.length / 5)}
           showCheckboxes={true}
           showFavorites={true}
+          loading={isLoading}
         />
       )}
 
@@ -205,13 +210,14 @@ const Companies = () => {
           data={companies.map(company => ({
             ...company,
             stage: 'Active', // Default stage for companies
-            image: company.image || "/images/null-image.svg",
+            image: company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg",
             status: company.company_role || "Company",
-            description: company.body || "No description available",
+            description: company.description || "No description available",
             location: cleanHtmlContent(company.location_details),
             category: "Company",
-            value: "N/A",
-            isFavorite: false
+            value: "---",
+            isFavorite: false,
+            title: company.name
           }))}
           stageKey="stage"
         />

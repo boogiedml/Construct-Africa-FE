@@ -1,22 +1,32 @@
 import { useState } from 'react';
 import { BiBell, BiChevronDown, BiMenu, BiX } from 'react-icons/bi';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Input from './form-fields/Input';
 import { LuSearch } from 'react-icons/lu';
+import { useAppDispatch } from '../store/hooks';
+import { logout } from '../store/features/authSlice';
 
 const Navbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/login');
+        setIsProfileDropdownOpen(false);
+    };
+
     const navItems = [
-        { name: 'Home', href: '/', },
-        { name: 'Projects', href: '/projects' },
-        { name: 'Companies', href: '/companies' },
-        { name: 'News', href: '/news' },
-        { name: 'Tenders', href: '/tenders' },
-        { name: 'Favourites', href: '/favourites' },
+        { name: 'Home', href: '/admin', },
+        { name: 'Projects', href: '/admin/projects' },
+        { name: 'Companies', href: '/admin/companies' },
+        { name: 'News', href: '/admin/news' },
+        { name: 'Tenders', href: '/admin/tenders' },
+        { name: 'Favourites', href: '/admin/favourites' },
     ];
 
     return (
@@ -96,9 +106,12 @@ const Navbar = () => {
                                     <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         Settings
                                     </a>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
                                         Sign out
-                                    </a>
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -112,7 +125,7 @@ const Navbar = () => {
                             {isMenuOpen ? (
                                 <BiX className="" color='#717680' size={20} />
                             ) : (
-                                    <BiMenu className="" color='#717680' size={20} />
+                                <BiMenu className="" color='#717680' size={20} />
                             )}
                         </button>
                     </div>

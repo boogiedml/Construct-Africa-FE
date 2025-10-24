@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LuChevronDown, LuChevronUp } from 'react-icons/lu';
 import { AiFillStar } from 'react-icons/ai';
 import Checkbox from './Checkbox';
+import { ClipLoader } from 'react-spinners';
 
 export interface TableColumn<T> {
     key: keyof T;
@@ -24,6 +25,7 @@ export interface DataTableProps<T extends Record<string, unknown> & { id: unknow
     currentPage?: number;
     onPageChange?: (page: number) => void;
     totalPages?: number;
+    loading?: boolean;
 }
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -40,7 +42,8 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     pageSize = 10,
     currentPage = 1,
     onPageChange,
-    totalPages
+    totalPages,
+    loading = false
 }: DataTableProps<T>) => {
     const [sortColumn, setSortColumn] = useState<keyof T | null>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -153,45 +156,65 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                        {displayData.map((row, index) => {
-                            return (
-                                <tr key={String(row.id) || index} className="group min-h-[70px] max-h-[100px] h-[70px]">
-                                    {showCheckboxes && (
-                                        <td className="px-4 py-3">
-                                            <Checkbox
-                                                checked={selectedRows.has(row.id)}
-                                                onChange={(checked) => handleRowSelect(row, checked)}
-                                                size="lg"
-                                            />
-                                        </td>
-                                    )}
-                                    {columns.map((column) => (
-                                        <td
-                                            key={String(column.key)}
-                                            className="px-4 py-3 text-sm text-[#181D27]"
-                                        >
-                                            {column.render
-                                                ? column.render(row[column.key], row)
-                                                : String(row[column.key] || '')}
-                                        </td>
-                                    ))}
-                                    {showFavorites && (
-                                        <td className="px-4 py-3">
-                                            <button
-                                                onClick={() => handleToggleFavorite(row)}
-                                                className="p-1 rounded hover:bg-gray-100 transition-colors"
+                        {loading ? (
+                            <tr>
+                                <td
+                                    colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)}
+                                    className="px-4 py-8 text-center"
+                                >
+                                    <ClipLoader size={30} color="#535862" />
+                                </td>
+                            </tr>
+                        ) : displayData.length === 0 ? (
+                            <tr>
+                                <td
+                                    colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)}
+                                    className="px-4 py-8 text-center text-[#535862]"
+                                >
+                                    No data available
+                                </td>
+                            </tr>
+                        ) : (
+                            displayData.map((row, index) => {
+                                return (
+                                    <tr key={String(row.id) || index} className="group min-h-[70px] max-h-[100px] h-[70px]">
+                                        {showCheckboxes && (
+                                            <td className="px-4 py-3">
+                                                <Checkbox
+                                                    checked={selectedRows.has(row.id)}
+                                                    onChange={(checked) => handleRowSelect(row, checked)}
+                                                    size="lg"
+                                                />
+                                            </td>
+                                        )}
+                                        {columns.map((column) => (
+                                            <td
+                                                key={String(column.key)}
+                                                className="px-4 py-3 text-sm text-[#181D27]"
                                             >
-                                                {row[favoriteKey] ? (
-                                                    <AiFillStar size={18} className="text-[#FDB022]" />
-                                                ) : (
-                                                    <AiFillStar size={18} className="text-[#D5D7DA] transition-colors opacity-0 group-hover:opacity-100" />
-                                                )}
-                                            </button>
-                                        </td>
-                                    )}
-                                </tr>
-                            );
-                        })}
+                                                {column.render
+                                                    ? column.render(row[column.key], row)
+                                                    : String(row[column.key] || '')}
+                                            </td>
+                                        ))}
+                                        {showFavorites && (
+                                            <td className="px-4 py-3">
+                                                <button
+                                                    onClick={() => handleToggleFavorite(row)}
+                                                    className="p-1 rounded hover:bg-gray-100 transition-colors"
+                                                >
+                                                    {row[favoriteKey] ? (
+                                                        <AiFillStar size={18} className="text-[#FDB022]" />
+                                                    ) : (
+                                                        <AiFillStar size={18} className="text-[#D5D7DA] transition-colors opacity-0 group-hover:opacity-100" />
+                                                    )}
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                );
+                            })
+                        )}
                     </tbody>
                 </table>
             </div>
