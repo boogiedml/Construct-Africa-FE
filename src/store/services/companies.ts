@@ -11,8 +11,7 @@ export const companiesApi = createApi({
       const token = state.auth.token;
 
       if (token) {
-        headers.set("Authorization", `Bearer oQ0sgW3qgL8gRlMbwIMHH0RAkMz76lbM`);
-        // headers.set("Authorization", `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
 
       headers.set("Accept", "application/json");

@@ -11,11 +11,9 @@ export const projectsApi = createApi({
       const token = state.auth.token;
 
       if (token) {
-        headers.set("Authorization", `Bearer oQ0sgW3qgL8gRlMbwIMHH0RAkMz76lbM`);
-        // headers.set("Authorization", `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
 
-      //   headers.set("ngrok-skip-browser-warning", "true");
       headers.set("Accept", "application/json");
       headers.set("Content-Type", "application/json");
       headers.set("User-Agent", "MyApp/1.0");
