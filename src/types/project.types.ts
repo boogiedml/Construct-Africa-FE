@@ -178,4 +178,8 @@ export interface Project {
 
 export interface ProjectsResponse {
   data: Project[];
+  meta: {
+    filter_count: number;
+    total_count: number;
+  };
 }

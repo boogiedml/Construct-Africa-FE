@@ -51,3 +51,26 @@ export const cleanHtmlContent = (htmlContent: string | null): string => {
 
   return text || "N/A";
 };
+
+export const buildQueryString = (params: Record<string, any>): string => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(key, String(value));
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : '';
+};
+
+export const mergeQueryParams = <T extends Record<string, any>>(
+  baseParams: Partial<T>,
+  customParams?: Partial<T>
+): T => {
+  return {
+    ...baseParams,
+    ...customParams,
+  } as T;
+};
