@@ -1,5 +1,3 @@
-// store/services/tenders.ts
-
 import { baseApi } from './index';
 import { buildQueryString } from '../../utils/index';
 import type { Tender, TendersResponse } from '../../types/tenders.types';

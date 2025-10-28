@@ -13,14 +13,12 @@ export interface Country {
   id: string | number;
   name: string;
   code?: string;
-  // Add other country fields as needed
 }
 
-// Relation junction table types
 export interface CompanyCountry {
   id?: number;
   companies_id?: number;
-  countries_id: Country; // This is the full country object
+  countries_id: Country;
 }
 
 export interface CompanyLogo {
