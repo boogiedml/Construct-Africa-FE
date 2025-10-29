@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
-import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
-import { LuBookMarked, LuTable, LuFilter } from "react-icons/lu";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
+import { LuBookMarked, LuTable, LuFilter, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { GoColumns } from "react-icons/go";
-import { HiOutlineChartBar } from "react-icons/hi";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetCompaniesQuery } from "../store/services/companies";
@@ -17,6 +16,8 @@ const Companies = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
+  const [showCharts, setShowCharts] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   // const [searchTerm, setSearchTerm] = useState('');
 
   // Filter states
@@ -82,6 +83,7 @@ const Companies = () => {
   const { data: companiesResponse, isLoading, isFetching } = useGetCompaniesQuery(queryParams);
 
   const groupingOptions = [
+    { value: 'none', label: 'None' },
     { value: 'country', label: 'By country' },
     { value: 'sector', label: 'By sector' },
     { value: 'region', label: 'By region' },
@@ -198,13 +200,14 @@ const Companies = () => {
         case 'type':
           groupKey = company.company_role || 'Unknown Type';
           break;
-        case 'projects':
+        case 'projects': {
           const projectCount = company.projects?.length || 0;
           if (projectCount === 0) groupKey = 'No Projects';
           else if (projectCount < 5) groupKey = '1-4 Projects';
           else if (projectCount < 10) groupKey = '5-9 Projects';
           else groupKey = '10+ Projects';
           break;
+        }
       }
 
       if (!groups[groupKey]) {
@@ -263,7 +266,7 @@ const Companies = () => {
               options={groupingOptions}
               value={grouping}
               onChange={handleGroupingChange}
-              placeholder="By country"
+              placeholder="None"
             />
           </div>
 
@@ -276,89 +279,149 @@ const Companies = () => {
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowCharts(false);
+                setShowFilters(!showFilters);
+              }
+            }}
           />
 
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
-                <HiOutlineChartBar size={16} />
-                Show charts
+                <LuChartPie />
+                {showCharts ? 'Hide' : 'Show'} charts
               </div>
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowFilters(false);
+                setShowCharts(!showCharts);
+              }
+            }}
           />
         </div>
       </div>
 
-      {/* Grid Content with Grouping */}
-      {activeView === 'grid' && (
-        <div className="space-y-8">
-          {isLoading || isFetching ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : (
-            Object.entries(groupedCompanies).map(([groupName, groupCompanies]) => (
-              <div key={groupName}>
-                <h2 className="text-xl font-semibold text-[#181D27] mb-4">
-                  {groupName} ({groupCompanies.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {groupCompanies.map((company) => (
-                    <ProjectCard
-                      key={company.id}
-                      image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
-                      status={company.company_role || "Company"}
-                      title={company.name}
-                      description={cleanHtmlContent(company.description) || "No description available"}
-                      location={cleanHtmlContent(company.location_details)}
-                      category="Company"
-                      isFavorite={false}
-                    />
+      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
+        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+          {/* Grid Content with Grouping */}
+          {activeView === 'grid' && (
+            <div className="space-y-8">
+              {isLoading || isFetching ? (
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6`}>
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+                  ))}
+                </div>
+              ) : (
+                Object.entries(groupedCompanies).map(([groupName, groupCompanies]) => (
+                  <div key={groupName}>
+                    <h2 className="text-xl font-semibold text-[#181D27] mb-4">
+                      {groupName} ({groupCompanies.length})
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {groupCompanies.map((company) => (
+                        <ProjectCard
+                          key={company.id}
+                          image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
+                          status={company.company_role || "Company"}
+                          title={company.name}
+                          description={cleanHtmlContent(company.description) || "No description available"}
+                          location={cleanHtmlContent(company.location_details)}
+                          category="Company"
+                          isFavorite={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Table View */}
+          {activeView === 'table' && (
+            <DataTable
+              data={companies as []}
+              columns={tableColumns}
+              onRowSelect={(rows) => console.log('Selected rows:', rows)}
+              onToggleFavorite={(row) => {
+                console.log('Toggle favorite:', row);
+              }}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              totalPages={totalPages}
+              showCheckboxes={true}
+              showFavorites={true}
+              loading={isLoading || isFetching}
+              pageSize={ITEMS_PER_PAGE}
+            />
+          )}
+
+          {/* Stage View with Grouping */}
+          {activeView === 'stage' && (
+            isLoading || isFetching ? (
+              <div className="w-full">
+                {/* Stage Navigation Skeleton */}
+                <div className="bg-[#535862] rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-4 gap-8">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="h-5 bg-gray-600 rounded w-20 animate-pulse"></div>
+                        {index < 3 && (
+                          <div className="text-white mx-2">
+                            <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
+                              <path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Stage Columns Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {Array.from({ length: 4 }).map((_, stageIndex) => (
+                    <div key={`stage-skeleton-${stageIndex}`} className="space-y-4">
+                      {Array.from({ length: 2 }).map((_, cardIndex) => (
+                        <ProjectCardSkeleton key={`skeleton-${stageIndex}-${cardIndex}`} />
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
-            ))
+            ) : (
+              <StageView
+                data={companies.map(company => ({
+                  ...company,
+                  stage: 'Active',
+                  image: company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg",
+                  status: company.company_role || "Company",
+                  description: company.description || "No description available",
+                  location: cleanHtmlContent(company.location_details),
+                  category: "Company",
+                  value: "---",
+                  isFavorite: false,
+                  title: company.name
+                }))}
+                stageKey="stage"
+              />
+            )
           )}
         </div>
-      )}
 
-      {/* Table View */}
-      {activeView === 'table' && (
-        <DataTable
-          data={companies as []}
-          columns={tableColumns}
-          onRowSelect={(rows) => console.log('Selected rows:', rows)}
-          onToggleFavorite={(row) => {
-            console.log('Toggle favorite:', row);
-          }}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          totalPages={totalPages}
-          showCheckboxes={true}
-          showFavorites={true}
-          loading={isLoading || isFetching}
-          pageSize={ITEMS_PER_PAGE}
-        />
-      )}
+        {showCharts && (
+          <ChartsSidebar isOpen={showCharts} />
+        )}
 
-      {/* Stage View with Grouping */}
-      {activeView === 'stage' && (
-        <StageView
-          data={companies.map(company => ({
-            ...company,
-            stage: 'Active',
-            image: company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg",
-            status: company.company_role || "Company",
-            description: company.description || "No description available",
-            location: cleanHtmlContent(company.location_details),
-            category: "Company",
-            value: "---",
-            isFavorite: false,
-            title: company.name
-          }))}
-          stageKey="stage"
-        />
-      )}
+        {showFilters && (
+          <FiltersSidebar isOpen={showFilters} onClose={() => setShowFilters(false)} />
+        )}
+      </section>
     </div>
   )
 }

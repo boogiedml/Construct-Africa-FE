@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar } from "../components";
+import { useNavigate } from "react-router-dom";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { GoColumns } from "react-icons/go";
@@ -14,6 +15,7 @@ import type { ProjectQueryParams } from "../types/filter.types";
 const ITEMS_PER_PAGE = 25;
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState('none');
@@ -98,7 +100,18 @@ const Projects = () => {
       key: 'title',
       label: 'Name',
       sortable: true,
-      width: '35%'
+      width: '35%',
+      render: (value: unknown, row: Project) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/projects/${row.id}`);
+          }}
+          className="text-left text-[#181D27] hover:text-[#F89822] transition-colors font-semibold"
+        >
+          {value as string}
+        </button>
+      )
     },
     {
       key: 'sectors',
@@ -283,7 +296,11 @@ const Projects = () => {
           {activeView === 'grid' && (
             <div className="space-y-4">
               {isLoading || isFetching ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+                  ))}
+                </div>
               ) : (
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
                   {projects.map((project: Project) => (
@@ -297,6 +314,7 @@ const Projects = () => {
                       category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
                       value={`$${project.contract_value_usd || 0} million`}
                       isFavorite={false}
+                      onClick={() => navigate(`/admin/projects/${project.id}`)}
                     />
                   ))}
                 </div>
@@ -312,6 +330,7 @@ const Projects = () => {
               onToggleFavorite={(row) => {
                 console.log('Toggle favorite:', row);
               }}
+              onRowClick={(row: Project) => navigate(`/admin/projects/${row.id}`)}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
@@ -326,8 +345,38 @@ const Projects = () => {
 
 
           {/* Stage View */}
-          {
-            activeView === 'stage' && (
+          {activeView === 'stage' && (
+            isLoading || isFetching ? (
+              <div className="w-full">
+                {/* Stage Navigation Skeleton */}
+                <div className="bg-[#535862] rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-4 gap-8">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="h-5 bg-gray-600 rounded w-20 animate-pulse"></div>
+                        {index < 3 && (
+                          <div className="text-white mx-2">
+                            <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
+                              <path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Stage Columns Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {Array.from({ length: 4 }).map((_, stageIndex) => (
+                    <div key={`stage-skeleton-${stageIndex}`} className="space-y-4">
+                      {Array.from({ length: 2 }).map((_, cardIndex) => (
+                        <ProjectCardSkeleton key={`skeleton-${stageIndex}-${cardIndex}`} />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
               <StageView
                 data={projects.map((project: Project) => ({
                   ...project,
@@ -341,9 +390,10 @@ const Projects = () => {
                   isFavorite: false
                 }))}
                 stageKey="stage"
+                onProjectClick={(id) => navigate(`/admin/projects/${id}`)}
               />
             )
-          }
+          )}
         </div>
 
         {showCharts && (

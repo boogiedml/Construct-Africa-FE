@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect } from "../components";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { CgSortAz } from "react-icons/cg";
@@ -17,6 +17,8 @@ const Tenders = () => {
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('recently-added');
+  const [showCharts, setShowCharts] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   // const [searchTerm, setSearchTerm] = useState('');
 
   // Build query parameters based on state
@@ -102,11 +104,10 @@ const Tenders = () => {
       sortable: true,
       width: '15%',
       render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          value 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-orange-100 text-orange-800'
-        }`}>
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${value
+          ? 'bg-green-100 text-green-800'
+          : 'bg-orange-100 text-orange-800'
+          }`}>
           {value ? 'Free' : 'Premium'}
         </span>
       )
@@ -159,15 +160,15 @@ const Tenders = () => {
   // Get featured image URL
   const getImageUrl = (featuredImage: string | TenderType['featured_image']) => {
     if (!featuredImage) return "/images/null-image.svg";
-    
+
     if (typeof featuredImage === 'string') {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage}`;
     }
-    
+
     if (featuredImage && typeof featuredImage === 'object' && 'filename_disk' in featuredImage) {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage.filename_disk}`;
     }
-    
+
     return "/images/null-image.svg";
   };
 
@@ -221,63 +222,92 @@ const Tenders = () => {
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowCharts(false);
+                setShowFilters(!showFilters);
+              }
+            }}
           />
 
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
                 <LuChartPie />
-                Show charts
+                {showCharts ? 'Hide' : 'Show'} charts
               </div>
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowFilters(false);
+                setShowCharts(!showCharts);
+              }
+            }}
           />
         </div>
       </div>
 
-      {/* Grid Content */}
-      {activeView === 'grid' && (
-        <div className="space-y-4">
-          {isLoading || isFetching ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {tenders.map((tender: TenderType) => (
-                <ProjectCard
-                  key={tender.id}
-                  image={getImageUrl(tender.featured_image)}
-                  status={tender.is_free_tender ? 'Free' : 'Premium'}
-                  title={tender.title}
-                  description={tender.summary || cleanHtmlContent(tender.content)?.substring(0, 150) + '...' || ''}
-                  location={new Date(tender.date_created).toLocaleDateString()}
-                  category="Tender"
-                  value={tender.promote ? 'Featured' : ''}
-                  isFavorite={false}
-                />
-              ))}
+      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
+        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+          {/* Grid Content */}
+          {activeView === 'grid' && (
+            <div className="space-y-4">
+              {isLoading || isFetching ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {tenders.map((tender: TenderType) => (
+                    <ProjectCard
+                      key={tender.id}
+                      image={getImageUrl(tender.featured_image)}
+                      status={tender.is_free_tender ? 'Free' : 'Premium'}
+                      title={tender.title}
+                      description={tender.summary || cleanHtmlContent(tender.content)?.substring(0, 150) + '...' || ''}
+                      location={new Date(tender.date_created).toLocaleDateString()}
+                      category="Tender"
+                      value={tender.promote ? 'Featured' : ''}
+                      isFavorite={false}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* Table View */}
-      {activeView === 'table' && (
-        <DataTable
-          data={tenders as []}
-          columns={tableColumns}
-          onRowSelect={(rows) => console.log('Selected rows:', rows)}
-          onToggleFavorite={(row) => {
-            console.log('Toggle favorite:', row);
-          }}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          totalPages={totalPages}
-          showCheckboxes={true}
-          showFavorites={true}
-          loading={isLoading || isFetching}
-        />
-      )}
+          {/* Table View */}
+          {activeView === 'table' && (
+            <DataTable
+              data={tenders as []}
+              columns={tableColumns}
+              onRowSelect={(rows) => console.log('Selected rows:', rows)}
+              onToggleFavorite={(row) => {
+                console.log('Toggle favorite:', row);
+              }}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              totalPages={totalPages}
+              showCheckboxes={true}
+              showFavorites={true}
+              loading={isLoading || isFetching}
+              pageSize={ITEMS_PER_PAGE}
+            />
+          )}
+        </div>
+
+        {showCharts && (
+          <ChartsSidebar isOpen={showCharts} />
+        )}
+
+        {showFilters && (
+          <FiltersSidebar isOpen={showFilters} onClose={() => setShowFilters(false)} />
+        )}
+      </section>
     </div>
   );
 };

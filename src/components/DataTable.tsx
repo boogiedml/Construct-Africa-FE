@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { LuChevronDown, LuChevronUp } from 'react-icons/lu';
 import { AiFillStar } from 'react-icons/ai';
 import Checkbox from './Checkbox';
-import { ClipLoader } from 'react-spinners';
 
 export interface TableColumn<T> {
     key: keyof T;
@@ -17,6 +16,7 @@ export interface DataTableProps<T extends Record<string, unknown> & { id: unknow
     columns: TableColumn<T>[];
     onRowSelect?: (selectedRows: T[]) => void;
     onToggleFavorite?: (row: T) => void;
+    onRowClick?: (row: T) => void;
     favoriteKey?: keyof T;
     className?: string;
     showCheckboxes?: boolean;
@@ -37,6 +37,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     columns,
     onRowSelect,
     onToggleFavorite,
+    onRowClick,
     favoriteKey = 'isFavorite',
     className = '',
     showCheckboxes = true,
@@ -160,7 +161,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     const allSelected = selectedRows.size === data.length && data.length > 0;
 
     return (
-        <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden ${className}`}>
+        <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden min-h-[600px] ${className}`}>
             {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[1000px]">
@@ -206,21 +207,40 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {loading ? (
-                            <tr>
-                                <td
-                                    colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)}
-                                    className="px-4 py-8 text-center"
-                                >
-                                    <ClipLoader size={30} color="#535862" />
-                                </td>
-                            </tr>
+                            Array.from({ length: 9 }).map((_, index) => (
+                                <tr key={`skeleton-${index}`} className="h-[70px]">
+                                    {showCheckboxes && (
+                                        <td className="px-4 py-3">
+                                            <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                                        </td>
+                                    )}
+                                    {columns.map((column) => (
+                                        <td key={String(column.key)} className="px-4 py-3">
+                                            <div className="h-4 bg-gray-200 rounded animate-pulse" style={{ width: `${Math.random() * 40 + 60}%` }}></div>
+                                        </td>
+                                    ))}
+                                    {showFavorites && (
+                                        <td className="px-4 py-3">
+                                            <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))
                         ) : displayData.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)}
-                                    className="px-4 py-8 text-center text-[#535862]"
+                                    className="px-4 py-16"
                                 >
-                                    No data available
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-base font-medium text-[#181D27] mb-1">No data available</h3>
+                                        <p className="text-sm text-[#535862]">There are no items to display at the moment.</p>
+                                    </div>
                                 </td>
                             </tr>
                         ) : (
@@ -257,9 +277,13 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
 
                                 // Regular data row
                                 return (
-                                    <tr key={String(row.id) || index} className="group min-h-[70px] max-h-[100px] h-[70px]">
+                                    <tr
+                                        key={String(row.id) || index}
+                                        className="group min-h-[70px] max-h-[100px] h-[70px] cursor-pointer hover:bg-gray-50 transition-colors"
+                                        onClick={() => onRowClick?.(row as T)}
+                                    >
                                         {showCheckboxes && (
-                                            <td className="px-4 py-3">
+                                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                                                 <Checkbox
                                                     checked={selectedRows.has(row.id)}
                                                     onChange={(checked) => handleRowSelect(row as T, checked)}
@@ -278,7 +302,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                                             </td>
                                         ))}
                                         {showFavorites && (
-                                            <td className="px-4 py-3">
+                                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                                                 <button
                                                     onClick={() => handleToggleFavorite(row as T)}
                                                     className="p-1 rounded hover:bg-gray-100 transition-colors"

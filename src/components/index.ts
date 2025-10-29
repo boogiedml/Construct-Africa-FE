@@ -16,6 +16,7 @@ import CustomSelect from "./CustomSelect";
 import StageView from "./StageView";
 import ChartsSidebar from "./ChartsSidebar";
 import FiltersSidebar from "./FiltersSidebar";
+import ProjectCardSkeleton from "./ProjectCardSkeleton";
 
 export {
   Navbar,
@@ -36,4 +37,5 @@ export {
   StageView,
   ChartsSidebar,
   FiltersSidebar,
+  ProjectCardSkeleton,
 };
