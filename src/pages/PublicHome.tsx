@@ -14,12 +14,10 @@ const PublicHome = () => {
     const [expandedFeature, setExpandedFeature] = useState('confidence');
 
     const brandLogos = [
-        { id: 1, name: "Apache Camel", logo: "/logos/apache-camel.svg" },
-        { id: 2, name: "Appium", logo: "/logos/appium.svg" },
-        { id: 3, name: "Balena", logo: "/logos/balena.svg" },
-        { id: 4, name: "BigPanda", logo: "/logos/bigpanda.svg" },
-        { id: 5, name: "Browserify", logo: "/logos/browserify.svg" },
-        { id: 6, name: "Buy Me a Coffee", logo: "/logos/buymeacoffee.svg" }
+        { id: 1, name: "Aksa", logo: "/logos/aksa.svg" },
+        { id: 2, name: "Yb", logo: "/logos/yb.svg" },
+        { id: 3, name: "House Matic", logo: "/logos/house-matic.svg" },
+        { id: 4, name: "EH", logo: "/logos/eh.svg" },
     ];
 
     const features = [
@@ -96,12 +94,22 @@ const PublicHome = () => {
     return (
         <div>
             {/* Hero Section */}
-            <section
-                className="relative min-h-[95vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
-                style={{
-                    backgroundImage: "url('https://images.unsplash.com/photo-1760442936485-b26b087c2030?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2072')",
-                }}
-            >
+            <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden">
+                <video
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                >
+                    <source src="/videos/hero-vid.mp4" type="video/mp4" />
+                    <img
+                        src="/images/hero-vid-img.svg"
+                        alt="Construction in Africa"
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                </video>
+
                 <div className="absolute inset-0 bg-black/50"></div>
 
                 <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-20">
@@ -369,6 +377,8 @@ const PublicHome = () => {
             <section className="py-20 px-5 sm:px-10 lg:px-20">
                 <div className="flex gap-20 items-center">
                     <div className="relative flex-1">
+                        <div className="absolute inset-0"></div>
+                        <img src="/images/map-illustration.svg" alt="Let's Construct Africa Together" className="w-full h-full object-cover" />
                     </div>
 
                     <div className="flex-1">
@@ -429,7 +439,6 @@ const PublicHome = () => {
                                         placeholder: "you@company.com",
                                     }} />
 
-                                {/* Submit Button */}
                                 <ActionButton
                                     buttonText="Request a demo"
                                     backgroundColor="#E0891E"

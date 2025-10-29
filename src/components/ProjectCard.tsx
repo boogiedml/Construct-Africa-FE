@@ -14,6 +14,7 @@ interface ProjectCardProps {
     value?: string | number;
     isFavorite?: boolean;
     deadline?: string;
+    onClick?: () => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -26,6 +27,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     value,
     isFavorite = false,
     deadline,
+    onClick,
 }) => {
     const getStatusColor = (status?: string) => {
         switch (status?.toLowerCase()) {
@@ -41,8 +43,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     };
 
     return (
-        <div className="bg-white rounded-xl border border-[#E9EAEB] hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer">
-            {/* Image Container */}
+        <div
+            onClick={onClick}
+            className="bg-white rounded-xl border border-[#E9EAEB] hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer"
+        >
             <div className="relative h-[160px] overflow-hidden">
                 <img
                     src={image}

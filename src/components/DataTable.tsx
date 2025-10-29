@@ -26,6 +26,8 @@ export interface DataTableProps<T extends Record<string, unknown> & { id: unknow
     onPageChange?: (page: number) => void;
     totalPages?: number;
     loading?: boolean;
+    groupBy?: keyof T;
+    valueColumn?: keyof T;
 }
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -43,7 +45,9 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     currentPage = 1,
     onPageChange,
     totalPages,
-    loading = false
+    loading = false,
+    groupBy,
+    valueColumn
 }: DataTableProps<T>) => {
     const [sortColumn, setSortColumn] = useState<keyof T | null>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -86,7 +90,53 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
         onToggleFavorite?.(row);
     };
 
+    const groupedData = React.useMemo(() => {
+        if (!groupBy) return data;
+
+        const groups = new Map<unknown, T[]>();
+        data.forEach((row) => {
+            const groupKey = row[groupBy];
+            if (!groups.has(groupKey)) {
+                groups.set(groupKey, []);
+            }
+            groups.get(groupKey)?.push(row);
+        });
+
+        return Array.from(groups.entries()).map(([groupKey, rows]) => ({
+            groupKey,
+            rows,
+            isGroupRow: true,
+            id: `group-${String(groupKey)}`,
+            totalCount: rows.length,
+            totalValue: valueColumn ? rows.reduce((sum, row) => {
+                const val = row[valueColumn];
+                return sum + (typeof val === 'number' ? val : 0);
+            }, 0) : 0
+        }));
+    }, [data, groupBy, valueColumn]);
+
     const sortedData = React.useMemo(() => {
+        if (groupBy && groupedData) {
+            const sortedGroups = [...groupedData].sort((a, b) => {
+                if (!sortColumn || !sortDirection) return 0;
+
+                const aVal = String(a.groupKey);
+                const bVal = String(b.groupKey);
+
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            const result: (T | typeof sortedGroups[0])[] = [];
+            sortedGroups.forEach(group => {
+                result.push(group);
+                (group.rows as T[]).forEach((row: T) => result.push(row));
+            });
+            return result;
+        }
+
+        // Normal sorting without grouping
         if (!sortColumn || !sortDirection) return data;
 
         return [...data].sort((a, b) => {
@@ -97,7 +147,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
             if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
             return 0;
         });
-    }, [data, sortColumn, sortDirection]);
+    }, [data, groupedData, groupBy, sortColumn, sortDirection]);
 
     const paginatedData = React.useMemo(() => {
         if (!onPageChange) return sortedData;
@@ -176,13 +226,44 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                             </tr>
                         ) : (
                             displayData.map((row, index) => {
+                                // Check if this is a group header row
+                                const isGroupRow = 'isGroupRow' in row && row.isGroupRow;
+
+                                if (isGroupRow) {
+                                    const groupRow = row as any;
+                                    return (
+                                        <tr key={`group-${groupRow.groupKey}`} className="bg-[#FAFAFA]">
+                                            <td colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)} className="px-4 py-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="text-sm font-medium text-[#181D27]">
+                                                            {String(groupRow.groupKey)}
+                                                        </div>
+                                                        <div className="text-sm text-[#535862]">
+                                                            {groupRow.totalCount} projects
+                                                        </div>
+                                                    </div>
+                                                    {valueColumn && (
+                                                        <div className="text-sm font-medium text-[#181D27]">
+                                                            {typeof groupRow.totalValue === 'number'
+                                                                ? groupRow.totalValue.toLocaleString()
+                                                                : groupRow.totalValue}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+
+                                // Regular data row
                                 return (
                                     <tr key={String(row.id) || index} className="group min-h-[70px] max-h-[100px] h-[70px]">
                                         {showCheckboxes && (
                                             <td className="px-4 py-3">
                                                 <Checkbox
                                                     checked={selectedRows.has(row.id)}
-                                                    onChange={(checked) => handleRowSelect(row, checked)}
+                                                    onChange={(checked) => handleRowSelect(row as T, checked)}
                                                     size="lg"
                                                 />
                                             </td>
@@ -193,17 +274,17 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                                                 className="px-4 py-3 text-sm text-[#181D27]"
                                             >
                                                 {column.render
-                                                    ? column.render(row[column.key], row)
-                                                    : String(row[column.key] || '')}
+                                                    ? column.render((row as T)[column.key], row as T)
+                                                    : String((row as T)[column.key] || '')}
                                             </td>
                                         ))}
                                         {showFavorites && (
                                             <td className="px-4 py-3">
                                                 <button
-                                                    onClick={() => handleToggleFavorite(row)}
+                                                    onClick={() => handleToggleFavorite(row as T)}
                                                     className="p-1 rounded hover:bg-gray-100 transition-colors"
                                                 >
-                                                    {row[favoriteKey] ? (
+                                                    {(row as T)[favoriteKey] ? (
                                                         <AiFillStar size={18} className="text-[#FDB022]" />
                                                     ) : (
                                                         <AiFillStar size={18} className="text-[#D5D7DA] transition-colors opacity-0 group-hover:opacity-100" />
@@ -220,7 +301,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
             </div>
 
             {/* Pagination */}
-            {onPageChange && totalPages && totalPages > 1 && (
+            {displayData.length > 0 && onPageChange && totalPages && totalPages > 1 && (
                 <div className="w-full flex items-center justify-center px-4 py-3 border-t border-[#D5D7DA]">
                     <div className="w-full flex items-center justify-between gap-2">
                         <button

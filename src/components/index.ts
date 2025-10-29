@@ -14,6 +14,8 @@ import DataTable from "./DataTable";
 import Checkbox from "./Checkbox";
 import CustomSelect from "./CustomSelect";
 import StageView from "./StageView";
+import ChartsSidebar from "./ChartsSidebar";
+import FiltersSidebar from "./FiltersSidebar";
 
 export {
   Navbar,
@@ -32,4 +34,6 @@ export {
   Checkbox,
   CustomSelect,
   StageView,
+  ChartsSidebar,
+  FiltersSidebar,
 };

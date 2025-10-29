@@ -39,10 +39,10 @@ const NsNavbar = () => {
         { name: 'Events', href: '/events' },
     ];
 
-    const navClassName = `border-[#E9EAEB] h-[48px] md:h-[90px] top-0 left-0 right-0 z-50 transition-all duration-300 ${isPublicHome
+    const navClassName = `border-[#E9EAEB] h-[48px] md:h-[90px] top-0 left-0 right-0 z-50 transition-all duration-300 fixed ${isPublicHome
         ? isScrolled
             ? 'bg-white border-b shadow-sm'
-            : 'bg-transparent fixed'
+            : 'bg-transparent'
         : 'bg-white'
         }`;
 
@@ -75,7 +75,7 @@ const NsNavbar = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <ActionButton buttonText="Login" textColor='#414651' backgroundColor='white' paddingX="px-8" attributes={{
+                        <ActionButton buttonText="Login" textColor={isPublicHome && !isScrolled ? 'white' : '#414651'} backgroundColor='transparent' paddingX="px-8" attributes={{
                             onClick: () => navigate('/login')
                         }} />
                         <ActionButton buttonText="Book a demo" paddingX="px-5" />

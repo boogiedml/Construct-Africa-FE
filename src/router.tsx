@@ -1,8 +1,6 @@
 import { Navigate, type RouteObject } from "react-router-dom";
-import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails } from "./pages";
+import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents } from "./pages";
 import { RootLayout, NonSubscriberLayout } from "./components/templates";
-import PublicInsights from "./pages/PublicInsights";
-import PublicEvents from "./pages/PublicEvents";
 
 export const routes: RouteObject[] = [
   {
@@ -28,6 +26,7 @@ export const routes: RouteObject[] = [
       { path: "companies", element: <Companies /> },
       { path: "news", element: <News /> },
       { path: "projects", element: <Projects /> },
+      { path: "projects/:id", element: <ProjectDetails /> },
       { path: "tenders", element: <Tenders /> },
       { path: "*", element: <Navigate to="/admin" /> },
     ],

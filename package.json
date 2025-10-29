@@ -12,8 +12,10 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
     "@tailwindcss/vite": "^4.1.13",
+    "apexcharts": "^5.3.5",
     "formik": "^2.4.6",
     "react": "^19.1.1",
+    "react-apexcharts": "^1.8.0",
     "react-dom": "^19.1.1",
     "react-fast-marquee": "^1.6.5",
     "react-icons": "^5.5.0",

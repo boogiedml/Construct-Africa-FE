@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { GoColumns } from "react-icons/go";
@@ -13,13 +13,16 @@ import type { Project } from "../types/project.types";
 const Projects = () => {
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
-  const [grouping, setGrouping] = useState('country');
+  const [grouping, setGrouping] = useState('none');
   const [sortBy, setSortBy] = useState('recently-added');
+  const [showCharts, setShowCharts] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: projectsResponse, isLoading } = useGetProjectsQuery();
 
 
   const groupingOptions = [
+    { value: 'none', label: 'None' },
     { value: 'country', label: 'By country' },
     { value: 'sector', label: 'By sector' },
     { value: 'stage', label: 'By stage' },
@@ -181,7 +184,7 @@ const Projects = () => {
               options={groupingOptions}
               value={grouping}
               onChange={setGrouping}
-              placeholder="By country"
+              placeholder="None"
             />
           </div>
 
@@ -194,75 +197,101 @@ const Projects = () => {
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowCharts(false)
+                setShowFilters(!showFilters)
+              }
+            }}
           />
 
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
                 <LuChartPie />
-                Show charts
+                {showCharts ? 'Hide' : 'Show'} charts
               </div>
             }
             outline={true}
             width="fit"
+            attributes={{
+              onClick: () => {
+                setShowFilters(false)
+                setShowCharts(!showCharts)
+              }
+            }}
           />
         </div>
       </div>
 
-      {/* Grid Content */}
-      {activeView === 'grid' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {projects.map((project: Project) => (
-            <ProjectCard
-              key={project.id}
-              image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-              status={project.current_stage}
-              title={project.title}
-              description={project.description || ''}
-              location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
-              category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
-              value={`$${project.contract_value_usd || 0} million`}
-              isFavorite={false}
+      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
+        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+          {/* Grid Content */}
+          {activeView === 'grid' && (
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+              {projects.map((project: Project) => (
+                <ProjectCard
+                  key={project.id}
+                  image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
+                  status={project.current_stage}
+                  title={project.title}
+                  description={project.description || ''}
+                  location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
+                  category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
+                  value={`$${project.contract_value_usd || 0} million`}
+                  isFavorite={false}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Table View */}
+          {activeView === 'table' && (
+            <DataTable
+              data={projects as []}
+              columns={tableColumns}
+              onRowSelect={(rows) => console.log('Selected rows:', rows)}
+              onToggleFavorite={(row) => {
+                console.log('Toggle favorite:', row);
+              }}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              totalPages={Math.ceil(projects.length / 5)}
+              showCheckboxes={true}
+              showFavorites={true}
+              loading={isLoading}
+              groupBy={grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'country' ? 'countries' : grouping === 'stage' ? 'current_stage' : undefined}
+              valueColumn="contract_value_usd"
             />
-          ))}
+          )}
+
+          {/* Stage View */}
+          {activeView === 'stage' && (
+            <StageView
+              data={projects.map((project: Project) => ({
+                ...project,
+                stage: project.current_stage,
+                image: project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg",
+                status: project.current_stage,
+                description: project.description || '',
+                location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
+                category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',
+                value: `$${project.contract_value_usd || 0} million`,
+                isFavorite: false
+              }))}
+              stageKey="stage"
+            />
+          )}
         </div>
-      )}
 
-      {/* Table View */}
-      {activeView === 'table' && (
-        <DataTable
-          data={projects as []}
-          columns={tableColumns}
-          onRowSelect={(rows) => console.log('Selected rows:', rows)}
-          onToggleFavorite={(row) => {
-            console.log('Toggle favorite:', row);
-          }}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          totalPages={Math.ceil(projects.length / 5)}
-          showCheckboxes={true}
-          showFavorites={true}
-          loading={isLoading}
-        />
-      )}
+        {showCharts && (
+          <ChartsSidebar isOpen={showCharts} />
+        )}
 
-      {/* Stage View */}
-      {activeView === 'stage' && (
-        <StageView
-          data={projects.map((project: Project) => ({
-            ...project,
-            stage: project.current_stage,
-            image: project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg",
-            status: project.current_stage,
-            description: project.description || '',
-            location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
-            category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',
-            value: `$${project.contract_value_usd || 0} million`,
-            isFavorite: false
-          }))}
-          stageKey="stage"
-        />
-      )}
+        {showFilters && (
+          <FiltersSidebar isOpen={showFilters} onClose={() => setShowFilters(false)} />
+        )}
+      </section>
     </div>
   );
 };

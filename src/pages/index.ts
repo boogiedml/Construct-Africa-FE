@@ -11,6 +11,7 @@ import PublicInsights from "./PublicInsights";
 import InsightDetails from "./InsightDetails";
 import EventDetails from "./EventDetails";
 import AdvisoryBoard from "./AdvisoryBoard";
+import ProjectDetails from "./ProjectDetails";
 
 export {
   Login,
@@ -26,4 +27,5 @@ export {
   InsightDetails,
   EventDetails,
   AdvisoryBoard,
+  ProjectDetails,
 };
