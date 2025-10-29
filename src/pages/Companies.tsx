@@ -17,7 +17,7 @@ const Companies = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
 
   // Filter states
   const [selectedCountry, setSelectedCountry] = useState<string>('');
@@ -33,9 +33,9 @@ const Companies = () => {
     };
 
     // Add search if exists
-    if (searchTerm) {
-      params.search = searchTerm;
-    }
+    // if (searchTerm) {
+    //   params.search = searchTerm;
+    // }
 
     // Add sorting
     switch (sortBy) {
@@ -77,7 +77,7 @@ const Companies = () => {
     }
 
     return params;
-  }, [currentPage, sortBy, searchTerm, grouping, selectedCountry, selectedSector, selectedRegion]);
+  }, [currentPage, sortBy, grouping, selectedCountry, selectedSector, selectedRegion]);
 
   const { data: companiesResponse, isLoading, isFetching } = useGetCompaniesQuery(queryParams);
 

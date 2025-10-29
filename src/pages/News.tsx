@@ -17,7 +17,7 @@ const News = () => {
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('recently-added');
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
 
   // Build query parameters based on state
   const queryParams = useMemo<NewsQueryParams>(() => {
@@ -29,9 +29,9 @@ const News = () => {
     };
 
     // Add search if exists
-    if (searchTerm) {
-      params.search = searchTerm;
-    }
+    // if (searchTerm) {
+    //   params.search = searchTerm;
+    // }
 
     // Add sorting
     switch (sortBy) {
@@ -53,7 +53,7 @@ const News = () => {
     }
 
     return params;
-  }, [currentPage, sortBy, searchTerm]);
+  }, [currentPage, sortBy]);
 
   const { data: newsResponse, isLoading, isFetching } = useGetNewsQuery(queryParams);
 

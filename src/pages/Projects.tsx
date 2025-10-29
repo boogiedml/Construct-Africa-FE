@@ -20,7 +20,7 @@ const Projects = () => {
   const [sortBy, setSortBy] = useState('recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
@@ -31,9 +31,9 @@ const Projects = () => {
     };
 
     // Add search if exists
-    if (searchTerm) {
-      params.search = searchTerm;
-    }
+    // if (searchTerm) {
+    //   params.search = searchTerm;
+    // }
 
     // Add sorting
     switch (sortBy) {
@@ -55,7 +55,7 @@ const Projects = () => {
     }
 
     return params;
-  }, [currentPage, sortBy, searchTerm]);
+  }, [currentPage, sortBy]);
 
   const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
