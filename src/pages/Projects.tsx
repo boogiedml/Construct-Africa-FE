@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -9,15 +9,53 @@ import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
 import { useGetProjectsQuery } from "../store/services/projects";
 import type { Project } from "../types/project.types";
+import type { ProjectQueryParams } from "../types/filter.types";
+
+const ITEMS_PER_PAGE = 25;
 
 const Projects = () => {
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState('country');
   const [sortBy, setSortBy] = useState('recently-added');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: projectsResponse, isLoading } = useGetProjectsQuery();
+  // Build query parameters based on state
+  const queryParams = useMemo<ProjectQueryParams>(() => {
+    const params: ProjectQueryParams = {
+      limit: ITEMS_PER_PAGE,
+      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      meta: 'total_count,filter_count',
+    };
 
+    // Add search if exists
+    if (searchTerm) {
+      params.search = searchTerm;
+    }
+
+    // Add sorting
+    switch (sortBy) {
+      case 'recently-added':
+        params.sort = '-date_created';
+        break;
+      case 'oldest':
+        params.sort = 'date_created';
+        break;
+      case 'alphabetical':
+        params.sort = 'title';
+        break;
+      case 'value-high':
+        params.sort = '-contract_value_usd';
+        break;
+      case 'value-low':
+        params.sort = 'contract_value_usd';
+        break;
+    }
+
+    return params;
+  }, [currentPage, sortBy, searchTerm]);
+
+  const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
   const groupingOptions = [
     { value: 'country', label: 'By country' },
@@ -135,13 +173,28 @@ const Projects = () => {
   ];
 
   const projects = projectsResponse?.data || [];
+  const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Handle sort change
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="min-h-screen mx-auto py-5 md:py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Projects</h1>
-          <p className="text-[#535862]">Showing recently added projects</p>
+          <p className="text-[#535862]">
+            Showing {projects.length} {totalCount > 0 && `of ${totalCount}`} projects
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -160,7 +213,7 @@ const Projects = () => {
           <CustomSelect
             options={sortOptions}
             value={sortBy}
-            onChange={setSortBy}
+            onChange={handleSortChange}
             placeholder="Recently added"
           />
         </div>
@@ -211,20 +264,26 @@ const Projects = () => {
 
       {/* Grid Content */}
       {activeView === 'grid' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {projects.map((project: Project) => (
-            <ProjectCard
-              key={project.id}
-              image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-              status={project.current_stage}
-              title={project.title}
-              description={project.description || ''}
-              location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
-              category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
-              value={`$${project.contract_value_usd || 0} million`}
-              isFavorite={false}
-            />
-          ))}
+        <div className="space-y-4">
+          {isLoading || isFetching ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {projects.map((project: Project) => (
+                <ProjectCard
+                  key={project.id}
+                  image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
+                  status={project.current_stage}
+                  title={project.title}
+                  description={project.description || ''}
+                  location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
+                  category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
+                  value={`$${project.contract_value_usd || 0} million`}
+                  isFavorite={false}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -238,11 +297,12 @@ const Projects = () => {
             console.log('Toggle favorite:', row);
           }}
           currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          totalPages={Math.ceil(projects.length / 5)}
+          onPageChange={handlePageChange}
+          totalPages={totalPages}
           showCheckboxes={true}
           showFavorites={true}
-          loading={isLoading}
+          loading={isLoading || isFetching}
+          pageSize={ITEMS_PER_PAGE}
         />
       )}
 
@@ -267,4 +327,4 @@ const Projects = () => {
   );
 };
 
-export default Projects
+export default Projects;

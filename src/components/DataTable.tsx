@@ -100,7 +100,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     }, [data, sortColumn, sortDirection]);
 
     const paginatedData = React.useMemo(() => {
-        if (!onPageChange) return sortedData;
+        if (onPageChange) return sortedData;
 
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
