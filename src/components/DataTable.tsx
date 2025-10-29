@@ -136,7 +136,6 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
             return result;
         }
 
-        // Normal sorting without grouping
         if (!sortColumn || !sortDirection) return data;
 
         return [...data].sort((a, b) => {
