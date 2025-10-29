@@ -3,15 +3,13 @@ import appSlice from "./features/appSlice";
 import authSlice from "./features/authSlice";
 
 import { authApi } from "./services/auth";
-import { projectsApi } from "./services/projects";
-import { companiesApi } from "./services/companies";
 import { commonApi } from "./services/common";
+import { baseApi } from "./services";
 
 const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
-    [projectsApi.reducerPath]: projectsApi.reducer,
-    [companiesApi.reducerPath]: companiesApi.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
     [commonApi.reducerPath]: commonApi.reducer,
 
     app: appSlice,
@@ -22,8 +20,7 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
-      projectsApi.middleware,
-      companiesApi.middleware,
+      baseApi.middleware,
       commonApi.middleware
     ),
 });

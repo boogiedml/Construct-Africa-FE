@@ -9,6 +9,18 @@ export interface CompanyAddress {
   address_line2: string | null;
 }
 
+export interface Country {
+  id: string | number;
+  name: string;
+  code?: string;
+}
+
+export interface CompanyCountry {
+  id?: number;
+  companies_id?: number;
+  countries_id: Country;
+}
+
 export interface CompanyLogo {
   id: string;
   storage: string;
@@ -74,7 +86,7 @@ export interface Company {
   logo: CompanyLogo | null;
   address: CompanyAddress | null;
   projects: number[];
-  countries: number[];
+  countries: CompanyCountry[];
   regions: number[];
   sectors: number[];
   types: number[];
@@ -82,4 +94,8 @@ export interface Company {
 
 export interface CompaniesResponse {
   data: Company[];
+  meta: {
+    filter_count: number;
+    total_count: number;
+  };
 }
