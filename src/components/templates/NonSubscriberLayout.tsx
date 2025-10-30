@@ -8,7 +8,7 @@ const NonSubscriberLayout = () => {
             <NsNavbar />
             <section
                 id="scrollable-section"
-                className="flex-grow overflow-scroll"
+                className="flex-grow overflow-y-scroll overflow-x-hidden"
             >
                 <main className="">
                     <Outlet />
