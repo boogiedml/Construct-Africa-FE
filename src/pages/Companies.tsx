@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
-import { LuBookMarked, LuTable, LuFilter, LuChartPie } from "react-icons/lu";
+import { LuBookMarked, LuTable, LuChartPie } from "react-icons/lu";
+import { CgSortAz } from "react-icons/cg";
 import { CiGrid41 } from "react-icons/ci";
 import { GoColumns } from "react-icons/go";
 import type { TabItem } from "../components/Tabs";
@@ -273,7 +274,7 @@ const Companies = () => {
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
-                <LuFilter size={16} />
+                <CgSortAz size={16} />
                 Filters
               </div>
             }

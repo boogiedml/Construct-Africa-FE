@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { LuChevronDown } from 'react-icons/lu';
 import ActionButton from './ActionButton';
@@ -18,6 +18,20 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({ isOpen, onClose }) => {
         'Value'
     ];
 
+    const dummyOptions: Record<string, string[]> = {
+        Region: ['Central Africa', 'East Africa', 'North Africa', 'Southern Africa', 'West Africa'],
+        Country: ['Nigeria', 'Kenya', 'Egypt', 'South Africa', 'Ghana', 'Ethiopia'],
+        Sector: ['Transport', 'Energy', 'Buildings', 'Water', 'Industrial'],
+        Type: ['PPP', 'EPC', 'Design & Build', 'Maintenance', 'Study'],
+        Status: ['Planning', 'Design', 'Bid', 'Build', 'Completed'],
+        Value: ['< $10m', '$10m – $50m', '$50m – $100m', '$100m – $500m', '$500m+']
+    };
+
+    const [openCategory, setOpenCategory] = useState<string | null>(null);
+    const toggleCategory = (cat: string) => {
+        setOpenCategory(prev => (prev === cat ? null : cat));
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -34,13 +48,31 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({ isOpen, onClose }) => {
 
             <div className="border-b border-[#E9EAEB] flex-1">
                 {filterCategories.map((category, index) => (
-                    <div
-                        key={category}
-                        className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${index !== filterCategories.length - 1 ? 'border-b border-[#E9EAEB]' : ''
-                            }`}
-                    >
-                        <span className="text-sm font-medium text-[#181D27]">{category}</span>
-                        <LuChevronDown size={18} className="text-[#535862]" />
+                    <div key={category} className={`${index !== filterCategories.length - 1 ? 'border-b border-[#E9EAEB]' : ''}`}>
+                        <button
+                            type="button"
+                            onClick={() => toggleCategory(category)}
+                            className="w-full p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                            <span className="text-sm font-medium text-[#181D27]">{category}</span>
+                            <LuChevronDown
+                                size={18}
+                                className={`text-[#535862] transition-transform ${openCategory === category ? 'rotate-180' : ''}`}
+                            />
+                        </button>
+
+                        {openCategory === category && (
+                            <div className="px-4 pb-4">
+                                <div className="mt-1 space-y-2">
+                                    {(dummyOptions[category] || []).map((option) => (
+                                        <label key={option} className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" className="accent-[#FDB022]" />
+                                            <span className="text-sm text-[#535862]">{option}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
