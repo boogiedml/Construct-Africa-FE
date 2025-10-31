@@ -5,6 +5,7 @@ export interface BaseQueryParams {
   offset?: number;
   sort?: string;
   meta?: string;
+  groupBy?: string;
 }
 
 export interface CompanyQueryParams extends BaseQueryParams {
@@ -51,4 +52,16 @@ export interface TenderQueryParams extends BaseQueryParams {
   'filter[moderation_state][_eq]'?: string;
   'filter[date_created][_gte]'?: string;
   'filter[date_created][_lte]'?: string;
+}
+
+export interface AppFilters {
+  region?: string[]; 
+  country?: string[];     
+  sector?: string[];      
+  type?: string[];        
+  status?: string[];
+  value?: string[];
+  category?: string[];
+  author?: string[];
+  date?: string[];
 }
