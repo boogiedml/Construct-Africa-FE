@@ -8,7 +8,7 @@ export const companiesApi = baseApi.injectEndpoints({
     getCompanies: builder.query<CompaniesResponse, CompanyQueryParams | void>({
       query: (params = {}) => {
         const defaultParams: Partial<CompanyQueryParams> = {
-          fields: '*,logo.*,countries.countries_id.*',
+          fields: '*,logo.*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*,projects.*',
           limit: 25,
         };
 

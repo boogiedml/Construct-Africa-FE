@@ -1,23 +1,31 @@
 import { baseApi } from './index';
-import { buildQueryString } from '../../utils/index';
-import type { ProjectsResponse } from '../../types/project.types';
+import type { ProjectsResponse, ProjectResponse } from '../../types/project.types';
 import type { ProjectQueryParams } from '../../types/filter.types';
 
 export const projectsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsResponse, ProjectQueryParams | void>({
-      query: (params = {}) => {
-        const defaultParams: Partial<ProjectQueryParams> = {
-          fields: '*,featured_image.*,countries.countries_id.*,sectors.sectors_id.*',
-          limit: 25,
-          offset: 0,
-        };
+    getProjects: builder.query<ProjectsResponse, ProjectQueryParams>({
+      query: (params) => ({
+        url: 'items/projects',
+        params: {
+          fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,featured_image.*,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
+          ...params,
+        },
+      }),
+    }),
 
-        const queryString = buildQueryString({ ...defaultParams, ...params });
-        return `items/projects${queryString}`;
-      },
+    getProjectById: builder.query<ProjectResponse, string>({
+      query: (id) => ({
+        url: `items/projects/${id}`,
+        params: {
+          fields: '*,countries.countries_id.*,regions.regions_id.*,sectors.sectors_id.*,types.types_id.*,featured_image.*,client_owner.companies_id.*,developer.companies_id.*,main_contractor.companies_id.*,architect.companies_id.*,civil_engineer.companies_id.*,structural_engineer.companies_id.*,mep_engineer.companies_id.*,design_consultant.companies_id.*,study_consultant.companies_id.*,quantity_surveyor.companies_id.*,project_manager.contacts_id.*',
+        },
+      }),
     }),
   }),
 });
 
-export const { useGetProjectsQuery } = projectsApi;
+export const { 
+  useGetProjectsQuery,
+  useGetProjectByIdQuery,
+} = projectsApi;

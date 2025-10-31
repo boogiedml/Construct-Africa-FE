@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -8,18 +9,20 @@ import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetNewsQuery } from "../store/services/news";
 import type { News as NewsType } from "../types/news.types";
-import type { NewsQueryParams } from "../types/filter.types";
+import type { NewsQueryParams, AppFilters } from "../types/filter.types";
 import { cleanHtmlContent } from "../utils";
 
 const ITEMS_PER_PAGE = 25;
 
 const News = () => {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
+  const [grouping, setGrouping] = useState('none');
   const [sortBy, setSortBy] = useState('recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  // const [searchTerm, setSearchTerm] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
 
   // Build query parameters based on state
   const queryParams = useMemo<NewsQueryParams>(() => {
@@ -29,11 +32,6 @@ const News = () => {
       meta: 'total_count,filter_count',
       'filter[status][_eq]': 'published', // Only show published news
     };
-
-    // Add search if exists
-    // if (searchTerm) {
-    //   params.search = searchTerm;
-    // }
 
     // Add sorting
     switch (sortBy) {
@@ -54,10 +52,78 @@ const News = () => {
         break;
     }
 
+    // Add groupBy parameter based on grouping selection
+    if (grouping !== 'none') {
+      switch (grouping) {
+        case 'category':
+          params.groupBy = 'category_id.name';
+          break;
+        case 'author':
+          params.groupBy = 'author_id.first_name';
+          break;
+        case 'date':
+          params.groupBy = 'date_created';
+          break;
+      }
+    }
+
+    // Apply filters
+    console.log('Applied Filters:', appliedFilters);
+
+    // Category filters
+    if (appliedFilters.category && Array.isArray(appliedFilters.category) && appliedFilters.category.length > 0) {
+      // Assuming categories are stored by name, adjust if using IDs
+      params['filter[category_id][name][_eq]'] = appliedFilters.category[0];
+    }
+
+    // Author filters
+    if (appliedFilters.author && Array.isArray(appliedFilters.author) && appliedFilters.author.length > 0) {
+      params['filter[author_id][first_name][_contains]'] = appliedFilters.author[0];
+    }
+
+    // Date filters
+    if (appliedFilters.date && Array.isArray(appliedFilters.date) && appliedFilters.date.length > 0) {
+      const dateFilter = appliedFilters.date[0];
+      const now = new Date();
+      
+      switch (dateFilter) {
+        case 'Last 7 days':
+          const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          params['filter[date_created][_gte]'] = last7Days.toISOString();
+          break;
+        case 'Last 30 days':
+          const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          params['filter[date_created][_gte]'] = last30Days.toISOString();
+          break;
+        case 'Last 90 days':
+          const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          params['filter[date_created][_gte]'] = last90Days.toISOString();
+          break;
+        case 'Last year':
+          const lastYear = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          params['filter[date_created][_gte]'] = lastYear.toISOString();
+          break;
+      }
+    }
+
+    // Sponsored filter (if you want to add this)
+    if (appliedFilters.sponsored) {
+      params['filter[is_sponsored][_eq]'] = true;
+    }
+
+    console.log('Query Params:', params);
+
     return params;
-  }, [currentPage, sortBy]);
+  }, [currentPage, sortBy, grouping, appliedFilters]);
 
   const { data: newsResponse, isLoading, isFetching } = useGetNewsQuery(queryParams);
+
+  const groupingOptions = [
+    { value: 'none', label: 'None' },
+    { value: 'category', label: 'By category' },
+    { value: 'author', label: 'By author' },
+    { value: 'date', label: 'By date' }
+  ];
 
   const sortOptions = [
     { value: 'recently-added', label: 'Recently added' },
@@ -74,14 +140,20 @@ const News = () => {
       sortable: true,
       width: '40%',
       render: (_, row) => (
-        <div>
-          <div className="font-semibold text-[#181D27] mb-1 line-clamp-1">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/news/${row.id}`);
+          }}
+          className="text-left w-full"
+        >
+          <div className="font-semibold text-[#181D27] hover:text-[#F89822] transition-colors mb-1 line-clamp-1">
             {row.title}
           </div>
           <div className="text-sm text-[#535862] line-clamp-2 leading-relaxed">
             {row.summary || cleanHtmlContent(row.content)?.substring(0, 150) + '...'}
           </div>
-        </div>
+        </button>
       )
     },
     {
@@ -122,6 +194,21 @@ const News = () => {
         }
         return '---';
       }
+    },
+    {
+      key: 'is_sponsored',
+      label: 'Type',
+      sortable: true,
+      width: '10%',
+      render: (value) => {
+        return value ? (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FDF5E8] text-[#AE6A19]">
+            Sponsored
+          </span>
+        ) : (
+          <span className="text-[#535862]">Standard</span>
+        );
+      }
     }
   ];
 
@@ -153,6 +240,24 @@ const News = () => {
     setCurrentPage(1);
   };
 
+  // Handle grouping change
+  const handleGroupingChange = (newGrouping: string) => {
+    setGrouping(newGrouping);
+    setCurrentPage(1);
+  };
+
+  // Handle apply filters
+  const handleApplyFilters = (filters: AppFilters) => {
+    console.log('Applying filters:', filters);
+    setAppliedFilters(filters);
+    setCurrentPage(1);
+  };
+
+  // Count active filters
+  const activeFiltersCount = Object.values(appliedFilters).filter(
+    val => (Array.isArray(val) && val.length > 0) || (typeof val === 'object' && val !== null && Object.keys(val).length > 0)
+  ).length;
+
   // Get featured image URL
   const getImageUrl = (featuredImage: string | NewsType['featured_image']) => {
     if (!featuredImage) return "/images/null-image.svg";
@@ -175,6 +280,7 @@ const News = () => {
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">News</h1>
           <p className="text-[#535862]">
             Showing {newsItems.length} {totalCount > 0 && `of ${totalCount}`} news articles
+            {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
           </p>
         </div>
 
@@ -209,11 +315,26 @@ const News = () => {
         />
 
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[#414651]">Grouping:</span>
+            <CustomSelect
+              options={groupingOptions}
+              value={grouping}
+              onChange={handleGroupingChange}
+              placeholder="None"
+            />
+          </div>
+
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
                 <CgSortAz size={20} />
                 Filters
+                {activeFiltersCount > 0 && (
+                  <span className="ml-1 px-2 py-0.5 bg-[#F89822] text-white text-xs rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </div>
             }
             outline={true}
@@ -251,13 +372,13 @@ const News = () => {
           {activeView === 'grid' && (
             <div className="space-y-4">
               {isLoading || isFetching ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
                   {Array.from({ length: 8 }).map((_, index) => (
                     <ProjectCardSkeleton key={`skeleton-${index}`} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
                   {newsItems.map((item: NewsType) => {
                     const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
                       ? (item.category_id as { name: string }).name
@@ -273,6 +394,7 @@ const News = () => {
                         category={category}
                         value={item.is_sponsored ? 'Sponsored' : ''}
                         isFavorite={false}
+                        onClick={() => navigate(`/admin/news/${item.id}`)}
                       />
                     );
                   })}
@@ -290,6 +412,7 @@ const News = () => {
               onToggleFavorite={(row) => {
                 console.log('Toggle favorite:', row);
               }}
+              onRowClick={(row: NewsType) => navigate(`/admin/news/${row.id}`)}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
@@ -306,7 +429,13 @@ const News = () => {
         )}
 
         {showFilters && (
-          <FiltersSidebar isOpen={showFilters} onClose={() => setShowFilters(false)} />
+          <FiltersSidebar 
+            isOpen={showFilters} 
+            onClose={() => setShowFilters(false)}
+            onApplyFilters={handleApplyFilters}
+            initialFilters={appliedFilters}
+            type="news"
+          />
         )}
       </section>
     </div>

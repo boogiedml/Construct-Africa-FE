@@ -1,3 +1,5 @@
+// pages/Projects.tsx
+
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
@@ -10,7 +12,13 @@ import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
 import { useGetProjectsQuery } from "../store/services/projects";
 import type { Project } from "../types/project.types";
-import type { ProjectQueryParams } from "../types/filter.types";
+import type { ProjectQueryParams, AppFilters } from "../types/filter.types";
+import {
+  useGetCountriesQuery,
+  useGetRegionsQuery,
+  useGetSectorsQuery,
+  useGetTypesQuery
+} from "../store/services/reference";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -22,7 +30,13 @@ const Projects = () => {
   const [sortBy, setSortBy] = useState('recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  // const [searchTerm, setSearchTerm] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
+
+  // Fetch reference data for mapping names to IDs
+  const { data: countriesData } = useGetCountriesQuery();
+  const { data: regionsData } = useGetRegionsQuery();
+  const { data: sectorsData } = useGetSectorsQuery();
+  const { data: typesData } = useGetTypesQuery();
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
@@ -31,11 +45,6 @@ const Projects = () => {
       offset: (currentPage - 1) * ITEMS_PER_PAGE,
       meta: 'total_count,filter_count',
     };
-
-    // Add search if exists
-    // if (searchTerm) {
-    //   params.search = searchTerm;
-    // }
 
     // Add sorting
     switch (sortBy) {
@@ -56,10 +65,114 @@ const Projects = () => {
         break;
     }
 
-    return params;
-  }, [currentPage, sortBy]);
+    // Add groupBy parameter based on grouping selection
+    if (grouping !== 'none') {
+      switch (grouping) {
+        case 'country':
+          params.groupBy = 'countries.countries_id.name';
+          break;
+        case 'sector':
+          params.groupBy = 'sectors.sectors_id.name';
+          break;
+        case 'stage':
+          params.groupBy = 'current_stage';
+          break;
+        case 'value':
+          params.groupBy = 'contract_value_usd';
+          break;
+      }
+    }
 
-  const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    // Country filters - Map country names to IDs
+    if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0 && countriesData) {
+      console.log('Processing country filter:', appliedFilters.country);
+      const country = countriesData.data.find(c => c.name === appliedFilters.country![0]);
+      console.log('Found country:', country);
+
+      if (country) {
+        params['filter[countries][countries_id][_eq]'] = country.id;
+        console.log('Added country filter:', country.id);
+      }
+    }
+
+    // Region filters
+    if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0 && regionsData) {
+      console.log('Processing region filter:', appliedFilters.region);
+      const region = regionsData.data.find(r => r.name === appliedFilters.region![0]);
+      console.log('Found region:', region);
+
+      if (region) {
+        params['filter[regions][regions_id][_eq]'] = String(region.id);
+        console.log('Added region filter:', region.id);
+      }
+    }
+
+    // Sector filters
+    if (appliedFilters.sector && Array.isArray(appliedFilters.sector) && appliedFilters.sector.length > 0 && sectorsData) {
+      console.log('Processing sector filter:', appliedFilters.sector);
+      const sector = sectorsData.data.find(s => s.name === appliedFilters.sector![0]);
+      console.log('Found sector:', sector);
+
+      if (sector) {
+        params['filter[sectors][sectors_id][_eq]'] = sector.id;
+        console.log('Added sector filter:', sector.id);
+      }
+    }
+
+    // Type filters
+    if (appliedFilters.type && Array.isArray(appliedFilters.type) && appliedFilters.type.length > 0 && typesData) {
+      console.log('Processing type filter:', appliedFilters.type);
+      const type = typesData.data.find(t => t.name === appliedFilters.type![0]);
+      console.log('Found type:', type);
+
+      if (type) {
+        params['filter[types][types_id][_eq]'] = type.id;
+        console.log('Added type filter:', type.id);
+      }
+    }
+
+    // Status filters
+    if (appliedFilters.status && appliedFilters.status.length > 0) {
+      // Map UI status names to API values if needed
+      const statusMap: Record<string, string> = {
+        'Planning': 'Plan',
+        'Design': 'Design',
+        'Bid': 'Bid',
+        'Build': 'Build',
+        'Completed': 'Completed'
+      };
+      const mappedStatus = statusMap[appliedFilters.status[0]] || appliedFilters.status[0];
+      params['filter[current_stage][_eq]'] = mappedStatus;
+    }
+
+    // Value filters
+    if (appliedFilters.value && Array.isArray(appliedFilters.value) && appliedFilters.value.length > 0) {
+      const range = appliedFilters.value[0];
+
+      if (range === '< $10m') {
+        params['filter[contract_value_usd][_lte]'] = 10000000;
+      } else if (range === '$10m – $50m') {
+        params['filter[contract_value_usd][_gte]'] = 10000000;
+        params['filter[contract_value_usd][_lte]'] = 50000000;
+      } else if (range === '$50m – $100m') {
+        params['filter[contract_value_usd][_gte]'] = 50000000;
+        params['filter[contract_value_usd][_lte]'] = 100000000;
+      } else if (range === '$100m – $500m') {
+        params['filter[contract_value_usd][_gte]'] = 100000000;
+        params['filter[contract_value_usd][_lte]'] = 500000000;
+      } else if (range === '$500m+') {
+        params['filter[contract_value_usd][_gte]'] = 500000000;
+      }
+    }
+
+    console.log('Query Params:', params);
+
+    return params;
+  }, [currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData, typesData]);
+
+  const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, {
+    refetchOnMountOrArgChange: true
+  });
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
@@ -203,6 +316,24 @@ const Projects = () => {
     setCurrentPage(1);
   };
 
+  // Handle grouping change
+  const handleGroupingChange = (newGrouping: string) => {
+    setGrouping(newGrouping);
+    setCurrentPage(1);
+  };
+
+  // Handle apply filters
+  const handleApplyFilters = (filters: AppFilters) => {
+    console.log('Applying filters:', filters);
+    setAppliedFilters(filters);
+    setCurrentPage(1);
+  };
+
+  // Count active filters
+  const activeFiltersCount = Object.values(appliedFilters).filter(
+    val => (Array.isArray(val) && val.length > 0) || (typeof val === 'object' && val !== null && Object.keys(val).length > 0)
+  ).length;
+
   return (
     <div className="min-h-screen mx-auto py-5 md:py-8">
       <div className="flex justify-between items-center mb-6">
@@ -210,6 +341,7 @@ const Projects = () => {
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Projects</h1>
           <p className="text-[#535862]">
             Showing {projects.length} {totalCount > 0 && `of ${totalCount}`} projects
+            {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
           </p>
         </div>
 
@@ -249,7 +381,7 @@ const Projects = () => {
             <CustomSelect
               options={groupingOptions}
               value={grouping}
-              onChange={setGrouping}
+              onChange={handleGroupingChange}
               placeholder="None"
             />
           </div>
@@ -259,6 +391,11 @@ const Projects = () => {
               <div className="flex items-center gap-2">
                 <CgSortAz size={20} />
                 Filters
+                {activeFiltersCount > 0 && (
+                  <span className="ml-1 px-2 py-0.5 bg-[#F89822] text-white text-xs rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </div>
             }
             outline={true}
@@ -319,7 +456,8 @@ const Projects = () => {
                   ))}
                 </div>
               )}
-            </div>)}
+            </div>
+          )}
 
           {/* Table View */}
           {activeView === 'table' && (
@@ -342,7 +480,6 @@ const Projects = () => {
               valueColumn="contract_value_usd"
             />
           )}
-
 
           {/* Stage View */}
           {activeView === 'stage' && (
@@ -401,10 +538,16 @@ const Projects = () => {
         )}
 
         {showFilters && (
-          <FiltersSidebar isOpen={showFilters} onClose={() => setShowFilters(false)} />
+          <FiltersSidebar
+            isOpen={showFilters}
+            onClose={() => setShowFilters(false)}
+            onApplyFilters={handleApplyFilters}
+            initialFilters={appliedFilters}
+            type="projects"
+          />
         )}
       </section>
-    </div >
+    </div>
   );
 };
 
