@@ -74,7 +74,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <div className="flex justify-between items-center mb-3 gap-2">
                     <div className="flex items-center gap-2 flex-1">
                         {status && (
-                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 whitespace-nowrap">
+                            <span className="py-1 text-xs font-medium text-gray-700 whitespace-nowrap">
                                 {status}
                             </span>
                         )}

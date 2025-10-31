@@ -157,7 +157,7 @@ const Companies = () => {
       label: 'Name',
       sortable: true,
       width: '35%',
-      render: (value: unknown, row: any) => (
+      render: (value: unknown, row: typeof companies[0]) => (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -216,7 +216,7 @@ const Companies = () => {
       label: 'Role',
       sortable: true,
       width: '15%',
-      render: (value: unknown, row: any) => {
+      render: (value: unknown) => {
         return (value as string) || '---';
       }
     },

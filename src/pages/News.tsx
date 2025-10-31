@@ -85,24 +85,28 @@ const News = () => {
     if (appliedFilters.date && Array.isArray(appliedFilters.date) && appliedFilters.date.length > 0) {
       const dateFilter = appliedFilters.date[0];
       const now = new Date();
-      
+
       switch (dateFilter) {
-        case 'Last 7 days':
+        case 'Last 7 days': {
           const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           params['filter[date_created][_gte]'] = last7Days.toISOString();
           break;
-        case 'Last 30 days':
+        }
+        case 'Last 30 days': {
           const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
           params['filter[date_created][_gte]'] = last30Days.toISOString();
           break;
-        case 'Last 90 days':
+        }
+        case 'Last 90 days': {
           const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
           params['filter[date_created][_gte]'] = last90Days.toISOString();
           break;
-        case 'Last year':
+        }
+        case 'Last year': {
           const lastYear = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
           params['filter[date_created][_gte]'] = lastYear.toISOString();
           break;
+        }
       }
     }
 
@@ -429,8 +433,8 @@ const News = () => {
         )}
 
         {showFilters && (
-          <FiltersSidebar 
-            isOpen={showFilters} 
+          <FiltersSidebar
+            isOpen={showFilters}
             onClose={() => setShowFilters(false)}
             onApplyFilters={handleApplyFilters}
             initialFilters={appliedFilters}

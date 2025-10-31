@@ -161,50 +161,58 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     const allSelected = selectedRows.size === data.length && data.length > 0;
 
     return (
-        <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden min-h-[600px] ${className}`}>
-            {/* Table */}
-            <div className="overflow-x-auto">
+        <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden h-[600px] flex flex-col ${className}`}>
+            {/* Fixed Header */}
+            <div className="sticky top-0 z-10 bg-white border-b border-[#D5D7DA]">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[1000px]">
+                        <thead>
+                            <tr className="bg-[#FAFAFA] border-b border-[#D5D7DA]">
+                                {showCheckboxes && (
+                                    <th className="w-12 px-4 py-3 text-left flex items-center justify-center">
+                                        <Checkbox
+                                            checked={allSelected}
+                                            onChange={handleSelectAll}
+                                            size="lg"
+                                        />
+                                    </th>
+                                )}
+                                {columns.map((column) => (
+                                    <th
+                                        key={String(column.key)}
+                                        className={`px-4 py-3 text-left text-sm font-medium text-gray-700 ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                                            }`}
+                                        style={{ width: column.width }}
+                                        onClick={() => column.sortable && handleSort(column.key)}
+                                    >
+                                        <div className="flex items-center gap-2 text-[#535862] text-sm">
+                                            <span>{column.label}</span>
+                                            {column.sortable && (
+                                                <div className="flex flex-col">
+                                                    {sortColumn === column.key && sortDirection === 'asc' ? (
+                                                        <LuChevronUp size={12} className="text-gray-500" />
+                                                    ) : sortColumn === column.key && sortDirection === 'desc' ? (
+                                                        <LuChevronDown size={12} className="text-gray-500" />
+                                                    ) : (
+                                                        <LuChevronDown size={12} className="text-gray-300" />
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </th>
+                                ))}
+                                {showFavorites && (
+                                    <th className="w-12 px-4 py-3 text-left"></th>
+                                )}
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <table className="w-full min-w-[1000px]">
-                    <thead>
-                        <tr className="bg-[#FAFAFA] border-b border-[#D5D7DA]">
-                            {showCheckboxes && (
-                                <th className="w-12 px-4 py-3 text-left flex items-center justify-center">
-                                    <Checkbox
-                                        checked={allSelected}
-                                        onChange={handleSelectAll}
-                                        size="lg"
-                                    />
-                                </th>
-                            )}
-                            {columns.map((column) => (
-                                <th
-                                    key={String(column.key)}
-                                    className={`px-4 py-3 text-left text-sm font-medium text-gray-700 ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                                        }`}
-                                    style={{ width: column.width }}
-                                    onClick={() => column.sortable && handleSort(column.key)}
-                                >
-                                    <div className="flex items-center gap-2 text-[#535862] text-sm">
-                                        <span>{column.label}</span>
-                                        {column.sortable && (
-                                            <div className="flex flex-col">
-                                                {sortColumn === column.key && sortDirection === 'asc' ? (
-                                                    <LuChevronUp size={12} className="text-gray-500" />
-                                                ) : sortColumn === column.key && sortDirection === 'desc' ? (
-                                                    <LuChevronDown size={12} className="text-gray-500" />
-                                                ) : (
-                                                    <LuChevronDown size={12} className="text-gray-300" />
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
-                            {showFavorites && (
-                                <th className="w-12 px-4 py-3 text-left"></th>
-                            )}
-                        </tr>
-                    </thead>
                     <tbody className="divide-y divide-gray-200">
                         {loading ? (
                             Array.from({ length: 9 }).map((_, index) => (
@@ -249,7 +257,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                                 const isGroupRow = 'isGroupRow' in row && row.isGroupRow;
 
                                 if (isGroupRow) {
-                                    const groupRow = row as any;
+                                    const groupRow = row as { groupKey: unknown; totalCount: number; totalValue: number; isGroupRow: boolean; id: string };
                                     return (
                                         <tr key={`group-${groupRow.groupKey}`} className="bg-[#FAFAFA]">
                                             <td colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)} className="px-4 py-3">
@@ -323,9 +331,9 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                 </table>
             </div>
 
-            {/* Pagination */}
+            {/* Fixed Pagination */}
             {displayData.length > 0 && onPageChange && totalPages && totalPages > 1 && (
-                <div className="w-full flex items-center justify-center px-4 py-3 border-t border-[#D5D7DA]">
+                <div className="sticky bottom-0 z-10 bg-white border-t border-[#D5D7DA] w-full flex items-center justify-center px-4 py-3">
                     <div className="w-full flex items-center justify-between gap-2">
                         <button
                             onClick={() => onPageChange(currentPage - 1)}
