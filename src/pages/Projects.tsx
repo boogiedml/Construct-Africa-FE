@@ -61,7 +61,6 @@ const Projects = () => {
 
   const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
-  // Map raw status to stage group label for the current page data
   const mapStatusToGroup = (status: string): string => {
     switch ((status || '').toLowerCase()) {
       case 'conceptplanning':
@@ -83,6 +82,53 @@ const Projects = () => {
         return 'Complete';
       default:
         return 'Study';
+    }
+  };
+
+  const mapStatusToStatusName = (status: string): string => {
+    switch ((status || '').toLowerCase()) {
+      case 'conceptplanning':
+      case 'studyfeasibility':
+      case 'design':
+      case 'eoi':
+      case 'maincontractbid':
+      case 'maincontractidevaluation':
+        return 'Upcoming';
+      case 'executionunderconstruction':
+        return 'Ongoing';
+      case 'onhold':
+        return 'On Hold';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'complete':
+        return 'Complete';
+      default:
+        return 'Upcoming';
+    }
+  };
+
+  const mapStatusToStageName = (status: string): string => {
+    switch ((status || '').toLowerCase()) {
+      case 'conceptplanning':
+        return 'Planning';
+      case 'studyfeasibility':
+        return 'Study';
+      case 'design':
+        return 'Design';
+      case 'eoi':
+        return 'Qualification';
+      case 'maincontractbid':
+        return 'Bidding';
+      case 'maincontractidevaluation':
+        return 'Bids Evaluation';
+      case 'executionunderconstruction':
+        return 'Execution (Construction)';
+      case 'onhold':
+      case 'cancelled':
+      case 'complete':
+        return '';
+      default:
+        return 'Planning';
     }
   };
 
@@ -125,7 +171,7 @@ const Projects = () => {
       key: 'title',
       label: 'Name',
       sortable: true,
-      width: '35%',
+      width: '30%',
       render: (value: unknown, row: Project) => (
         <button
           onClick={(e) => {
@@ -162,7 +208,7 @@ const Projects = () => {
       key: 'contract_value_usd',
       label: 'Value ($mn)',
       sortable: true,
-      width: '15%',
+      width: '12%',
       render: (value) => {
         if (!value) return 'N/A';
         const numericValue = String(value).replace(/[^0-9.]/g, '');
@@ -170,11 +216,24 @@ const Projects = () => {
       }
     },
     {
-      key: 'stage',
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      width: '12%',
+      render: (value: unknown) => {
+        return <span className="text-sm text-[#181D27]">{value as string || '---'}</span>;
+      }
+    },
+    {
+      key: 'stageName',
       label: 'Stage',
       sortable: true,
-      width: '20%',
-      render: (value: unknown) => {
+      width: '18%',
+      render: (value: unknown, row: Project & { stage: string; status: string; stageName: string }) => {
+        const stageName = value as string;
+        if (!stageName) return <span className="text-sm text-[#535862]">---</span>;
+
+        const groupStage = row.stage;
         const stageStyles = {
           'Build': { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' },
           'Bid': { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' },
@@ -184,8 +243,7 @@ const Projects = () => {
           'Cancelled': { dot: 'bg-[#D92D20]', text: 'text-[#B42318]', bg: 'bg-[#FEF3F2]' },
           'Complete': { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' }
         } as const;
-        const stageName = value as string;
-        const styles = stageStyles[stageName as keyof typeof stageStyles] || { dot: 'bg-gray-500', text: 'text-gray-600', bg: 'bg-gray-50' };
+        const styles = stageStyles[groupStage as keyof typeof stageStyles] || { dot: 'bg-gray-500', text: 'text-gray-600', bg: 'bg-gray-50' };
         return (
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${styles.bg}`}>
             <div className={`w-2 h-2 rounded-full ${styles.dot}`}></div>
@@ -197,7 +255,12 @@ const Projects = () => {
   ];
 
   const projects = projectsResponse?.data || [];
-  const projectsWithStage = projects.map((p: Project) => ({ ...p, stage: mapStatusToGroup(p.current_stage) }));
+  const projectsWithStage = projects.map((p: Project) => ({
+    ...p,
+    stage: mapStatusToGroup(p.current_stage),
+    status: mapStatusToStatusName(p.current_stage),
+    stageName: mapStatusToStageName(p.current_stage)
+  }));
   const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -312,11 +375,13 @@ const Projects = () => {
                 </div>
               ) : (
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {projectsWithStage.map((project: Project & { stage: string }) => (
+                  {projectsWithStage.map((project: Project & { stage: string; status: string; stageName: string }) => (
                     <ProjectCard
                       key={project.id}
                       image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-                      status={project.stage}
+                      status={project.status}
+                      stageName={project.stageName}
+                      stageGroup={project.stage}
                       title={project.title}
                       description={project.description || ''}
                       location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
@@ -387,11 +452,13 @@ const Projects = () => {
               </div>
             ) : (
               <StageView
-                data={projectsWithStage.map((project: Project & { stage: string }) => ({
+                data={projectsWithStage.map((project: Project & { stage: string; status: string; stageName: string }) => ({
                   ...project,
                   stage: project.stage,
                   image: project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg",
-                  status: project.stage,
+                  status: project.status,
+                  stageName: project.stageName,
+                  stageGroup: project.stage,
                   description: project.description || '',
                   location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
                   category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',

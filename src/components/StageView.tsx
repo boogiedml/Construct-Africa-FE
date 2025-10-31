@@ -5,6 +5,8 @@ export interface StageItem {
     id: number | string;
     image?: string;
     status?: string;
+    stageName?: string;
+    stageGroup?: string;
     title: string;
     description?: string;
     location?: string;
@@ -101,6 +103,8 @@ const StageView: React.FC<StageViewProps> = ({
                                             key={item.id}
                                             image={item.image}
                                             status={item.status}
+                                            stageName={item.stageName}
+                                            stageGroup={item.stageGroup}
                                             title={item.title}
                                             description={item.description}
                                             location={item.location}

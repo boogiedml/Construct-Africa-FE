@@ -7,6 +7,8 @@ import { PiCurrencyCircleDollar } from "react-icons/pi";
 interface ProjectCardProps {
     image?: string;
     status?: string;
+    stageName?: string;
+    stageGroup?: string;
     title: string;
     description?: string;
     location?: string;
@@ -20,6 +22,8 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({
     image,
     status,
+    stageName,
+    stageGroup,
     title,
     description,
     location,
@@ -29,34 +33,27 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     deadline,
     onClick,
 }) => {
-    const getStatusColor = (status?: string) => {
-        const s = status?.toLowerCase() || "";
-        switch (s) {
-            // Build
+    const getStageStyles = (group?: string) => {
+        const g = group?.toLowerCase() || "";
+        switch (g) {
             case "build":
-                return "bg-[#ECFDF3] text-[#027A48]";
-            // Bid
+                return { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' };
             case "bid":
-                return "bg-[#FDF5E8] text-[#AE6A19]";
-            // Design
+                return { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' };
             case "design":
-                return "bg-[#EFF8FF] text-[#175CD3]";
-            // Study
+                return { dot: 'bg-[#2E90FA]', text: 'text-[#175CD3]', bg: 'bg-[#EFF8FF]' };
             case "study":
-                return "bg-[#FDF5E8] text-[#AE6A19]";
-            // On Hold
+                return { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' };
             case "on hold":
             case "on_hold":
             case "onhold":
-                return "bg-[#F5F5F6] text-[#525866]";
-            // Cancelled
+                return { dot: 'bg-[#717680]', text: 'text-[#525866]', bg: 'bg-[#F5F5F6]' };
             case "cancelled":
-                return "bg-[#FEF3F2] text-[#B42318]";
-            // Complete
+                return { dot: 'bg-[#D92D20]', text: 'text-[#B42318]', bg: 'bg-[#FEF3F2]' };
             case "complete":
-                return "bg-[#ECFDF3] text-[#027A48]";
+                return { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' };
             default:
-                return "bg-gray-50 text-gray-600";
+                return { dot: 'bg-gray-500', text: 'text-gray-600', bg: 'bg-gray-50' };
         }
     };
 
@@ -74,22 +71,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
 
             <div className="p-3 md:p-4">
-                <div className="flex justify-between items-center mb-3">
-                    {status && (
-                        <div className="">
-                            <span
-                                className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                                    status
-                                )}`}
-                            >
+                <div className="flex justify-between items-center mb-3 gap-2">
+                    <div className="flex items-center gap-2 flex-1">
+                        {status && (
+                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 whitespace-nowrap">
                                 {status}
                             </span>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+                        {stageName && stageGroup && (
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStageStyles(stageGroup).bg} whitespace-nowrap`}>
+                                <div className={`w-2 h-2 rounded-full ${getStageStyles(stageGroup).dot}`}></div>
+                                <span className={`text-xs font-medium ${getStageStyles(stageGroup).text}`}>{stageName}</span>
+                            </div>
+                        )}
                         {deadline && (
-                            <div className="text-sm text-[#535862]">
+                            <div className="text-sm text-[#535862] whitespace-nowrap">
                                 {deadline}
                             </div>
                         )}
