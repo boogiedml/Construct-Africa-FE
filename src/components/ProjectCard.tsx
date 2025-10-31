@@ -30,15 +30,33 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     onClick,
 }) => {
     const getStatusColor = (status?: string) => {
-        switch (status?.toLowerCase()) {
-            case "ongoing":
-                return "bg-blue-100 text-blue-800";
-            case "accepting proposals":
-                return "bg-green-100 text-green-800";
-            case "completed":
-                return "bg-gray-100 text-gray-800";
+        const s = status?.toLowerCase() || "";
+        switch (s) {
+            // Build
+            case "build":
+                return "bg-[#ECFDF3] text-[#027A48]";
+            // Bid
+            case "bid":
+                return "bg-[#FDF5E8] text-[#AE6A19]";
+            // Design
+            case "design":
+                return "bg-[#EFF8FF] text-[#175CD3]";
+            // Study
+            case "study":
+                return "bg-[#FDF5E8] text-[#AE6A19]";
+            // On Hold
+            case "on hold":
+            case "on_hold":
+            case "onhold":
+                return "bg-[#F5F5F6] text-[#525866]";
+            // Cancelled
+            case "cancelled":
+                return "bg-[#FEF3F2] text-[#B42318]";
+            // Complete
+            case "complete":
+                return "bg-[#ECFDF3] text-[#027A48]";
             default:
-                return "bg-blue-100 text-blue-800";
+                return "bg-gray-50 text-gray-600";
         }
     };
 

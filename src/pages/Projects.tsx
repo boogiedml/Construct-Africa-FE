@@ -174,6 +174,31 @@ const Projects = () => {
     refetchOnMountOrArgChange: true
   });
 
+  // Map raw status to stage group label for the current page data
+  const mapStatusToGroup = (status: string): string => {
+    switch ((status || '').toLowerCase()) {
+      case 'conceptplanning':
+      case 'studyfeasibility':
+        return 'Study';
+      case 'design':
+        return 'Design';
+      case 'eoi':
+      case 'maincontractbid':
+      case 'maincontractidevaluation':
+        return 'Bid';
+      case 'executionunderconstruction':
+        return 'Build';
+      case 'onhold':
+        return 'On Hold';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'complete':
+        return 'Complete';
+      default:
+        return 'Study';
+    }
+  };
+
   const groupingOptions = [
     { value: 'none', label: 'None' },
     { value: 'country', label: 'By country' },
@@ -208,7 +233,7 @@ const Projects = () => {
     { value: 'value-low', label: 'Value (Low to High)' }
   ];
 
-  const tableColumns: TableColumn<typeof projects[0]>[] = [
+  const tableColumns: TableColumn<typeof projectsWithStage[0]>[] = [
     {
       key: 'title',
       label: 'Name',
@@ -258,39 +283,22 @@ const Projects = () => {
       }
     },
     {
-      key: 'current_stage',
+      key: 'stage',
       label: 'Stage',
       sortable: true,
       width: '20%',
       render: (value: unknown) => {
         const stageStyles = {
-          'Build': {
-            dot: 'bg-[#12B76A]',
-            text: 'text-[#027A48]',
-            bg: 'bg-[#ECFDF3]'
-          },
-          'Bid': {
-            dot: 'bg-[#AE6A19]',
-            text: 'text-[#AE6A19]',
-            bg: 'bg-[#FDF5E8]'
-          },
-          'Design': {
-            dot: 'bg-[#2E90FA]',
-            text: 'text-[#175CD3]',
-            bg: 'bg-[#EFF8FF]'
-          },
-          'Plan': {
-            dot: 'bg-[#AE6A19]',
-            text: 'text-[#AE6A19]',
-            bg: 'bg-[#FDF5E8]'
-          }
-        };
+          'Build': { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' },
+          'Bid': { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' },
+          'Design': { dot: 'bg-[#2E90FA]', text: 'text-[#175CD3]', bg: 'bg-[#EFF8FF]' },
+          'Study': { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' },
+          'On Hold': { dot: 'bg-[#717680]', text: 'text-[#525866]', bg: 'bg-[#F5F5F6]' },
+          'Cancelled': { dot: 'bg-[#D92D20]', text: 'text-[#B42318]', bg: 'bg-[#FEF3F2]' },
+          'Complete': { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' }
+        } as const;
         const stageName = value as string;
-        const styles = stageStyles[stageName as keyof typeof stageStyles] || {
-          dot: 'bg-gray-500',
-          text: 'text-gray-600',
-          bg: 'bg-gray-50'
-        };
+        const styles = stageStyles[stageName as keyof typeof stageStyles] || { dot: 'bg-gray-500', text: 'text-gray-600', bg: 'bg-gray-50' };
         return (
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${styles.bg}`}>
             <div className={`w-2 h-2 rounded-full ${styles.dot}`}></div>
@@ -302,6 +310,7 @@ const Projects = () => {
   ];
 
   const projects = projectsResponse?.data || [];
+  const projectsWithStage = projects.map((p: Project) => ({ ...p, stage: mapStatusToGroup(p.current_stage) }));
   const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -440,11 +449,11 @@ const Projects = () => {
                 </div>
               ) : (
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {projects.map((project: Project) => (
+                  {projectsWithStage.map((project: Project & { stage: string }) => (
                     <ProjectCard
                       key={project.id}
                       image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-                      status={project.current_stage}
+                      status={project.stage}
                       title={project.title}
                       description={project.description || ''}
                       location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
@@ -462,7 +471,7 @@ const Projects = () => {
           {/* Table View */}
           {activeView === 'table' && (
             <DataTable
-              data={projects as []}
+              data={projectsWithStage as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={(row) => {
@@ -476,7 +485,7 @@ const Projects = () => {
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
-              groupBy={grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'country' ? 'countries' : grouping === 'stage' ? 'current_stage' : undefined}
+              groupBy={grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'country' ? 'countries' : grouping === 'stage' ? 'stage' : undefined}
               valueColumn="contract_value_usd"
             />
           )}
@@ -515,11 +524,11 @@ const Projects = () => {
               </div>
             ) : (
               <StageView
-                data={projects.map((project: Project) => ({
+                data={projectsWithStage.map((project: Project & { stage: string }) => ({
                   ...project,
-                  stage: project.current_stage,
+                  stage: project.stage,
                   image: project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg",
-                  status: project.current_stage,
+                  status: project.stage,
                   description: project.description || '',
                   location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
                   category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',

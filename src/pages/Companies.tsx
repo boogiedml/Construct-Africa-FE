@@ -4,7 +4,7 @@ import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, Ch
 import { LuBookMarked, LuTable, LuChartPie } from "react-icons/lu";
 import { CgSortAz } from "react-icons/cg";
 import { CiGrid41 } from "react-icons/ci";
-import { GoColumns } from "react-icons/go";
+// import { GoColumns } from "react-icons/go";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetCompaniesQuery } from "../store/services/companies";
@@ -106,9 +106,9 @@ const Companies = () => {
     }
 
     // Role filters
-    if (appliedFilters.role && Array.isArray(appliedFilters.role) && appliedFilters.role.length > 0) {
-      params['filter[company_role][_contains]'] = appliedFilters.role[0];
-    }
+    // if (appliedFilters.role && Array.isArray(appliedFilters.role) && appliedFilters.role.length > 0) {
+    //   params['filter[company_role][_contains]'] = appliedFilters.role[0];
+    // }
 
     console.log('Query Params:', params);
 
@@ -136,11 +136,11 @@ const Companies = () => {
       label: 'Grid',
       icon: <CiGrid41 size={16} />
     },
-    {
-      id: 'stage',
-      label: 'Stage',
-      icon: <GoColumns size={16} />
-    }
+    // {
+    //   id: 'stage',
+    //   label: 'Stage',
+    //   icon: <GoColumns size={16} />
+    // }
   ];
 
   const sortOptions = [
@@ -430,35 +430,7 @@ const Companies = () => {
           {/* Stage View */}
           {activeView === 'stage' && (
             isLoading || isFetching ? (
-              <div className="w-full">
-                {/* Stage Navigation Skeleton */}
-                <div className="bg-[#535862] rounded-lg p-4 mb-6">
-                  <div className="grid grid-cols-4 gap-8">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="h-5 bg-gray-600 rounded w-20 animate-pulse"></div>
-                        {index < 3 && (
-                          <div className="text-white mx-2">
-                            <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
-                              <path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Stage Columns Skeleton */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {Array.from({ length: 4 }).map((_, stageIndex) => (
-                    <div key={`stage-skeleton-${stageIndex}`} className="space-y-4">
-                      {Array.from({ length: 2 }).map((_, cardIndex) => (
-                        <ProjectCardSkeleton key={`skeleton-${stageIndex}-${cardIndex}`} />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <div className="w-full">...</div>
             ) : (
               <StageView
                 data={companies.map((company: any) => ({
