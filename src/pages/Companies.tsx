@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuBookMarked, LuTable, LuChartPie } from "react-icons/lu";
 import { CgSortAz } from "react-icons/cg";
 import { CiGrid41 } from "react-icons/ci";
 // import { GoColumns } from "react-icons/go";
+import { PiFloppyDisk } from "react-icons/pi";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetCompaniesQuery } from "../store/services/companies";
@@ -15,18 +17,53 @@ import {
 } from "../store/services/reference";
 import { cleanHtmlContent } from "../utils";
 import type { CompanyQueryParams, AppFilters } from "../types/filter.types";
+import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
+import { 
+  getPresets, 
+  getPresetById, 
+  saveDefaultView, 
+  getDefaultView,
+  type FilterPreset 
+} from "../utils/presets";
 
 const ITEMS_PER_PAGE = 25;
 
 const Companies = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState('table');
+  
+  // Load default view on component mount
+  const defaultView = getDefaultView('companies');
+  
+  const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
-  const [grouping, setGrouping] = useState('none');
-  const [sortBy, setSortBy] = useState('recently-added');
+  const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
+  const [sortBy, setSortBy] = useState(defaultView?.sortBy || 'recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
+  const [activePresetId, setActivePresetId] = useState<string | undefined>(defaultView?.presetId);
+
+  // Infinite scroll state for grid view
+  const [accumulatedCompanies, setAccumulatedCompanies] = useState<any[]>([]);
+  const [gridPage, setGridPage] = useState(1);
+
+  // Load presets
+  const [presets, setPresets] = useState<FilterPreset[]>([]);
+
+  useEffect(() => {
+    // Load presets from localStorage
+    const loadedPresets = getPresets('companies');
+    setPresets(loadedPresets);
+
+    // If there's a default preset, load its filters
+    if (defaultView?.presetId) {
+      const defaultPreset = getPresetById(defaultView.presetId, 'companies');
+      if (defaultPreset) {
+        setAppliedFilters(defaultPreset.filters);
+        setActivePresetId(defaultPreset.id);
+      }
+    }
+  }, []);
 
   // Fetch reference data for mapping names to IDs
   const { data: countriesData } = useGetCountriesQuery();
@@ -35,9 +72,12 @@ const Companies = () => {
 
   // Build query parameters based on state
   const queryParams = useMemo<CompanyQueryParams>(() => {
+    // Use gridPage for grid view, currentPage for table view
+    const pageToUse = activeView === 'grid' ? gridPage : currentPage;
+    
     const params: CompanyQueryParams = {
       limit: ITEMS_PER_PAGE,
-      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      offset: (pageToUse - 1) * ITEMS_PER_PAGE,
       meta: 'total_count,filter_count',
     };
 
@@ -58,6 +98,12 @@ const Companies = () => {
       case 'value-low':
         params.sort = 'projects_completed';
         break;
+      default:
+        // Check if sortBy is a preset ID
+        if (sortBy.startsWith('preset_')) {
+          params.sort = '-date_created'; // Default sort for presets
+        }
+        break;
     }
 
     // Add groupBy parameter based on grouping selection
@@ -77,9 +123,6 @@ const Companies = () => {
           break;
       }
     }
-
-    // Apply filters - Map names to IDs
-    console.log('Applied Filters:', appliedFilters);
 
     // Country filters
     if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0 && countriesData) {
@@ -105,17 +148,36 @@ const Companies = () => {
       }
     }
 
-    // Role filters
-    // if (appliedFilters.role && Array.isArray(appliedFilters.role) && appliedFilters.role.length > 0) {
-    //   params['filter[company_role][_contains]'] = appliedFilters.role[0];
-    // }
-
-    console.log('Query Params:', params);
+    // Status filters (if applicable for companies)
+    if (appliedFilters.status && appliedFilters.status.length > 0) {
+      params['filter[status][_eq]'] = appliedFilters.status[0];
+    }
 
     return params;
-  }, [currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData]);
+  }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData]);
 
   const { data: companiesResponse, isLoading, isFetching } = useGetCompaniesQuery(queryParams);
+
+  // Reset accumulated companies when filters, sorting, or view changes
+  useEffect(() => {
+    if (activeView === 'grid') {
+      setAccumulatedCompanies([]);
+      setGridPage(1);
+    }
+  }, [sortBy, grouping, appliedFilters, activeView]);
+
+  // Accumulate companies for grid view infinite scroll
+  useEffect(() => {
+    if (activeView === 'grid' && companiesResponse?.data) {
+      if (gridPage === 1) {
+        // First page - replace accumulated companies
+        setAccumulatedCompanies(companiesResponse.data);
+      } else {
+        // Subsequent pages - append to accumulated companies
+        setAccumulatedCompanies(prev => [...prev, ...companiesResponse.data]);
+      }
+    }
+  }, [companiesResponse, gridPage, activeView]);
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
@@ -143,13 +205,24 @@ const Companies = () => {
     // }
   ];
 
-  const sortOptions = [
-    { value: 'recently-added', label: 'Recently added' },
-    { value: 'oldest', label: 'Oldest first' },
-    { value: 'alphabetical', label: 'Alphabetical' },
-    { value: 'value-high', label: 'Projects (High to Low)' },
-    { value: 'value-low', label: 'Projects (Low to High)' }
-  ];
+  // Build sort options including presets
+  const sortOptions = useMemo(() => {
+    const baseOptions = [
+      { value: 'recently-added', label: 'Recently added' },
+      { value: 'oldest', label: 'Oldest first' },
+      { value: 'alphabetical', label: 'Alphabetical' },
+      { value: 'value-high', label: 'Projects (High to Low)' },
+      { value: 'value-low', label: 'Projects (Low to High)' }
+    ];
+
+    // Add presets as sort options
+    const presetOptions = presets.map(preset => ({
+      value: preset.id,
+      label: `${preset.name}`
+    }));
+
+    return [...baseOptions, ...presetOptions];
+  }, [presets]);
 
   const tableColumns: TableColumn<typeof companies[0]>[] = [
     {
@@ -226,14 +299,11 @@ const Companies = () => {
       sortable: true,
       width: '10%',
       render: (value) => {
-        // ✅ Handle both array of IDs and array of objects
         if (!value) return 0;
         if (Array.isArray(value)) {
-          // If it's an array of numbers (IDs)
           if (typeof value[0] === 'number' || typeof value[0] === 'string') {
             return value.length;
           }
-          // If it's an array of objects
           return value.length;
         }
         return 0;
@@ -241,11 +311,30 @@ const Companies = () => {
     }
   ];
 
-  const companies = companiesResponse?.data || [];
+  // Use accumulated companies for grid view, regular data for table view
+  const companies = activeView === 'grid' ? accumulatedCompanies : (companiesResponse?.data || []);
   const totalCount = companiesResponse?.meta?.filter_count || companiesResponse?.meta?.total_count || companies.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  // Handle page change
+  // Check if there are more items to load for infinite scroll
+  const hasMore = activeView === 'grid' && accumulatedCompanies.length < totalCount;
+
+  // Handle load more for infinite scroll
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setGridPage(prev => prev + 1);
+    }
+  };
+
+  // Infinite scroll hook
+  const observerTarget = useInfiniteScroll({
+    onLoadMore: handleLoadMore,
+    hasMore,
+    isLoading: isFetching,
+    rootMargin: '100px'
+  });
+
+  // Handle page change (for table view)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -254,19 +343,74 @@ const Companies = () => {
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedCompanies([]);
+
+    // If it's a preset, load its filters
+    if (newSortBy.startsWith('preset_')) {
+      const preset = getPresetById(newSortBy, 'companies');
+      if (preset) {
+        setAppliedFilters(preset.filters);
+        setActivePresetId(preset.id);
+      }
+    } else {
+      // If switching away from a preset, clear preset-specific state
+      if (activePresetId) {
+        setActivePresetId(undefined);
+      }
+    }
   };
 
   // Handle grouping change
   const handleGroupingChange = (newGrouping: string) => {
     setGrouping(newGrouping);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedCompanies([]);
   };
 
   // Handle apply filters
   const handleApplyFilters = (filters: AppFilters) => {
-    console.log('Applying filters:', filters);
     setAppliedFilters(filters);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedCompanies([]);
+    
+    // Clear active preset since filters were manually changed
+    setActivePresetId(undefined);
+    
+    // If sortBy was a preset, reset to default
+    if (sortBy.startsWith('preset_')) {
+      setSortBy('recently-added');
+    }
+  };
+
+  // Handle save view as default
+  const handleSaveViewAsDefault = () => {
+    saveDefaultView(
+      {
+        sortBy,
+        grouping,
+        activeView,
+        presetId: activePresetId
+      },
+      'companies'
+    );
+    
+    toast.success('View saved as default successfully!');
+  };
+
+  // Handle view change
+  const handleViewChange = (newView: string) => {
+    setActiveView(newView);
+    
+    // Reset pagination when switching views
+    if (newView === 'grid') {
+      setGridPage(1);
+      setAccumulatedCompanies([]);
+    } else {
+      setCurrentPage(1);
+    }
   };
 
   // Count active filters
@@ -280,7 +424,7 @@ const Companies = () => {
         <div>
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Companies</h1>
           <p className="text-[#535862]">
-            Showing {companies.length} {totalCount > 0 && `of ${totalCount}`} companies
+            Showing {activeView === 'grid' ? accumulatedCompanies.length : companies.length} {totalCount > 0 && `of ${totalCount}`} companies
             {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
           </p>
         </div>
@@ -289,12 +433,16 @@ const Companies = () => {
           <ActionButton
             buttonText={
               <div className="flex items-center gap-2">
-                <LuBookMarked size={16} />
+                <PiFloppyDisk />
                 Save view as default
               </div>
             }
             outline={true}
+            borderless
             width="fit"
+            attributes={{
+              onClick: handleSaveViewAsDefault
+            }}
           />
 
           <CustomSelect
@@ -311,7 +459,7 @@ const Companies = () => {
         <Tabs
           tabs={viewTabs}
           activeTab={activeView}
-          onTabChange={setActiveView}
+          onTabChange={handleViewChange}
           variant="pills"
         />
 
@@ -369,38 +517,67 @@ const Companies = () => {
 
       <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
         <div className={showCharts || showFilters ? 'flex-1' : ''}>
-          {/* Grid Content */}
+          {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div className="space-y-4">
-              {isLoading || isFetching ? (
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+            <div 
+              className="overflow-y-auto space-y-4"
+              style={{ height: 'calc(100vh - 280px)' }}
+            >
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                {companies.map((company: any) => (
+                  <ProjectCard
+                    key={company.id}
+                    image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
+                    status={company.company_role || "Company"}
+                    title={company.name}
+                    description={cleanHtmlContent(company.description) || "No description available"}
+                    location={
+                      company.countries && Array.isArray(company.countries) && company.countries.length > 0
+                        ? company.countries.map((c: any) => c?.countries_id?.name).filter(Boolean).join(', ')
+                        : '---'
+                    }
+                    category={
+                      company.sectors && Array.isArray(company.sectors) && company.sectors.length > 0
+                        ? company.sectors.map((s: any) => s?.sectors_id?.name).filter(Boolean).join(', ')
+                        : 'Company'
+                    }
+                    value={`${Array.isArray(company.projects) ? company.projects.length : 0} projects`}
+                    isFavorite={false}
+                    onClick={() => navigate(`/admin/companies/${company.id}`)}
+                  />
+                ))}
+              </div>
+
+              {/* Loading skeleton for infinite scroll */}
+              {isFetching && (
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6 mt-6`}>
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
                   ))}
                 </div>
-              ) : (
+              )}
+
+              {/* Intersection observer target */}
+              {hasMore && !isFetching && (
+                <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                  <span className="text-sm text-[#535862]">Loading more...</span>
+                </div>
+              )}
+
+              {/* End of results message */}
+              {!hasMore && accumulatedCompanies.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-[#535862]">
+                    You've reached the end of the list
+                  </p>
+                </div>
+              )}
+
+              {/* Initial loading state */}
+              {isLoading && accumulatedCompanies.length === 0 && (
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {companies.map((company: any) => (
-                    <ProjectCard
-                      key={company.id}
-                      image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
-                      status={company.company_role || "Company"}
-                      title={company.name}
-                      description={cleanHtmlContent(company.description) || "No description available"}
-                      location={
-                        company.countries && Array.isArray(company.countries) && company.countries.length > 0
-                          ? company.countries.map((c: any) => c?.countries_id?.name).filter(Boolean).join(', ')
-                          : '---'
-                      }
-                      category={
-                        company.sectors && Array.isArray(company.sectors) && company.sectors.length > 0
-                          ? company.sectors.map((s: any) => s?.sectors_id?.name).filter(Boolean).join(', ')
-                          : 'Company'
-                      }
-                      value={`${Array.isArray(company.projects) ? company.projects.length : 0} projects`}
-                      isFavorite={false}
-                      onClick={() => navigate(`/admin/companies/${company.id}`)}
-                    />
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`initial-skeleton-${index}`} />
                   ))}
                 </div>
               )}
@@ -430,7 +607,11 @@ const Companies = () => {
           {/* Stage View */}
           {activeView === 'stage' && (
             isLoading || isFetching ? (
-              <div className="w-full">...</div>
+              <div className="w-full">
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F89822]"></div>
+                </div>
+              </div>
             ) : (
               <StageView
                 data={companies.map((company: any) => ({
