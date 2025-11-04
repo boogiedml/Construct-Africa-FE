@@ -1,6 +1,7 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { ActionButton, Input } from '../components';
 import { useLoginMutation } from '../store/services/auth';
 import { useAppDispatch } from '../store/hooks';
@@ -10,7 +11,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const [loginMutation, { isLoading, error }] = useLoginMutation();
+  const [loginMutation, { isLoading}] = useLoginMutation();
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -35,11 +36,11 @@ const Login = () => {
           refresh_token: response.data.refresh_token,
           expires: response.data.expires
         }));
-        // Redirect to the page they were trying to access or default to admin home
         const fromPath = location.state?.from?.pathname || '/admin';
         navigate(fromPath, { replace: true });
       } catch (err) {
-        console.error('Login failed:', err);
+        // console.error('Login failed:', (err as { data: { errors: { message: string }[] } }).data.errors[0].message);
+        toast.error((err as { data: { errors: { message: string }[] } }).data.errors[0].message || 'Login failed. Please check your credentials.');
       }
     }
   });
@@ -132,13 +133,8 @@ const Login = () => {
                 buttonText={isLoading ? "Signing in..." : "Sign in"}
                 loading={isLoading}
                 fullyRounded
+                textSize='sm'
               />
-
-              {error && (
-                <div className="text-red-500 text-sm text-center mt-2">
-                  Login failed. Please check your credentials.
-                </div>
-              )}
             </div>
           </div>
         </div>

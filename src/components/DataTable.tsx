@@ -163,7 +163,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     return (
         <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden h-[600px] flex flex-col ${className}`}>
             <div className="flex-1 overflow-y-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative">
-                <table className="w-full min-w-[1000px]">
+                <table className="w-full min-w-[1400px]">
                     <thead className="sticky top-0 z-10 bg-white">
                         <tr className="bg-[#FAFAFA] border-b border-[#D5D7DA]">
                             {showCheckboxes && (

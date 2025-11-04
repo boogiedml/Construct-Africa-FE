@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
+import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CgSortAz } from "react-icons/cg";
 import { CiGrid41 } from "react-icons/ci";
-// import { GoColumns } from "react-icons/go";
 import { PiFloppyDisk } from "react-icons/pi";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
@@ -527,6 +526,7 @@ const Companies = () => {
                 {companies.map((company: any) => (
                   <ProjectCard
                     key={company.id}
+                    isLogo={true}
                     image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
                     status={company.company_role || "Company"}
                     title={company.name}
@@ -602,38 +602,6 @@ const Companies = () => {
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
             />
-          )}
-
-          {/* Stage View */}
-          {activeView === 'stage' && (
-            isLoading || isFetching ? (
-              <div className="w-full">
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F89822]"></div>
-                </div>
-              </div>
-            ) : (
-              <StageView
-                data={companies.map((company: any) => ({
-                  ...company,
-                  stage: 'Active',
-                  image: company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg",
-                  status: company.company_role || "Company",
-                  description: cleanHtmlContent(company.description) || "No description available",
-                  location: company.countries && Array.isArray(company.countries) && company.countries.length > 0
-                    ? company.countries.map((c: any) => c?.countries_id?.name).filter(Boolean).join(', ')
-                    : '---',
-                  category: company.sectors && Array.isArray(company.sectors) && company.sectors.length > 0
-                    ? company.sectors.map((s: any) => s?.sectors_id?.name).filter(Boolean).join(', ')
-                    : 'Company',
-                  value: `${Array.isArray(company.projects) ? company.projects.length : 0} projects`,
-                  isFavorite: false,
-                  title: company.name
-                }))}
-                stageKey="stage"
-                onProjectClick={(id) => navigate(`/admin/companies/${id}`)}
-              />
-            )
           )}
         </div>
 

@@ -17,6 +17,7 @@ interface ProjectCardProps {
     isFavorite?: boolean;
     deadline?: string;
     onClick?: () => void;
+    isLogo?: boolean;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -32,6 +33,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     isFavorite = false,
     deadline,
     onClick,
+    isLogo = false,
 }) => {
     const getStageStyles = (group?: string) => {
         const g = group?.toLowerCase() || "";
@@ -62,11 +64,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             onClick={onClick}
             className="bg-white rounded-xl border border-[#E9EAEB] hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer"
         >
-            <div className="relative h-[160px] overflow-hidden">
+            <div className={`relative h-[160px] overflow-hidden ${isLogo ? 'flex items-center justify-center' : ''}`}>
                 <img
                     src={image}
                     alt={title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className={`${isLogo ? 'w-[150px] object-cover' : 'w-full h-full object-cover'} group-hover:scale-105 transition-transform duration-300`}
                 />
             </div>
 
