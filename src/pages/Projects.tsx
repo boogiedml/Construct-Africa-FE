@@ -1,7 +1,6 @@
-// pages/Projects.tsx
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -19,18 +18,53 @@ import {
   useGetSectorsQuery,
   useGetTypesQuery
 } from "../store/services/reference";
+import { 
+  getPresets, 
+  getPresetById, 
+  saveDefaultView, 
+  getDefaultView,
+  type FilterPreset 
+} from "../utils/presets";
+import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
 
 const ITEMS_PER_PAGE = 25;
 
 const Projects = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState('table');
+  
+  // Load default view on component mount
+  const defaultView = getDefaultView('projects');
+  
+  const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
-  const [grouping, setGrouping] = useState('none');
-  const [sortBy, setSortBy] = useState('recently-added');
+  const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
+  const [sortBy, setSortBy] = useState(defaultView?.sortBy || 'recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
+  const [activePresetId, setActivePresetId] = useState<string | undefined>(defaultView?.presetId);
+
+  // Infinite scroll state for grid view
+  const [accumulatedProjects, setAccumulatedProjects] = useState<Project[]>([]);
+  const [gridPage, setGridPage] = useState(1);
+
+  // Load presets
+  const [presets, setPresets] = useState<FilterPreset[]>([]);
+
+  useEffect(() => {
+    // Load presets from localStorage
+    const loadedPresets = getPresets('projects');
+    setPresets(loadedPresets);
+
+    // If there's a default preset, load its filters
+    if (defaultView?.presetId) {
+      const defaultPreset = getPresetById(defaultView.presetId, 'projects');
+      if (defaultPreset) {
+        setAppliedFilters(defaultPreset.filters);
+        setActivePresetId(defaultPreset.id);
+      }
+    }
+  }, []);
 
   // Fetch reference data for mapping names to IDs
   const { data: countriesData } = useGetCountriesQuery();
@@ -40,9 +74,12 @@ const Projects = () => {
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
+    // Use gridPage for grid view, currentPage for table/stage views
+    const pageToUse = activeView === 'grid' ? gridPage : currentPage;
+    
     const params: ProjectQueryParams = {
       limit: ITEMS_PER_PAGE,
-      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      offset: (pageToUse - 1) * ITEMS_PER_PAGE,
       meta: 'total_count,filter_count',
     };
 
@@ -62,6 +99,12 @@ const Projects = () => {
         break;
       case 'value-low':
         params.sort = 'contract_value_usd';
+        break;
+      default:
+        // Check if sortBy is a preset ID
+        if (sortBy.startsWith('preset_')) {
+          params.sort = '-date_created'; // Default sort for presets
+        }
         break;
     }
 
@@ -85,55 +128,38 @@ const Projects = () => {
 
     // Country filters - Map country names to IDs
     if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0 && countriesData) {
-      console.log('Processing country filter:', appliedFilters.country);
       const country = countriesData.data.find(c => c.name === appliedFilters.country![0]);
-      console.log('Found country:', country);
-
       if (country) {
         params['filter[countries][countries_id][_eq]'] = country.id;
-        console.log('Added country filter:', country.id);
       }
     }
 
     // Region filters
     if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0 && regionsData) {
-      console.log('Processing region filter:', appliedFilters.region);
       const region = regionsData.data.find(r => r.name === appliedFilters.region![0]);
-      console.log('Found region:', region);
-
       if (region) {
         params['filter[regions][regions_id][_eq]'] = String(region.id);
-        console.log('Added region filter:', region.id);
       }
     }
 
     // Sector filters
     if (appliedFilters.sector && Array.isArray(appliedFilters.sector) && appliedFilters.sector.length > 0 && sectorsData) {
-      console.log('Processing sector filter:', appliedFilters.sector);
       const sector = sectorsData.data.find(s => s.name === appliedFilters.sector![0]);
-      console.log('Found sector:', sector);
-
       if (sector) {
         params['filter[sectors][sectors_id][_eq]'] = sector.id;
-        console.log('Added sector filter:', sector.id);
       }
     }
 
     // Type filters
     if (appliedFilters.type && Array.isArray(appliedFilters.type) && appliedFilters.type.length > 0 && typesData) {
-      console.log('Processing type filter:', appliedFilters.type);
       const type = typesData.data.find(t => t.name === appliedFilters.type![0]);
-      console.log('Found type:', type);
-
       if (type) {
         params['filter[types][types_id][_eq]'] = type.id;
-        console.log('Added type filter:', type.id);
       }
     }
 
     // Status filters
     if (appliedFilters.status && appliedFilters.status.length > 0) {
-      // Map UI status names to API values if needed
       const statusMap: Record<string, string> = {
         'Planning': 'Plan',
         'Design': 'Design',
@@ -165,14 +191,33 @@ const Projects = () => {
       }
     }
 
-    console.log('Query Params:', params);
-
     return params;
-  }, [currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData, typesData]);
+  }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData, typesData]);
 
   const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, {
     refetchOnMountOrArgChange: true
   });
+
+  // Reset accumulated projects when filters, sorting, or view changes
+  useEffect(() => {
+    if (activeView === 'grid') {
+      setAccumulatedProjects([]);
+      setGridPage(1);
+    }
+  }, [sortBy, grouping, appliedFilters, activeView]);
+
+  // Accumulate projects for grid view infinite scroll
+  useEffect(() => {
+    if (activeView === 'grid' && projectsResponse?.data) {
+      if (gridPage === 1) {
+        // First page - replace accumulated projects
+        setAccumulatedProjects(projectsResponse.data);
+      } else {
+        // Subsequent pages - append to accumulated projects
+        setAccumulatedProjects(prev => [...prev, ...projectsResponse.data]);
+      }
+    }
+  }, [projectsResponse, gridPage, activeView]);
 
   const mapStatusToGroup = (status: string): string => {
     switch ((status || '').toLowerCase()) {
@@ -271,13 +316,24 @@ const Projects = () => {
     }
   ];
 
-  const sortOptions = [
-    { value: 'recently-added', label: 'Recently added' },
-    { value: 'oldest', label: 'Oldest first' },
-    { value: 'alphabetical', label: 'Alphabetical' },
-    { value: 'value-high', label: 'Value (High to Low)' },
-    { value: 'value-low', label: 'Value (Low to High)' }
-  ];
+  // Build sort options including presets
+  const sortOptions = useMemo(() => {
+    const baseOptions = [
+      { value: 'recently-added', label: 'Recently added' },
+      { value: 'oldest', label: 'Oldest first' },
+      { value: 'alphabetical', label: 'Alphabetical' },
+      { value: 'value-high', label: 'Value (High to Low)' },
+      { value: 'value-low', label: 'Value (Low to High)' }
+    ];
+
+    // Add presets as sort options
+    const presetOptions = presets.map(preset => ({
+      value: preset.id,
+      label: `${preset.name}`
+    }));
+
+    return [...baseOptions, ...presetOptions];
+  }, [presets]);
 
   const tableColumns: TableColumn<typeof projectsWithStage[0]>[] = [
     {
@@ -367,17 +423,38 @@ const Projects = () => {
     }
   ];
 
-  const projects = projectsResponse?.data || [];
+  // Use accumulated projects for grid view, regular data for other views
+  const projects = activeView === 'grid' ? accumulatedProjects : (projectsResponse?.data || []);
+  
   const projectsWithStage = projects.map((p: Project) => ({
     ...p,
     stage: mapStatusToGroup(p.current_stage),
     status: mapStatusToStatusName(p.current_stage),
     stageName: mapStatusToStageName(p.current_stage)
   }));
+  
   const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  
+  // Check if there are more items to load for infinite scroll
+  const hasMore = activeView === 'grid' && accumulatedProjects.length < totalCount;
 
-  // Handle page change
+  // Handle load more for infinite scroll
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setGridPage(prev => prev + 1);
+    }
+  };
+
+  // Infinite scroll hook
+  const observerTarget = useInfiniteScroll({
+    onLoadMore: handleLoadMore,
+    hasMore,
+    isLoading: isFetching,
+    rootMargin: '100px'
+  });
+
+  // Handle page change (for table/stage views)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -386,19 +463,74 @@ const Projects = () => {
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedProjects([]);
+
+    // If it's a preset, load its filters
+    if (newSortBy.startsWith('preset_')) {
+      const preset = getPresetById(newSortBy, 'projects');
+      if (preset) {
+        setAppliedFilters(preset.filters);
+        setActivePresetId(preset.id);
+      }
+    } else {
+      // If switching away from a preset, clear preset-specific state
+      if (activePresetId) {
+        setActivePresetId(undefined);
+      }
+    }
   };
 
   // Handle grouping change
   const handleGroupingChange = (newGrouping: string) => {
     setGrouping(newGrouping);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedProjects([]);
   };
 
   // Handle apply filters
   const handleApplyFilters = (filters: AppFilters) => {
-    console.log('Applying filters:', filters);
     setAppliedFilters(filters);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedProjects([]);
+    
+    // Clear active preset since filters were manually changed
+    setActivePresetId(undefined);
+    
+    // If sortBy was a preset, reset to default
+    if (sortBy.startsWith('preset_')) {
+      setSortBy('recently-added');
+    }
+  };
+
+  // Handle save view as default
+  const handleSaveViewAsDefault = () => {
+    saveDefaultView(
+      {
+        sortBy,
+        grouping,
+        activeView,
+        presetId: activePresetId
+      },
+      'projects'
+    );
+    
+    toast.success('View saved as default successfully!');
+  };
+
+  // Handle view change
+  const handleViewChange = (newView: string) => {
+    setActiveView(newView);
+    
+    // Reset pagination when switching views
+    if (newView === 'grid') {
+      setGridPage(1);
+      setAccumulatedProjects([]);
+    } else {
+      setCurrentPage(1);
+    }
   };
 
   // Count active filters
@@ -412,7 +544,7 @@ const Projects = () => {
         <div>
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Projects</h1>
           <p className="text-[#535862]">
-            Showing {projects.length} {totalCount > 0 && `of ${totalCount}`} projects
+            Showing {activeView === 'grid' ? accumulatedProjects.length : projects.length} {totalCount > 0 && `of ${totalCount}`} projects
             {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
           </p>
         </div>
@@ -428,6 +560,9 @@ const Projects = () => {
             outline={true}
             borderless
             width="fit"
+            attributes={{
+              onClick: handleSaveViewAsDefault
+            }}
           />
 
           <CustomSelect
@@ -443,7 +578,7 @@ const Projects = () => {
         <Tabs
           tabs={viewTabs}
           activeTab={activeView}
-          onTabChange={setActiveView}
+          onTabChange={handleViewChange}
           variant="pills"
         />
 
@@ -501,32 +636,61 @@ const Projects = () => {
 
       <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
         <div className={showCharts || showFilters ? 'flex-1' : ''}>
-          {/* Grid Content */}
+          {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div className="space-y-4">
-              {isLoading || isFetching ? (
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+            <div 
+              className="overflow-y-auto space-y-4"
+              style={{ height: 'calc(100vh - 280px)' }}
+            >
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                {projectsWithStage.map((project: Project & { stage: string; status: string; stageName: string }) => (
+                  <ProjectCard
+                    key={project.id}
+                    image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
+                    status={project.status}
+                    stageName={project.stageName}
+                    stageGroup={project.stage}
+                    title={project.title}
+                    description={project.description || ''}
+                    location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
+                    category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
+                    value={`$${project.contract_value_usd || 0} million`}
+                    isFavorite={false}
+                    onClick={() => navigate(`/admin/projects/${project.id}`)}
+                  />
+                ))}
+              </div>
+
+              {/* Loading skeleton for infinite scroll */}
+              {isFetching && (
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6 mt-6`}>
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
                   ))}
                 </div>
-              ) : (
+              )}
+
+              {/* Intersection observer target */}
+              {hasMore && !isFetching && (
+                <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                  <span className="text-sm text-[#535862]">Loading more...</span>
+                </div>
+              )}
+
+              {/* End of results message */}
+              {!hasMore && accumulatedProjects.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-[#535862]">
+                    You've reached the end of the list
+                  </p>
+                </div>
+              )}
+
+              {/* Initial loading state */}
+              {isLoading && accumulatedProjects.length === 0 && (
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {projectsWithStage.map((project: Project & { stage: string; status: string; stageName: string }) => (
-                    <ProjectCard
-                      key={project.id}
-                      image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-                      status={project.status}
-                      stageName={project.stageName}
-                      stageGroup={project.stage}
-                      title={project.title}
-                      description={project.description || ''}
-                      location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
-                      category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
-                      value={`$${project.contract_value_usd || 0} million`}
-                      isFavorite={false}
-                      onClick={() => navigate(`/admin/projects/${project.id}`)}
-                    />
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`initial-skeleton-${index}`} />
                   ))}
                 </div>
               )}

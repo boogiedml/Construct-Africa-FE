@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
 import { LuTable, LuChartPie } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -11,24 +12,62 @@ import { useGetNewsQuery } from "../store/services/news";
 import type { News as NewsType } from "../types/news.types";
 import type { NewsQueryParams, AppFilters } from "../types/filter.types";
 import { cleanHtmlContent } from "../utils";
+import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
+import { 
+  getPresets, 
+  getPresetById, 
+  saveDefaultView, 
+  getDefaultView,
+  type FilterPreset 
+} from "../utils/presets";
 
 const ITEMS_PER_PAGE = 25;
 
 const News = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState('table');
+  
+  // Load default view on component mount
+  const defaultView = getDefaultView('news');
+  
+  const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
-  const [grouping, setGrouping] = useState('none');
-  const [sortBy, setSortBy] = useState('recently-added');
+  const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
+  const [sortBy, setSortBy] = useState(defaultView?.sortBy || 'recently-added');
   const [showCharts, setShowCharts] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
+  const [activePresetId, setActivePresetId] = useState<string | undefined>(defaultView?.presetId);
+
+  // Infinite scroll state for grid view
+  const [accumulatedNews, setAccumulatedNews] = useState<NewsType[]>([]);
+  const [gridPage, setGridPage] = useState(1);
+
+  // Load presets
+  const [presets, setPresets] = useState<FilterPreset[]>([]);
+
+  useEffect(() => {
+    // Load presets from localStorage
+    const loadedPresets = getPresets('news');
+    setPresets(loadedPresets);
+
+    // If there's a default preset, load its filters
+    if (defaultView?.presetId) {
+      const defaultPreset = getPresetById(defaultView.presetId, 'news');
+      if (defaultPreset) {
+        setAppliedFilters(defaultPreset.filters);
+        setActivePresetId(defaultPreset.id);
+      }
+    }
+  }, []);
 
   // Build query parameters based on state
   const queryParams = useMemo<NewsQueryParams>(() => {
+    // Use gridPage for grid view, currentPage for table view
+    const pageToUse = activeView === 'grid' ? gridPage : currentPage;
+    
     const params: NewsQueryParams = {
       limit: ITEMS_PER_PAGE,
-      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      offset: (pageToUse - 1) * ITEMS_PER_PAGE,
       meta: 'total_count,filter_count',
       'filter[status][_eq]': 'published', // Only show published news
     };
@@ -50,6 +89,12 @@ const News = () => {
       case 'date-oldest':
         params.sort = 'date_updated';
         break;
+      default:
+        // Check if sortBy is a preset ID
+        if (sortBy.startsWith('preset_')) {
+          params.sort = '-date_created'; // Default sort for presets
+        }
+        break;
     }
 
     // Add groupBy parameter based on grouping selection
@@ -67,12 +112,8 @@ const News = () => {
       }
     }
 
-    // Apply filters
-    console.log('Applied Filters:', appliedFilters);
-
     // Category filters
     if (appliedFilters.category && Array.isArray(appliedFilters.category) && appliedFilters.category.length > 0) {
-      // Assuming categories are stored by name, adjust if using IDs
       params['filter[category_id][name][_eq]'] = appliedFilters.category[0];
     }
 
@@ -110,17 +151,36 @@ const News = () => {
       }
     }
 
-    // Sponsored filter (if you want to add this)
+    // Sponsored filter
     if (appliedFilters.sponsored) {
       params['filter[is_sponsored][_eq]'] = true;
     }
 
-    console.log('Query Params:', params);
-
     return params;
-  }, [currentPage, sortBy, grouping, appliedFilters]);
+  }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters]);
 
   const { data: newsResponse, isLoading, isFetching } = useGetNewsQuery(queryParams);
+
+  // Reset accumulated news when filters, sorting, or view changes
+  useEffect(() => {
+    if (activeView === 'grid') {
+      setAccumulatedNews([]);
+      setGridPage(1);
+    }
+  }, [sortBy, grouping, appliedFilters, activeView]);
+
+  // Accumulate news for grid view infinite scroll
+  useEffect(() => {
+    if (activeView === 'grid' && newsResponse?.data) {
+      if (gridPage === 1) {
+        // First page - replace accumulated news
+        setAccumulatedNews(newsResponse.data);
+      } else {
+        // Subsequent pages - append to accumulated news
+        setAccumulatedNews(prev => [...prev, ...newsResponse.data]);
+      }
+    }
+  }, [newsResponse, gridPage, activeView]);
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
@@ -129,13 +189,24 @@ const News = () => {
     { value: 'date', label: 'By date' }
   ];
 
-  const sortOptions = [
-    { value: 'recently-added', label: 'Recently added' },
-    { value: 'oldest', label: 'Oldest first' },
-    { value: 'alphabetical', label: 'Alphabetical' },
-    { value: 'date-newest', label: 'Date (Newest First)' },
-    { value: 'date-oldest', label: 'Date (Oldest First)' }
-  ];
+  // Build sort options including presets
+  const sortOptions = useMemo(() => {
+    const baseOptions = [
+      { value: 'recently-added', label: 'Recently added' },
+      { value: 'oldest', label: 'Oldest first' },
+      { value: 'alphabetical', label: 'Alphabetical' },
+      { value: 'date-newest', label: 'Date (Newest First)' },
+      { value: 'date-oldest', label: 'Date (Oldest First)' }
+    ];
+
+    // Add presets as sort options
+    const presetOptions = presets.map(preset => ({
+      value: preset.id,
+      label: `${preset.name}`
+    }));
+
+    return [...baseOptions, ...presetOptions];
+  }, [presets]);
 
   const tableColumns: TableColumn<typeof newsItems[0]>[] = [
     {
@@ -229,11 +300,30 @@ const News = () => {
     }
   ];
 
-  const newsItems = newsResponse?.data || [];
+  // Use accumulated news for grid view, regular data for table view
+  const newsItems = activeView === 'grid' ? accumulatedNews : (newsResponse?.data || []);
   const totalCount = newsResponse?.meta?.filter_count || newsResponse?.meta?.total_count || newsItems.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  // Handle page change
+  // Check if there are more items to load for infinite scroll
+  const hasMore = activeView === 'grid' && accumulatedNews.length < totalCount;
+
+  // Handle load more for infinite scroll
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setGridPage(prev => prev + 1);
+    }
+  };
+
+  // Infinite scroll hook
+  const observerTarget = useInfiniteScroll({
+    onLoadMore: handleLoadMore,
+    hasMore,
+    isLoading: isFetching,
+    rootMargin: '100px'
+  });
+
+  // Handle page change (for table view)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -242,19 +332,74 @@ const News = () => {
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedNews([]);
+
+    // If it's a preset, load its filters
+    if (newSortBy.startsWith('preset_')) {
+      const preset = getPresetById(newSortBy, 'news');
+      if (preset) {
+        setAppliedFilters(preset.filters);
+        setActivePresetId(preset.id);
+      }
+    } else {
+      // If switching away from a preset, clear preset-specific state
+      if (activePresetId) {
+        setActivePresetId(undefined);
+      }
+    }
   };
 
   // Handle grouping change
   const handleGroupingChange = (newGrouping: string) => {
     setGrouping(newGrouping);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedNews([]);
   };
 
   // Handle apply filters
   const handleApplyFilters = (filters: AppFilters) => {
-    console.log('Applying filters:', filters);
     setAppliedFilters(filters);
     setCurrentPage(1);
+    setGridPage(1);
+    setAccumulatedNews([]);
+    
+    // Clear active preset since filters were manually changed
+    setActivePresetId(undefined);
+    
+    // If sortBy was a preset, reset to default
+    if (sortBy.startsWith('preset_')) {
+      setSortBy('recently-added');
+    }
+  };
+
+  // Handle save view as default
+  const handleSaveViewAsDefault = () => {
+    saveDefaultView(
+      {
+        sortBy,
+        grouping,
+        activeView,
+        presetId: activePresetId
+      },
+      'news'
+    );
+    
+    toast.success('View saved as default successfully!');
+  };
+
+  // Handle view change
+  const handleViewChange = (newView: string) => {
+    setActiveView(newView);
+    
+    // Reset pagination when switching views
+    if (newView === 'grid') {
+      setGridPage(1);
+      setAccumulatedNews([]);
+    } else {
+      setCurrentPage(1);
+    }
   };
 
   // Count active filters
@@ -283,7 +428,7 @@ const News = () => {
         <div>
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">News</h1>
           <p className="text-[#535862]">
-            Showing {newsItems.length} {totalCount > 0 && `of ${totalCount}`} news articles
+            Showing {activeView === 'grid' ? accumulatedNews.length : newsItems.length} {totalCount > 0 && `of ${totalCount}`} news articles
             {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
           </p>
         </div>
@@ -297,7 +442,11 @@ const News = () => {
               </div>
             }
             outline={true}
+            borderless
             width="fit"
+            attributes={{
+              onClick: handleSaveViewAsDefault
+            }}
           />
 
           <CustomSelect
@@ -314,7 +463,7 @@ const News = () => {
         <Tabs
           tabs={viewTabs}
           activeTab={activeView}
-          onTabChange={setActiveView}
+          onTabChange={handleViewChange}
           variant="pills"
         />
 
@@ -372,36 +521,65 @@ const News = () => {
 
       <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
         <div className={showCharts || showFilters ? 'flex-1' : ''}>
-          {/* Grid Content */}
+          {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div className="space-y-4">
-              {isLoading || isFetching ? (
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <ProjectCardSkeleton key={`skeleton-${index}`} />
+            <div 
+              className="overflow-y-auto space-y-4"
+              style={{ height: 'calc(100vh - 280px)' }}
+            >
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                {newsItems.map((item: NewsType) => {
+                  const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
+                    ? (item.category_id as { name: string }).name
+                    : 'News';
+
+                  return (
+                    <ProjectCard
+                      key={item.id}
+                      image={getImageUrl(item.featured_image)}
+                      title={item.title}
+                      description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
+                      location={new Date(item.date_created).toLocaleDateString()}
+                      category={category}
+                      value={item.is_sponsored ? 'Sponsored' : ''}
+                      isFavorite={false}
+                      onClick={() => navigate(`/admin/news/${item.id}`)}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Loading skeleton for infinite scroll */}
+              {isFetching && (
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6 mt-6`}>
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
                   ))}
                 </div>
-              ) : (
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                  {newsItems.map((item: NewsType) => {
-                    const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
-                      ? (item.category_id as { name: string }).name
-                      : 'News';
+              )}
 
-                    return (
-                      <ProjectCard
-                        key={item.id}
-                        image={getImageUrl(item.featured_image)}
-                        title={item.title}
-                        description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
-                        location={new Date(item.date_created).toLocaleDateString()}
-                        category={category}
-                        value={item.is_sponsored ? 'Sponsored' : ''}
-                        isFavorite={false}
-                        onClick={() => navigate(`/admin/news/${item.id}`)}
-                      />
-                    );
-                  })}
+              {/* Intersection observer target */}
+              {hasMore && !isFetching && (
+                <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                  <span className="text-sm text-[#535862]">Loading more...</span>
+                </div>
+              )}
+
+              {/* End of results message */}
+              {!hasMore && accumulatedNews.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-[#535862]">
+                    You've reached the end of the list
+                  </p>
+                </div>
+              )}
+
+              {/* Initial loading state */}
+              {isLoading && accumulatedNews.length === 0 && (
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProjectCardSkeleton key={`initial-skeleton-${index}`} />
+                  ))}
                 </div>
               )}
             </div>
