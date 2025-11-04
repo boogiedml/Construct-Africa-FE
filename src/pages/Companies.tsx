@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ActionButton, ProjectCard, Tabs, DataTable, CustomSelect, StageView, ChartsSidebar, FiltersSidebar, ProjectCardSkeleton } from "../components";
-import { LuBookMarked, LuTable, LuChartPie } from "react-icons/lu";
+import { LuTable, LuChartPie } from "react-icons/lu";
 import { CgSortAz } from "react-icons/cg";
 import { CiGrid41 } from "react-icons/ci";
 // import { GoColumns } from "react-icons/go";
@@ -18,22 +18,22 @@ import {
 import { cleanHtmlContent } from "../utils";
 import type { CompanyQueryParams, AppFilters } from "../types/filter.types";
 import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
-import { 
-  getPresets, 
-  getPresetById, 
-  saveDefaultView, 
+import {
+  getPresets,
+  getPresetById,
+  saveDefaultView,
   getDefaultView,
-  type FilterPreset 
+  type FilterPreset
 } from "../utils/presets";
 
 const ITEMS_PER_PAGE = 25;
 
 const Companies = () => {
   const navigate = useNavigate();
-  
+
   // Load default view on component mount
   const defaultView = getDefaultView('companies');
-  
+
   const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
@@ -74,7 +74,7 @@ const Companies = () => {
   const queryParams = useMemo<CompanyQueryParams>(() => {
     // Use gridPage for grid view, currentPage for table view
     const pageToUse = activeView === 'grid' ? gridPage : currentPage;
-    
+
     const params: CompanyQueryParams = {
       limit: ITEMS_PER_PAGE,
       offset: (pageToUse - 1) * ITEMS_PER_PAGE,
@@ -375,10 +375,10 @@ const Companies = () => {
     setCurrentPage(1);
     setGridPage(1);
     setAccumulatedCompanies([]);
-    
+
     // Clear active preset since filters were manually changed
     setActivePresetId(undefined);
-    
+
     // If sortBy was a preset, reset to default
     if (sortBy.startsWith('preset_')) {
       setSortBy('recently-added');
@@ -396,14 +396,14 @@ const Companies = () => {
       },
       'companies'
     );
-    
+
     toast.success('View saved as default successfully!');
   };
 
   // Handle view change
   const handleViewChange = (newView: string) => {
     setActiveView(newView);
-    
+
     // Reset pagination when switching views
     if (newView === 'grid') {
       setGridPage(1);
@@ -519,7 +519,7 @@ const Companies = () => {
         <div className={showCharts || showFilters ? 'flex-1' : ''}>
           {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div 
+            <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >
