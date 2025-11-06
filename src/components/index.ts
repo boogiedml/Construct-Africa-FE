@@ -17,6 +17,7 @@ import StageView from "./StageView";
 import ChartsSidebar from "./ChartsSidebar";
 import FiltersSidebar from "./FiltersSidebar";
 import ProjectCardSkeleton from "./ProjectCardSkeleton";
+import DetailPageSkeleton from "./DetailPageSkeleton";
 
 export {
   Navbar,
@@ -38,4 +39,5 @@ export {
   ChartsSidebar,
   FiltersSidebar,
   ProjectCardSkeleton,
+  DetailPageSkeleton,
 };

@@ -1,5 +1,3 @@
-// pages/ProjectDetails.tsx
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiLinkedin, FiPhone, FiTrello } from 'react-icons/fi';
 import { IoBagOutline, IoEarthOutline } from 'react-icons/io5';
@@ -10,6 +8,7 @@ import { SlSocialFacebook } from 'react-icons/sl';
 import { LuBuilding } from 'react-icons/lu';
 import { RxDashboard } from 'react-icons/rx';
 import { useGetProjectByIdQuery } from '../store/services/projects';
+import { DetailPageSkeleton } from '../components';
 
 const ProjectDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -61,14 +60,7 @@ const ProjectDetails = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[#F89822] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-[#535862]">Loading project details...</p>
-                </div>
-            </div>
-        );
+        return <DetailPageSkeleton />;
     }
 
     if (error || !project) {
@@ -95,7 +87,7 @@ const ProjectDetails = () => {
     const sectors = project.sectors?.map(s => s.sectors_id.name).join(', ') || 'N/A';
     const projectTypes = project.types?.map(t => t.types_id.name) || [];
     const specificLocation = parseLocation(project.location);
-    
+
     const imageUrl = project.featured_image?.filename_disk
         ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}`
         : 'https://plus.unsplash.com/premium_photo-1681691912442-68c4179c530c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2071';
@@ -193,58 +185,58 @@ const ProjectDetails = () => {
                         )}
 
                         {/* Capacities */}
-                        {(project.gross_floor_area_m2 || 
-                          project.volume_concrete_m3 || 
-                          (project.total_built_up_area_m2 && project.total_built_up_area_m2.length > 0) ||
-                          (project.road_km && project.road_km.length > 0) ||
-                          (project.rail_km && project.rail_km.length > 0)) && (
-                            <div>
-                                <h3 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 md:mb-6 leading-tight">
-                                    Specifications
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                                    {project.gross_floor_area_m2 && (
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <RxDashboard size={18} className="text-[#535862]" />
-                                                <span className="text-base text-[#535862]">Floor area</span>
+                        {(project.gross_floor_area_m2 ||
+                            project.volume_concrete_m3 ||
+                            (project.total_built_up_area_m2 && project.total_built_up_area_m2.length > 0) ||
+                            (project.road_km && project.road_km.length > 0) ||
+                            (project.rail_km && project.rail_km.length > 0)) && (
+                                <div>
+                                    <h3 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 md:mb-6 leading-tight">
+                                        Specifications
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                                        {project.gross_floor_area_m2 && (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <RxDashboard size={18} className="text-[#535862]" />
+                                                    <span className="text-base text-[#535862]">Floor area</span>
+                                                </div>
+                                                <span className="text-base text-[#181D27] ml-7">{project.gross_floor_area_m2.toLocaleString()} m²</span>
                                             </div>
-                                            <span className="text-base text-[#181D27] ml-7">{project.gross_floor_area_m2.toLocaleString()} m²</span>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {project.volume_concrete_m3 && (
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <RxDashboard size={18} className="text-[#535862]" />
-                                                <span className="text-base text-[#535862]">Concrete volume</span>
+                                        {project.volume_concrete_m3 && (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <RxDashboard size={18} className="text-[#535862]" />
+                                                    <span className="text-base text-[#535862]">Concrete volume</span>
+                                                </div>
+                                                <span className="text-base text-[#181D27] ml-7">{project.volume_concrete_m3.toLocaleString()} m³</span>
                                             </div>
-                                            <span className="text-base text-[#181D27] ml-7">{project.volume_concrete_m3.toLocaleString()} m³</span>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {project.road_km && project.road_km.length > 0 && (
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <LuBuilding size={18} className="text-[#535862]" strokeWidth={1.5} />
-                                                <span className="text-base text-[#535862]">Road length</span>
+                                        {project.road_km && project.road_km.length > 0 && (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <LuBuilding size={18} className="text-[#535862]" strokeWidth={1.5} />
+                                                    <span className="text-base text-[#535862]">Road length</span>
+                                                </div>
+                                                <span className="text-base text-[#181D27] ml-7">{project.road_km[0]} km</span>
                                             </div>
-                                            <span className="text-base text-[#181D27] ml-7">{project.road_km[0]} km</span>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {project.rail_km && project.rail_km.length > 0 && (
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <LuBuilding size={18} className="text-[#535862]" strokeWidth={1.5} />
-                                                <span className="text-base text-[#535862]">Rail length</span>
+                                        {project.rail_km && project.rail_km.length > 0 && (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <LuBuilding size={18} className="text-[#535862]" strokeWidth={1.5} />
+                                                    <span className="text-base text-[#535862]">Rail length</span>
+                                                </div>
+                                                <span className="text-base text-[#181D27] ml-7">{project.rail_km[0]} km</span>
                                             </div>
-                                            <span className="text-base text-[#181D27] ml-7">{project.rail_km[0]} km</span>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
                         {/* Companies and Contacts */}
                         {hasAnyCompanies && (
@@ -262,7 +254,7 @@ const ProjectDetails = () => {
                                         if (!company) return null;
 
                                         return (
-                                            <div 
+                                            <div
                                                 key={`${role.key}-${index}`}
                                                 className='flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-0 border-b border-[#E9EAEB] pb-6 md:py-8'
                                             >
