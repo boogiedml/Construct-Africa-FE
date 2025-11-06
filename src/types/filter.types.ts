@@ -60,6 +60,11 @@ export interface TenderQueryParams extends BaseQueryParams {
   "filter[date_created][_gte]"?: string;
   "filter[date_created][_lte]"?: string;
 }
+export type FavouriteCollection = 'projects' | 'companies' | 'news' | 'tenders';
+
+export interface FavouriteQueryParams extends BaseQueryParams {
+  collection?: FavouriteCollection;
+}
 
 export interface AppFilters {
   region?: string[];
