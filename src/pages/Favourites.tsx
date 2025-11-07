@@ -209,7 +209,7 @@ const Favourites = () => {
       label: 'Published',
       sortable: true,
       width: '20%',
-      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
+      render: (value) => value ? new Date(value as string).toLocaleDateString() : '-'
     },
     {
       key: 'status',
@@ -232,7 +232,7 @@ const Favourites = () => {
       label: 'Tender Date',
       sortable: true,
       width: '20%',
-      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
+      render: (value) => value ? new Date(value as string).toLocaleDateString() : '-'
     },
     {
       key: 'closing_date',

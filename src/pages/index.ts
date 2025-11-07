@@ -14,6 +14,7 @@ import AdvisoryBoard from "./AdvisoryBoard";
 import ProjectDetails from "./ProjectDetails";
 import CompanyDetails from "./CompanyDetails";
 import NewsDetails from "./NewsDetails";
+import TenderDetails from "./TenderDetails";
 
 export {
   Login,
@@ -32,4 +33,5 @@ export {
   ProjectDetails,
   CompanyDetails,
   NewsDetails,
+  TenderDetails,
 };

@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from "react-router-dom";
-import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails } from "./pages";
+import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails } from "./pages";
 import { RootLayout, NonSubscriberLayout } from "./components/templates";
 
 export const routes: RouteObject[] = [
@@ -30,6 +30,7 @@ export const routes: RouteObject[] = [
       { path: "projects", element: <Projects /> },
       { path: "projects/:id", element: <ProjectDetails /> },
       { path: "tenders", element: <Tenders /> },
+      { path: "tenders/:id", element: <TenderDetails /> },
       { path: "*", element: <Navigate to="/admin" /> },
     ],
   },
