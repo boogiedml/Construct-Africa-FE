@@ -1,47 +1,64 @@
-import type { FavouriteCollection } from "./filter.types";
+// src/types/favourite.types.ts
 
+import type { BaseQueryParams } from './filter.types';
+
+export type FavouriteCollection = 'projects' | 'companies' | 'main_news' | 'tenders';
 
 /**
- * Favourite Interface
+ * Favourite Item in Response
  */
-export interface Favourite {
-  id: string;
-  collection: FavouriteCollection;
-  item_id: string;
-  user_id: string;
-  date_created: string;
-  date_updated: string | null;
+export interface FavouriteItem {
+  favorite_id: string;
+  favorite_date: string;
+  [key: string]: any;
 }
 
 /**
- * Favourite with populated item data
+ * Favourites by Collection Response
  */
-export interface FavouriteWithItem {
-  id: string;
-  collection: FavouriteCollection;
-  item_id: string;
-  user_id: string;
-  date_created: string;
-  date_updated: string | null;
-  item: any;
+export interface FavouritesByCollection {
+  projects: FavouriteItem[];
+  companies: FavouriteItem[];
+  main_news: FavouriteItem[];
+  tenders: FavouriteItem[];
+}
+
+/**
+ * Favourites Query Parameters
+ */
+export interface FavouriteQueryParams extends BaseQueryParams {
+  collection?: FavouriteCollection;
 }
 
 /**
  * Favourites API Response
  */
 export interface FavouritesResponse {
-  data: FavouriteWithItem[];
-  meta?: {
-    total_count: number;
-    filter_count: number;
+  success: boolean;
+  total: string;
+  limit: number;
+  offset: number;
+  counts: {
+    projects: number;
+    companies: number;
+    main_news: number;
+    tenders: number;
   };
+  favourites: FavouritesByCollection;
 }
 
+/**
+ * Toggle Favourite Request
+ */
 export interface ToggleFavouriteRequest {
   collection: FavouriteCollection;
   item_id: string;
 }
 
+/**
+ * Toggle Favourite Response
+ */
 export interface ToggleFavouriteResponse {
-  data: Favourite | null;
+  success: boolean;
+  message: string;
 }

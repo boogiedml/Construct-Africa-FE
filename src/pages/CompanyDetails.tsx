@@ -15,6 +15,8 @@ import {
 } from '../store/services/reference';
 import { useMemo } from 'react';
 import { cleanHtmlContent } from '../utils';
+import { useToggleFavouriteMutation } from '../store/services/favourite';
+import { toast } from 'react-toastify';
 
 const CompanyDetails = () => {
     const { id } = useParams<{ id: string }>();

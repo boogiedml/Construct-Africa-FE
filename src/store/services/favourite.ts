@@ -19,13 +19,13 @@ export const favouritesApi = baseApi.injectEndpoints({
         };
 
         const queryString = buildQueryString({ ...defaultParams, ...params });
-        return `/my-favorites${queryString}`;
+        return `/favourites${queryString}`;
       },
     }),
 
     toggleFavourite: builder.mutation<ToggleFavouriteResponse, ToggleFavouriteRequest>({
       query: (body) => ({
-        url: '/favourites/toggle',
+        url: '/items/favourites',
         method: 'POST',
         body,
       }),
