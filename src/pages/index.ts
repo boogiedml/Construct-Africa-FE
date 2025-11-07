@@ -13,6 +13,7 @@ import EventDetails from "./EventDetails";
 import AdvisoryBoard from "./AdvisoryBoard";
 import ProjectDetails from "./ProjectDetails";
 import CompanyDetails from "./CompanyDetails";
+import NewsDetails from "./NewsDetails";
 
 export {
   Login,
@@ -30,4 +31,5 @@ export {
   AdvisoryBoard,
   ProjectDetails,
   CompanyDetails,
+  NewsDetails,
 };

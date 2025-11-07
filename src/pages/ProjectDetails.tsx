@@ -33,19 +33,79 @@ const ProjectDetails = () => {
         return `$${value.toLocaleString()} mn`;
     };
 
-    // Stage name mapping
-    const stageNameMap: Record<string, string> = {
-        'maincontractidevaluation': 'Main Contract - Bid Evaluation',
-        'Plan': 'Planning',
-        'Design': 'Design',
-        'Bid': 'Bidding',
-        'Build': 'Construction',
-        'Completed': 'Completed'
+    // Stage name mapping (same as Projects.tsx)
+    const mapStatusToGroup = (status: string): string => {
+        switch ((status || '').toLowerCase()) {
+            case 'conceptplanning':
+            case 'studyfeasibility':
+                return 'Study';
+            case 'design':
+                return 'Design';
+            case 'eoi':
+            case 'maincontractbid':
+            case 'maincontractidevaluation':
+                return 'Bid';
+            case 'executionunderconstruction':
+                return 'Build';
+            case 'onhold':
+                return 'On Hold';
+            case 'cancelled':
+                return 'Cancelled';
+            case 'complete':
+                return 'Complete';
+            default:
+                return 'Study';
+        }
     };
 
-    const getStageName = (stage?: string) => {
-        if (!stage) return 'N/A';
-        return stageNameMap[stage] || stage;
+    const mapStatusToStageName = (status: string): string => {
+        switch ((status || '').toLowerCase()) {
+            case 'conceptplanning':
+                return 'Planning';
+            case 'studyfeasibility':
+                return 'Study';
+            case 'design':
+                return 'Design';
+            case 'eoi':
+                return 'Qualification';
+            case 'maincontractbid':
+                return 'Bidding';
+            case 'maincontractidevaluation':
+                return 'Bids Evaluation';
+            case 'executionunderconstruction':
+                return 'Execution (Construction)';
+            case 'onhold':
+            case 'cancelled':
+            case 'complete':
+                return '';
+            default:
+                return 'Planning';
+        }
+    };
+
+    // Get stage styles for dot and background color
+    const getStageStyles = (group?: string) => {
+        const g = group?.toLowerCase() || "";
+        switch (g) {
+            case "build":
+                return { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' };
+            case "bid":
+                return { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' };
+            case "design":
+                return { dot: 'bg-[#2E90FA]', text: 'text-[#175CD3]', bg: 'bg-[#EFF8FF]' };
+            case "study":
+                return { dot: 'bg-[#AE6A19]', text: 'text-[#AE6A19]', bg: 'bg-[#FDF5E8]' };
+            case "on hold":
+            case "on_hold":
+            case "onhold":
+                return { dot: 'bg-[#717680]', text: 'text-[#525866]', bg: 'bg-[#F5F5F6]' };
+            case "cancelled":
+                return { dot: 'bg-[#D92D20]', text: 'text-[#B42318]', bg: 'bg-[#FEF3F2]' };
+            case "complete":
+                return { dot: 'bg-[#12B76A]', text: 'text-[#027A48]', bg: 'bg-[#ECFDF3]' };
+            default:
+                return { dot: 'bg-gray-500', text: 'text-gray-600', bg: 'bg-gray-50' };
+        }
     };
 
     // Parse location JSON if needed
@@ -90,7 +150,7 @@ const ProjectDetails = () => {
 
     const imageUrl = project.featured_image?.filename_disk
         ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}`
-        : 'https://plus.unsplash.com/premium_photo-1681691912442-68c4179c530c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2071';
+        : '/images/null-image.svg';
 
     // Organize companies by role
     const companyRoles = [
@@ -165,7 +225,18 @@ const ProjectDetails = () => {
                                         <FiTrello size={18} className="text-[#535862]" />
                                         <span className="text-base text-[#535862]">Stage</span>
                                     </div>
-                                    <span className="text-base text-[#181D27] ml-7">{getStageName(project.current_stage)}</span>
+                                    {project.current_stage ? (
+                                        <div className="ml-7">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).bg}`}>
+                                                <div className={`w-2 h-2 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).dot}`}></div>
+                                                <span className={`text-base font-medium ${getStageStyles(mapStatusToGroup(project.current_stage)).text}`}>
+                                                    {mapStatusToStageName(project.current_stage)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <span className="text-base text-[#181D27] ml-7">N/A</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -400,7 +471,16 @@ const ProjectDetails = () => {
                                 <h3 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">
                                     Stage
                                 </h3>
-                                <p className='text-base text-[#535862] leading-relaxed'>{getStageName(project.current_stage)}</p>
+                                {project.current_stage ? (
+                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).bg}`}>
+                                        <div className={`w-2 h-2 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).dot}`}></div>
+                                        <span className={`text-base font-medium ${getStageStyles(mapStatusToGroup(project.current_stage)).text}`}>
+                                            {mapStatusToStageName(project.current_stage)}
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <p className='text-base text-[#535862] leading-relaxed'>N/A</p>
+                                )}
                             </div>
 
                             {/* Value */}

@@ -78,6 +78,24 @@ export interface News {
   date_updated: string | null;
   moderation_state: string;
   drupal_path: string;
+  countries?: Array<{
+    countries_id: {
+      id: number;
+      name: string;
+    };
+  }>;
+  sectors?: Array<{
+    sectors_id: {
+      id: string;
+      name: string;
+    };
+  }>;
+  regions?: Array<{
+    regions_id: {
+      id: number;
+      name: string;
+    };
+  }>;
 }
 
 export interface NewsResponse {
