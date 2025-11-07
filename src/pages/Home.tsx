@@ -144,9 +144,9 @@ import { useGetProjectsQuery } from "../store/services/projects";
 import { useGetNewsQuery } from "../store/services/news";
 import { useGetTendersQuery } from "../store/services/tenders";
 import { useGetExpertsQuery } from "../store/services/expert";
-import { 
+import {
   useGetMyFavouritesQuery,
-  useToggleFavouriteMutation 
+  useToggleFavouriteMutation
 } from "../store/services/favourite";
 import { toast } from "react-toastify";
 import { useMemo } from "react";
@@ -219,7 +219,7 @@ const Home = () => {
         collection: collection as any,
         item_id: itemId
       }).unwrap();
-      
+
       toast.success('Favourite updated');
       refetchFavourites();
     } catch (error) {
@@ -230,7 +230,7 @@ const Home = () => {
 
   // Format favourites for ActivityList
   const favouriteItems = useMemo(() => {
-    return favourites.map(fav => ({
+    return favourites.data?.map((fav: any) => ({
       id: fav.id,
       title: fav.item?.title || 'Untitled',
       subtitle: fav.collection.charAt(0).toUpperCase() + fav.collection.slice(1),
@@ -312,9 +312,9 @@ const Home = () => {
                 </article>
               ))}
             </div>
-            <ActionButton 
-              buttonText="Read more news" 
-              outline 
+            <ActionButton
+              buttonText="Read more news"
+              outline
               width="fit"
               link={() => navigate('/news')}
             />

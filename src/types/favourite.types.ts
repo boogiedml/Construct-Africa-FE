@@ -17,6 +17,7 @@ export interface FavouriteItem {
  * Favourites by Collection Response
  */
 export interface FavouritesByCollection {
+  data: FavouriteItem[];
   projects: FavouriteItem[];
   companies: FavouriteItem[];
   main_news: FavouriteItem[];
@@ -38,6 +39,7 @@ export interface FavouritesResponse {
   total: string;
   limit: number;
   offset: number;
+  data: FavouritesByCollection;
   counts: {
     projects: number;
     companies: number;

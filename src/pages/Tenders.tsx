@@ -101,7 +101,6 @@ const Tenders = () => {
     if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0) {
       params['filter[region][_contains]'] = appliedFilters.region[0];
     }
-
     // Country filters
     if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0) {
       params['filter[country][_contains]'] = appliedFilters.country[0];

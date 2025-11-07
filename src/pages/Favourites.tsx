@@ -239,7 +239,7 @@ const Favourites = () => {
       label: 'Closing Date',
       sortable: true,
       width: '20%',
-      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
+      render: (value) => value ? new Date(value as string).toLocaleDateString() : '-'
     },
     {
       key: 'is_free_tender',
