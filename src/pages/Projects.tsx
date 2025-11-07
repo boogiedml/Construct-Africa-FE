@@ -26,6 +26,7 @@ import {
   type FilterPreset 
 } from "../utils/presets";
 import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
+import { useToggleFavouriteMutation } from "../store/services/favourite";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -71,6 +72,9 @@ const Projects = () => {
   const { data: regionsData } = useGetRegionsQuery();
   const { data: sectorsData } = useGetSectorsQuery();
   const { data: typesData } = useGetTypesQuery();
+
+  
+    const [toggleFavourite] = useToggleFavouriteMutation();
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
@@ -194,7 +198,7 @@ const Projects = () => {
     return params;
   }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData, typesData]);
 
-  const { data: projectsResponse, isLoading, isFetching } = useGetProjectsQuery(queryParams, {
+  const { data: projectsResponse, isLoading, isFetching, refetch } = useGetProjectsQuery(queryParams, {
     refetchOnMountOrArgChange: true
   });
 
@@ -334,6 +338,21 @@ const Projects = () => {
 
     return [...baseOptions, ...presetOptions];
   }, [presets]);
+
+    const handleToggleFavorite = async (row: any) => {
+      try {
+        await toggleFavourite({
+          collection: "projects",
+          item_id: row.id
+        }).unwrap();
+        
+        toast.success('Add to favourites');
+        refetch();
+      } catch (error) {
+        console.error('Failed to toggle favourite:', error);
+        toast.error('Failed to remove favourite');
+      }
+    };
 
   const tableColumns: TableColumn<typeof projectsWithStage[0]>[] = [
     {
@@ -703,9 +722,7 @@ const Projects = () => {
               data={projectsWithStage as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
-              onToggleFavorite={(row) => {
-                console.log('Toggle favorite:', row);
-              }}
+              onToggleFavorite={handleToggleFavorite}
               onRowClick={(row: Project) => navigate(`/admin/projects/${row.id}`)}
               currentPage={currentPage}
               onPageChange={handlePageChange}

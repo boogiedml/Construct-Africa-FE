@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ProjectCard, Tabs, DataTable, CustomSelect } from "../components";
 import { LuTable } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
+import { toast } from "react-toastify";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
+import {
+  useGetMyFavouritesQuery,
+  useToggleFavouriteMutation
+} from "../store/services/favourite";
+
+type FavouriteCategory = 'projects' | 'companies' | 'main_news' | 'tenders';
 
 const Favourites = () => {
   const [activeView, setActiveView] = useState('table');
-  const [activeCategory, setActiveCategory] = useState('projects');
+  const [activeCategory, setActiveCategory] = useState<FavouriteCategory>('projects');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('recently-added');
+
+  const itemsPerPage = 20;
 
   const sortOptions = [
     { value: 'recently-added', label: 'Recently added' },
@@ -42,7 +51,7 @@ const Favourites = () => {
       label: 'Companies'
     },
     {
-      id: 'news',
+      id: 'main_news',
       label: 'News'
     },
     {
@@ -51,255 +60,382 @@ const Favourites = () => {
     }
   ];
 
-  const projectColumns: TableColumn<typeof favouriteProjects[0]>[] = [
+  const queryParams = useMemo(() => ({
+    limit: itemsPerPage,
+    offset: (currentPage - 1) * itemsPerPage,
+  }), [currentPage]);
+
+  const { data: favouritesData, isLoading, isError, refetch } = useGetMyFavouritesQuery(queryParams);
+  const [toggleFavourite] = useToggleFavouriteMutation();
+
+  // Extract and flatten items - THE KEY FIX IS HERE
+  const displayItems = useMemo(() => {
+    if (!favouritesData?.favourites?.[activeCategory]) return [];
+    
+    return favouritesData.favourites[activeCategory].map((fav: any) => ({
+      ...fav["0"], // Extract the actual item data from "0" key
+      favorite_id: fav.favorite_id,
+      favorite_date: fav.favorite_date,
+      isFavorite: true
+    }));
+  }, [favouritesData, activeCategory]);
+
+  const itemCount = favouritesData?.counts?.[activeCategory] || 0;
+  const totalPages = Math.ceil(itemCount / itemsPerPage);
+
+  const sortedItems = useMemo(() => {
+    if (!displayItems.length) return [];
+    const sorted = [...displayItems];
+
+    switch (sortBy) {
+      case 'recently-added':
+        sorted.sort((a, b) => new Date(b.favorite_date).getTime() - new Date(a.favorite_date).getTime());
+        break;
+      case 'oldest':
+        sorted.sort((a, b) => new Date(a.favorite_date).getTime() - new Date(b.favorite_date).getTime());
+        break;
+      case 'alphabetical':
+        sorted.sort((a, b) => (a.title || a.name || '').localeCompare(b.title || b.name || ''));
+        break;
+      case 'value-high':
+        sorted.sort((a, b) => (b.contract_value_usd || 0) - (a.contract_value_usd || 0));
+        break;
+      case 'value-low':
+        sorted.sort((a, b) => (a.contract_value_usd || 0) - (b.contract_value_usd || 0));
+        break;
+    }
+
+    return sorted;
+  }, [displayItems, sortBy]);
+
+  const handleToggleFavorite = async (row: any) => {
+    try {
+      await toggleFavourite({
+        collection: activeCategory,
+        item_id: row.id
+      }).unwrap();
+      
+      toast.success('Removed from favourites');
+      refetch();
+    } catch (error) {
+      console.error('Failed to toggle favourite:', error);
+      toast.error('Failed to remove favourite');
+    }
+  };
+
+  // Project columns
+  const projectColumns: TableColumn<any>[] = [
     {
       key: 'title',
       label: 'Name',
       sortable: true,
+      width: '35%'
+    },
+    {
+      key: 'current_stage',
+      label: 'Phase',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      key: 'contract_value_usd',
+      label: 'Value (USD)',
+      sortable: true,
+      width: '20%',
+      render: (value) => value ? `$${value.toLocaleString()}` : '-'
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      width: '25%'
+    }
+  ];
+
+  // Company columns
+  const companyColumns: TableColumn<any>[] = [
+    {
+      key: 'name',
+      label: 'Company Name',
+      sortable: true,
       width: '30%'
+    },
+    {
+      key: 'company_role',
+      label: 'Role',
+      sortable: true,
+      width: '20%',
+      render: (value: any) => {
+        if (!value || !Array.isArray(value)) return '-';
+        return value.join(', ');
+      }
+    },
+    {
+      key: 'employees',
+      label: 'Employees',
+      sortable: true,
+      width: '15%'
+    },
+    {
+      key: 'projects_completed',
+      label: 'Projects',
+      sortable: true,
+      width: '15%'
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      width: '20%'
+    }
+  ];
+
+  // News columns
+  const newsColumns: TableColumn<any>[] = [
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      width: '40%'
     },
     {
       key: 'category',
       label: 'Category',
       sortable: true,
-      width: '15%'
-    },
-    {
-      key: 'location',
-      label: 'Country',
-      sortable: true,
       width: '20%'
     },
     {
-      key: 'value',
-      label: 'Value ($mn)',
+      key: 'date_published',
+      label: 'Published',
       sortable: true,
       width: '20%',
-      render: (value) => {
-        const numericValue = String(value).replace(/[^0-9.]/g, '');
-        return `${parseFloat(numericValue).toLocaleString()}`;
-      }
+      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
     },
     {
-      key: 'stage',
-      label: 'Stage',
+      key: 'status',
+      label: 'Status',
       sortable: true,
-      width: '20%',
-      render: (value) => {
-        const stageStyles = {
-          'Build': {
-            dot: 'bg-[#12B76A]',
-            text: 'text-[#027A48]',
-            bg: 'bg-[#ECFDF3]'
-          },
-          'Bid': {
-            dot: 'bg-[#AE6A19]',
-            text: 'text-[#AE6A19]',
-            bg: 'bg-[#FDF5E8]'
-          },
-          'Design': {
-            dot: 'bg-[#2E90FA]',
-            text: 'text-[#175CD3]',
-            bg: 'bg-[#EFF8FF]'
-          },
-          'Plan': {
-            dot: 'bg-[#AE6A19]',
-            text: 'text-[#AE6A19]',
-            bg: 'bg-[#FDF5E8]'
-          }
-        };
-        const styles = stageStyles[value as keyof typeof stageStyles] || {
-          dot: 'bg-gray-500',
-          text: 'text-gray-600',
-          bg: 'bg-gray-50'
-        };
-        return (
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${styles.bg}`}>
-            <div className={`w-2 h-2 rounded-full ${styles.dot}`}></div>
-            <span className={`text-sm font-medium ${styles.text}`}>{String(value)}</span>
-          </div>
-        );
-      }
+      width: '20%'
     }
   ];
 
-  const favouriteProjects = [
+  // Tender columns
+  const tenderColumns: TableColumn<any>[] = [
     {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80",
-      status: "Accepting proposals",
-      title: "Smart Home Residential Development in Accra",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Build",
-      isFavorite: true
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      width: '35%'
     },
     {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Eco-Friendly Office Spaces in Nairobi",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Build",
-      isFavorite: true
+      key: 'tender_date',
+      label: 'Tender Date',
+      sortable: true,
+      width: '20%',
+      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
     },
     {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Mixed-Use Development in Johannesburg",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Build",
-      isFavorite: true
+      key: 'closing_date',
+      label: 'Closing Date',
+      sortable: true,
+      width: '20%',
+      render: (value) => value ? new Date(value).toLocaleDateString() : '-'
     },
     {
-      id: 4,
-      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Innovative Public Transport System",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Plan",
-      isFavorite: true
+      key: 'is_free_tender',
+      label: 'Type',
+      sortable: true,
+      width: '15%',
+      render: (value) => value ? 'Free' : 'Premium'
     },
     {
-      id: 5,
-      image: "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80",
-      status: "Accepting proposals",
-      title: "Smart Home Residential Development in Accra",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Bid",
-      isFavorite: true
-    },
-    {
-      id: 6,
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Eco-Friendly Office Spaces in Nairobi",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Design",
-      isFavorite: true
-    },
-    {
-      id: 7,
-      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Mixed-Use Development in Johannesburg",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Design",
-      isFavorite: true
-    },
-    {
-      id: 8,
-      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Innovative Public Transport System",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Plan",
-      isFavorite: true
-    },
-    {
-      id: 9,
-      image: "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80",
-      status: "Accepting proposals",
-      title: "Smart Home Residential Development in Accra",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Plan",
-      isFavorite: true
-    },
-    {
-      id: 10,
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      status: "Accepting proposals",
-      title: "Eco-Friendly Office Spaces in Nairobi",
-      description: "The Accra Regional Transportation Project aims to enhance urban mobility and reduce traffic congestion in the city.",
-      location: "Cape Town, South Africa",
-      category: "Transport/Infrastructure",
-      value: "$ 1,900 (USD million)",
-      stage: "Plan",
-      isFavorite: true
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      width: '10%'
     }
   ];
+
+  const getColumnsForCategory = () => {
+    switch (activeCategory) {
+      case 'projects':
+        return projectColumns;
+      case 'companies':
+        return companyColumns;
+      case 'main_news':
+        return newsColumns;
+      case 'tenders':
+        return tenderColumns;
+      default:
+        return projectColumns;
+    }
+  };
 
   const renderContent = () => {
-    if (activeCategory === 'projects') {
-      if (activeView === 'grid') {
+    if (isLoading) {
+      return (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+          <p className="mt-4 text-gray-500">Loading favourites...</p>
+        </div>
+      );
+    }
+
+    if (isError) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-red-500">Error loading favourites</p>
+        </div>
+      );
+    }
+
+    if (sortedItems.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No favorite {activeCategory} found</p>
+        </div>
+      );
+    }
+
+    // Grid View
+    if (activeView === 'grid') {
+      // Projects Grid
+      if (activeCategory === 'projects') {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {favouriteProjects.map((item) => (
+            {sortedItems.map((item) => (
               <ProjectCard
-                key={item.id}
-                image={item.image}
-                status={item.status}
+                key={item.favorite_id}
+                image={item.featured_image || "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80"}
+                status={item.status || "Active"}
                 title={item.title}
-                description={item.description}
-                location={item.location}
-                category={item.category}
-                value={item.value}
-                isFavorite={item.isFavorite}
+                description={item.summary}
+                location="-"
+                category={item.current_stage || '-'}
+                value={item.contract_value_usd ? `$${item.contract_value_usd}` : '-'}
+                isFavorite={true}
+                // onToggleFavorite={() => handleToggleFavorite(item)}
               />
             ))}
           </div>
         );
-      } else {
+      }
+
+      // Companies Grid
+      if (activeCategory === 'companies') {
         return (
-          <DataTable
-            data={favouriteProjects}
-            columns={projectColumns}
-            onRowSelect={(rows) => console.log('Selected rows:', rows)}
-            onToggleFavorite={(row) => {
-              console.log('Toggle favorite:', row);
-            }}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            totalPages={Math.ceil(favouriteProjects.length / 5)}
-            showCheckboxes={true}
-            showFavorites={true}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedItems.map((item) => (
+              <div key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex items-start gap-3">
+                  {item.logo && (
+                    <img 
+                      src={item.logo} 
+                      alt={item.name}
+                      className="w-12 h-12 rounded object-contain"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {item.company_role?.join(', ') || '-'}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>{item.employees || 0} employees</span>
+                      <span>{item.projects_completed || 0} projects</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      // News Grid
+      if (activeCategory === 'main_news') {
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedItems.map((item) => (
+              <article key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                {item.featured_image && (
+                  <img 
+                    src={item.featured_image} 
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                )}
+                <div className="p-4">
+                  <span className="text-xs text-[#E0891E] font-medium">{item.category}</span>
+                  <h3 className="font-semibold text-gray-900 mt-1 mb-2 line-clamp-2">{item.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-3">{item.summary}</p>
+                  <div className="mt-3 text-xs text-gray-500">
+                    {item.date_published && new Date(item.date_published).toLocaleDateString()}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        );
+      }
+
+      // Tenders Grid
+      if (activeCategory === 'tenders') {
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedItems.map((item) => (
+              <div key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-3">{item.description}</p>
+                <div className="space-y-1 text-sm">
+                  {item.tender_date && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Tender Date:</span>
+                      <span className="text-gray-900">{new Date(item.tender_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {item.closing_date && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Closing Date:</span>
+                      <span className="text-gray-900">{new Date(item.closing_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Type:</span>
+                    <span className={`${item.is_free_tender ? 'text-green-600' : 'text-blue-600'} font-medium`}>
+                      {item.is_free_tender ? 'Free' : 'Premium'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         );
       }
     }
 
-    // Placeholder for other categories
+    // Table View (All Categories)
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">No favorite {activeCategory} found</p>
-      </div>
+      <DataTable
+        data={sortedItems}
+        columns={getColumnsForCategory()}
+        onRowSelect={(rows) => console.log('Selected rows:', rows)}
+        onToggleFavorite={handleToggleFavorite}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        totalPages={totalPages}
+        showCheckboxes={true}
+        showFavorites={true}
+      />
     );
   };
 
   return (
     <div className="min-h-screen mx-auto py-5 md:py-8">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Favourites</h1>
-          <p className="text-[#535862]">Showing favourites</p>
+          <p className="text-[#535862]">Showing {itemCount} favourite {activeCategory}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -312,7 +448,6 @@ const Favourites = () => {
         </div>
       </div>
 
-      {/* View Tabs */}
       <div className="flex justify-between items-center mb-6">
         <Tabs
           tabs={viewTabs}
@@ -323,11 +458,13 @@ const Favourites = () => {
         <Tabs
           tabs={categoryTabs}
           activeTab={activeCategory}
-          onTabChange={setActiveCategory}
+          onTabChange={(tab) => {
+            setActiveCategory(tab as FavouriteCategory);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
-      {/* Content */}
       {renderContent()}
     </div>
   );

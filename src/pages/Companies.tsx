@@ -24,6 +24,7 @@ import {
   getDefaultView,
   type FilterPreset
 } from "../utils/presets";
+import { useToggleFavouriteMutation } from "../store/services/favourite";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -68,6 +69,23 @@ const Companies = () => {
   const { data: countriesData } = useGetCountriesQuery();
   const { data: regionsData } = useGetRegionsQuery();
   const { data: sectorsData } = useGetSectorsQuery();
+
+  const [toggleFavourite] = useToggleFavouriteMutation();
+
+        const handleToggleFavorite = async (row: any) => {
+              try {
+                await toggleFavourite({
+                  collection: "companies",
+                  item_id: row.id
+                }).unwrap();
+                
+                toast.success('Added to favourites');
+                refetch();
+              } catch (error) {
+                console.error('Failed to toggle favourite:', error);
+                toast.error('Failed to add favourite');
+              }
+            };
 
   // Build query parameters based on state
   const queryParams = useMemo<CompanyQueryParams>(() => {
@@ -155,7 +173,7 @@ const Companies = () => {
     return params;
   }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters, countriesData, regionsData, sectorsData]);
 
-  const { data: companiesResponse, isLoading, isFetching } = useGetCompaniesQuery(queryParams);
+  const { data: companiesResponse, isLoading, isFetching, refetch } = useGetCompaniesQuery(queryParams);
 
   // Reset accumulated companies when filters, sorting, or view changes
   useEffect(() => {
@@ -590,9 +608,7 @@ const Companies = () => {
               data={companies as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
-              onToggleFavorite={(row) => {
-                console.log('Toggle favorite:', row);
-              }}
+              onToggleFavorite={handleToggleFavorite}
               onRowClick={(row: any) => navigate(`/admin/companies/${row.id}`)}
               currentPage={currentPage}
               onPageChange={handlePageChange}

@@ -15,12 +15,12 @@ export const tendersApi = baseApi.injectEndpoints({
         };
 
         const queryString = buildQueryString({ ...defaultParams, ...params });
-        return `items/tenders${queryString}`;
+        return `items/projects_tenders${queryString}`;
       },
     }),
 
     getTenderById: builder.query<{ data: Tender }, string>({
-      query: (id) => `items/tenders/${id}?fields=*,featured_image.*`,
+      query: (id) => `items/projects_tenders/${id}?fields=*,featured_image.*`,
     }),
   }),
 });
