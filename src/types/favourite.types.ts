@@ -46,7 +46,7 @@ export interface FavouritesResponse {
     main_news: number;
     tenders: number;
   };
-  favourites: FavouritesByCollection;
+  favorites: FavouritesByCollection;
 }
 
 /**

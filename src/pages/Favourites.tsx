@@ -70,14 +70,15 @@ const Favourites = () => {
 
   // Extract and flatten items - THE KEY FIX IS HERE
   const displayItems = useMemo(() => {
-    if (!favouritesData?.favourites?.[activeCategory]) return [];
+    if (!favouritesData?.favorites?.[activeCategory]) return [];
     
-    return favouritesData.favourites[activeCategory].map((fav: any) => ({
-      ...fav["0"], // Extract the actual item data from "0" key
+    const data = favouritesData.favorites[activeCategory].map((fav: any) => ({
+      ...fav, // Extract the actual item data from "0" key
       favorite_id: fav.favorite_id,
       favorite_date: fav.favorite_date,
       isFavorite: true
     }));
+    return data
   }, [favouritesData, activeCategory]);
 
   const itemCount = favouritesData?.counts?.[activeCategory] || 0;
@@ -115,11 +116,11 @@ const Favourites = () => {
         item_id: row.id
       }).unwrap();
       
-      toast.success('Removed from favourites');
+      toast.success('Added to favourites');
       refetch();
     } catch (error) {
       console.error('Failed to toggle favourite:', error);
-      toast.error('Failed to remove favourite');
+      toast.error('Failed to add to favourite');
     }
   };
 

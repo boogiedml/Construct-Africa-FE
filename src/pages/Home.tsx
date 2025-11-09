@@ -210,7 +210,14 @@ const Home = () => {
   const recentProjects = recentProjectsData?.data || [];
   const recentTenders = recentTendersData?.data || [];
   const experts = expertsData?.data || [];
-  const favourites = favouritesData?.data || [];
+  const favourites = [
+    ...(Array.isArray(favouritesData?.favorites?.projects)
+      ? favouritesData!.favorites!.projects.map((p: any) => ({ ...p, collection: "project" }))
+      : []),
+    ...(Array.isArray(favouritesData?.favorites?.companies)
+      ? favouritesData!.favorites!.companies.map((c: any) => ({ ...c, collection: "company" }))
+      : []),
+  ];
 
   // Handle favourite toggle
   const handleToggleFavourite = async (collection: string, itemId: string) => {
@@ -227,14 +234,14 @@ const Home = () => {
       toast.error('Failed to update favourite');
     }
   };
-
   // Format favourites for ActivityList
   const favouriteItems = useMemo(() => {
-    return favourites.data?.map((fav: any) => ({
+    const list = favourites ?? [];
+    return list.map((fav: any) => ({
       id: fav.id,
-      title: fav.item?.title || 'Untitled',
-      subtitle: fav.collection.charAt(0).toUpperCase() + fav.collection.slice(1),
-      date: fav.date_created
+      title: fav?.title || fav?.name || 'Untitled',
+      type: fav.collection ? fav.collection.charAt(0).toUpperCase() + fav.collection.slice(1) : '',
+      date: new Date(fav.date_created).toLocaleDateString(),
     }));
   }, [favourites]);
 
