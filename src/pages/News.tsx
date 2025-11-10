@@ -13,22 +13,23 @@ import type { News as NewsType } from "../types/news.types";
 import type { NewsQueryParams, AppFilters } from "../types/filter.types";
 import { cleanHtmlContent } from "../utils";
 import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
-import { 
-  getPresets, 
-  getPresetById, 
-  saveDefaultView, 
+import {
+  getPresets,
+  getPresetById,
+  saveDefaultView,
   getDefaultView,
-  type FilterPreset 
+  type FilterPreset
 } from "../utils/presets";
+import { useToggleFavouriteMutation } from "../store/services/favourite";
 
 const ITEMS_PER_PAGE = 25;
 
 const News = () => {
   const navigate = useNavigate();
-  
+
   // Load default view on component mount
   const defaultView = getDefaultView('news');
-  
+
   const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
@@ -60,11 +61,28 @@ const News = () => {
     }
   }, []);
 
+  const [toggleFavourite] = useToggleFavouriteMutation();
+
+  const handleToggleFavorite = async (row: any) => {
+    try {
+      await toggleFavourite({
+        collection: "companies",
+        item_id: row.id
+      }).unwrap();
+
+      toast.success('Added to favourites');
+      refetch();
+    } catch (error) {
+      console.error('Failed to toggle favourite:', error);
+      toast.error('Failed to add favourite');
+    }
+  };
+
   // Build query parameters based on state
   const queryParams = useMemo<NewsQueryParams>(() => {
     // Use gridPage for grid view, currentPage for table view
     const pageToUse = activeView === 'grid' ? gridPage : currentPage;
-    
+
     const params: NewsQueryParams = {
       limit: ITEMS_PER_PAGE,
       offset: (pageToUse - 1) * ITEMS_PER_PAGE,
@@ -159,7 +177,7 @@ const News = () => {
     return params;
   }, [activeView, gridPage, currentPage, sortBy, grouping, appliedFilters]);
 
-  const { data: newsResponse, isLoading, isFetching } = useGetNewsQuery(queryParams);
+  const { data: newsResponse, isLoading, isFetching, refetch } = useGetNewsQuery(queryParams);
 
   // Reset accumulated news when filters, sorting, or view changes
   useEffect(() => {
@@ -364,10 +382,10 @@ const News = () => {
     setCurrentPage(1);
     setGridPage(1);
     setAccumulatedNews([]);
-    
+
     // Clear active preset since filters were manually changed
     setActivePresetId(undefined);
-    
+
     // If sortBy was a preset, reset to default
     if (sortBy.startsWith('preset_')) {
       setSortBy('recently-added');
@@ -385,14 +403,14 @@ const News = () => {
       },
       'news'
     );
-    
+
     toast.success('View saved as default successfully!');
   };
 
   // Handle view change
   const handleViewChange = (newView: string) => {
     setActiveView(newView);
-    
+
     // Reset pagination when switching views
     if (newView === 'grid') {
       setGridPage(1);
@@ -523,7 +541,7 @@ const News = () => {
         <div className={showCharts || showFilters ? 'flex-1' : ''}>
           {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div 
+            <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >
@@ -591,9 +609,7 @@ const News = () => {
               data={newsItems as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
-              onToggleFavorite={(row) => {
-                console.log('Toggle favorite:', row);
-              }}
+              onToggleFavorite={handleToggleFavorite}
               onRowClick={(row: NewsType) => navigate(`/admin/news/${row.id}`)}
               currentPage={currentPage}
               onPageChange={handlePageChange}
