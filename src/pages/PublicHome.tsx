@@ -1,17 +1,18 @@
-import { ActionButton, ExpertCard, Input, Select } from "../components";
+import { ActionButton, ExpertCard, Input, ProjectCard3, Select } from "../components";
 import Marquee from "react-fast-marquee";
-// import { Swiper, SwiperSlide } from 'swiper/react';
-// import { Navigation } from 'swiper/modules';
-// import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
-// import { HiLockClosed } from 'react-icons/hi2';
-// import { HiArrowUpRight } from 'react-icons/hi2';
-import { useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
+import { useState, useEffect, useMemo } from 'react';
 import { featuredOpinions, teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
 
 
 const PublicHome = () => {
-    const [expandedFeature, setExpandedFeature] = useState('confidence');
+    const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
+    const [progress, setProgress] = useState(0);
+    const [imageOpacity, setImageOpacity] = useState(1);
+    const [displayedImage, setDisplayedImage] = useState('/images/benefit-01.svg');
 
     const brandLogos = [
         { id: 1, name: "Aksa", logo: "/logos/aksa.svg" },
@@ -20,76 +21,120 @@ const PublicHome = () => {
         { id: 4, name: "EH", logo: "/logos/eh.svg" },
     ];
 
-    const features = [
+    const features = useMemo(() => [
         {
             id: 'simple',
             title: 'Make Complex Simple',
-            description: 'Transform complex project data into clear, actionable insights that drive better decisions.'
+            description: 'Transform complex project data into clear, actionable insights that drive better decisions.',
+            image: '/images/benefit-01.svg',
+            headerBadge: 'Easy Search',
+            headerText: 'Stramline searches with filters'
         },
         {
             id: 'confidence',
             title: 'Act With Confidence',
-            description: 'Every project is verified by local researchers, giving you trusted, decision-ready intelligence you can rely on.'
+            description: 'Every project is verified by local researchers, giving you trusted, decision-ready intelligence you can rely on.',
+            image: '/images/benefit-02.svg',
+            headerBadge: 'Verified',
+            headerText: 'Capable researchers with years of experience'
         },
         {
             id: 'win',
             title: 'Win Projects',
-            description: 'Get early access to opportunities and competitive intelligence to secure more contracts.'
+            description: 'Gain early access to project opportunities across Africa, so you can position first, engage early, and win deals.',
+            image: '/images/benefit-03.svg',
+            headerBadge: 'Email Inbox',
+            headerText: 'Email notifications for all projects'
         },
         {
             id: 'ahead',
             title: 'Stay Ahead',
-            description: 'Monitor market trends and emerging opportunities before your competitors even know they exist.'
+            description: 'Monitor market trends and emerging opportunities before your competitors even know they exist.',
+            image: '/images/benefit-04.svg',
+            headerBadge: 'Updates',
+            headerText: 'Live updates on every followed projects'
+        }
+    ], []);
+
+    useEffect(() => {
+        if (features[0]?.image) {
+            setDisplayedImage(features[0].image);
+        }
+    }, [features]);
+
+    useEffect(() => {
+        const currentImage = features[activeFeatureIndex]?.image || '/images/benefit-01.svg';
+
+        setImageOpacity(0);
+
+        const fadeTimeout = setTimeout(() => {
+            setDisplayedImage(currentImage);
+            setImageOpacity(1);
+        }, 300);
+
+        return () => clearTimeout(fadeTimeout);
+    }, [activeFeatureIndex, features]);
+
+    useEffect(() => {
+        setProgress(0);
+
+        const progressInterval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) {
+                    return 0;
+                }
+                return prev + (100 / (4000 / 50));
+            });
+        }, 50);
+
+        const featureInterval = setInterval(() => {
+            setActiveFeatureIndex((prevIndex) => (prevIndex + 1) % features.length);
+            setProgress(0);
+        }, 4000);
+
+        return () => {
+            clearInterval(progressInterval);
+            clearInterval(featureInterval);
+        };
+    }, [activeFeatureIndex, features.length]);
+
+    const trendingProjects = [
+        {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1762755126280-6d8a4f9d1115?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",
+            location: "West Africa",
+            title: "Egypt seeks consultants for an administration building",
+            description: "The Egyptian Environmental Affairs Agency invites consulting firms to indicate interest. The Egyptian Environmental Affairs Agenc...",
+        },
+        {
+            id: 2,
+            image: "https://images.unsplash.com/photo-1762755126280-6d8a4f9d1115?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",
+            location: "East Africa",
+            title: "Kenya Infrastructure Development Project",
+            description: "Major infrastructure development initiative across multiple regions in Kenya including roads, bridges, and public facilities...",
+        },
+        {
+            id: 3,
+            image: "https://images.unsplash.com/photo-1762755126280-6d8a4f9d1115?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",
+            location: "South Africa",
+            title: "Cape Town Smart City Initiative",
+            description: "Comprehensive smart city development project focusing on sustainable urban planning and digital infrastructure...",
+        },
+        {
+            id: 4,
+            image: "https://images.unsplash.com/photo-1762755126280-6d8a4f9d1115?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",
+            location: "Central Africa",
+            title: "Renewable Energy Grid Expansion",
+            description: "Large-scale renewable energy infrastructure project to expand the national grid across multiple provinces...",
+        },
+        {
+            id: 5,
+            image: "https://images.unsplash.com/photo-1762755126280-6d8a4f9d1115?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",
+            location: "North Africa",
+            title: "Port Modernization Program",
+            description: "Comprehensive modernization of major port facilities including container terminals and logistics infrastructure...",
         }
     ];
-
-    // const trendingProjects = [
-    //     {
-    //         id: 1,
-    //         image: "/images/projects/project1.jpg",
-    //         location: "West Africa",
-    //         title: "Egypt seeks consultants for an administration building",
-    //         description: "The Egyptian Environmental Affairs Agency invites consulting firms to indicate interest. The Egyptian Environmental Affairs Agenc...",
-    //         author: "Phoenix Baker",
-    //         date: "19 Jan 2025"
-    //     },
-    //     {
-    //         id: 2,
-    //         image: "/images/projects/project2.jpg",
-    //         location: "East Africa",
-    //         title: "Kenya Infrastructure Development Project",
-    //         description: "Major infrastructure development initiative across multiple regions in Kenya including roads, bridges, and public facilities...",
-    //         author: "Sarah Johnson",
-    //         date: "18 Jan 2025"
-    //     },
-    //     {
-    //         id: 3,
-    //         image: "/images/projects/project3.jpg",
-    //         location: "South Africa",
-    //         title: "Cape Town Smart City Initiative",
-    //         description: "Comprehensive smart city development project focusing on sustainable urban planning and digital infrastructure...",
-    //         author: "Michael Chen",
-    //         date: "17 Jan 2025"
-    //     },
-    //     {
-    //         id: 4,
-    //         image: "/images/projects/project4.jpg",
-    //         location: "Central Africa",
-    //         title: "Renewable Energy Grid Expansion",
-    //         description: "Large-scale renewable energy infrastructure project to expand the national grid across multiple provinces...",
-    //         author: "Aisha Okafor",
-    //         date: "16 Jan 2025"
-    //     },
-    //     {
-    //         id: 5,
-    //         image: "/images/projects/project5.jpg",
-    //         location: "North Africa",
-    //         title: "Port Modernization Program",
-    //         description: "Comprehensive modernization of major port facilities including container terminals and logistics infrastructure...",
-    //         author: "David Rodriguez",
-    //         date: "15 Jan 2025"
-    //     }
-    // ];
 
     return (
         <div>
@@ -150,34 +195,34 @@ const PublicHome = () => {
 
             {/* Trending Projects Section */}
             <section className="py-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-base font-bold text-[#414651] mb-4 uppercase tracking-wide">
                             Trending Projects
                         </h2>
                         <h3 className="text-3xl text-[#414651] font-bitter">
-                            Projects Across Africa At Your Fingertips
+                            Get Insights and Updates on Projects Across Africa
                         </h3>
                     </div>
 
-                    {/* <div className="relative">
+                    <div className="relative mb-10">
                         <Swiper
                             modules={[Navigation]}
-                            spaceBetween={24}
-                            slidesPerView={1}
+                            spaceBetween={20}
+                            slidesPerView={3}
                             loop={true}
                             centeredSlides={false}
-                            breakpoints={{
-                                640: {
-                                    slidesPerView: 2,
-                                },
-                                768: {
-                                    slidesPerView: 2.5,
-                                },
-                                1024: {
-                                    slidesPerView: 2.7,
-                                },
-                            }}
+                            // breakpoints={{
+                            //     640: {
+                            //         slidesPerView: 2,
+                            //     },
+                            //     768: {
+                            //         slidesPerView: 2.5,
+                            //     },
+                            //     1024: {
+                            //         slidesPerView: 2.7,
+                            //     },
+                            // }}
                             navigation={{
                                 nextEl: '.swiper-button-next-custom',
                                 prevEl: '.swiper-button-prev-custom',
@@ -186,58 +231,38 @@ const PublicHome = () => {
                         >
                             {trendingProjects.map((project) => (
                                 <SwiperSlide key={project.id}>
-                                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
-                                        <div className="relative">
-                                            <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                                <span className="text-gray-400 text-sm">Project Image</span>
-                                            </div>
-
-                                            <div className="absolute top-3 left-3 bg-[#D4A574] text-white px-2 py-1 rounded-md flex items-center gap-1 text-xs font-medium">
-                                                <HiLockClosed size={12} />
-                                                Paid
-                                            </div>
-                                        </div>
-
-                                        <div className="p-6 relative">
-                                            <p className="text-sm text-[#F89822] font-semibold mb-2">{project.location}</p>
-                                            <h4 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
-                                                {project.title}
-                                            </h4>
-                                            <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                                                {project.description}
-                                            </p>
-
-                                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center">
-                                                    <span className="text-xs">👤</span>
-                                                </div>
-                                                <span>{project.author}</span>
-                                                <span>•</span>
-                                                <span>{project.date}</span>
-                                            </div>
-
-                                            <div className="absolute top-6 right-6 text-gray-400 hover:text-[#F89822] cursor-pointer">
-                                                <HiArrowUpRight size={20} />
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <ProjectCard3 project={{
+                                        image: project.image,
+                                        id: project.id.toString(),
+                                        title: project.title,
+                                        description: project.description,
+                                        location: project.location,
+                                    }} />
                                 </SwiperSlide>
                             ))}
                         </Swiper>
 
-                        <button className="swiper-button-prev-custom absolute left-[-20px] top-[96px] z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
+                        <button className="swiper-button-prev-custom absolute left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
                             <IoArrowBack size={20} className="text-gray-600" />
                         </button>
-                        <button className="swiper-button-next-custom absolute right-[-20px] top-[96px] z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
+                        <button className="swiper-button-next-custom absolute right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
                             <IoArrowForward size={20} className="text-gray-600" />
                         </button>
-                    </div> */}
+                    </div>
+                    <div className="flex justify-center">
+                        <ActionButton
+                            buttonText="View More Projects"
+                            link="/projects"
+                            width="fit"
+                            paddingX="px-8"
+                        />
+                    </div>
                 </div>
             </section>
 
             {/* Features Section */}
             <section className="py-20 px-5 sm:px-10 lg:px-20">
-                <div className="flex flex-col items-stretch lg:flex-row gap-20">
+                <div className="flex flex-col items-start lg:flex-row gap-20">
                     <div className="flex-1">
                         <p className="text-base text-[#414651] uppercase tracking-wide mb-4">
                             BUILT FOR RESULTS. POWERED BY INSIGHTS.
@@ -250,37 +275,63 @@ const PublicHome = () => {
                         </p>
 
                         <div className="space-y-0">
-                            {features.map((feature) => (
-                                <div key={feature.id} className="border-b-2 border-[#D5D7DA] mb-3">
-                                    <button
-                                        onClick={() => setExpandedFeature(expandedFeature === feature.id ? "" : feature.id)}
-                                        className="w-full text-left py-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+                            {features.map((feature, index) => {
+                                const isActive = index === activeFeatureIndex;
+                                return (
+                                    <div
+                                        key={feature.id}
+                                        className="mb-3 relative"
                                     >
-                                        <h3 className={`text-[20px] font-semibold ${expandedFeature === feature.id ? "text-[#181D27]" : "text-[#A4A7AE]"}`}>
-                                            {feature.title}
-                                        </h3>
-                                    </button>
+                                        <div className="border-b-2 border-[#D5D7DA]">
+                                            <div className="w-full text-left py-4">
+                                                <h3 className={`text-[20px] font-semibold transition-colors duration-500 ${isActive ? "text-[#181D27]" : "text-[#A4A7AE]"
+                                                    }`}>
+                                                    {feature.title}
+                                                </h3>
+                                            </div>
 
-                                    {expandedFeature === feature.id && (
-                                        <div className="pb-4">
-                                            <p className="text-[#414651] text-base leading-relaxed">
-                                                {feature.description}
-                                            </p>
+                                            <div
+                                                className={`pb-4 transition-all duration-500 overflow-hidden ${isActive ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                                    }`}
+                                            >
+                                                <p className="text-[#414651] text-base leading-relaxed">
+                                                    {feature.description}
+                                                </p>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                            ))}
+
+                                        {isActive && (
+                                            <div
+                                                className="absolute bottom-0 left-0 h-[2px] bg-[#E0891E] transition-all duration-75 ease-linear"
+                                                style={{ width: `${progress}%` }}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
                     <div className="flex-1">
-                        <div className="bg-[#535862] rounded-4xl p-10 h-full">
-                            {/* Top Bar */}
-                            <div className="flex items-center gap-6 justify-center mb-4">
+                        <div style={{
+                            background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
+                        }} className="rounded-4xl pt-10 px-16 h-full flex flex-col">
+                            <div className="flex items-center gap-6 justify-center mb-6">
                                 <div className="bg-white text-[#181D27] px-3 py-1 rounded-full text-sm font-medium">
-                                    Email inbox
+                                    {features[activeFeatureIndex]?.headerBadge || 'Email inbox'}
                                 </div>
-                                <span className="text-white text-base">Email notifications for all projects</span>
+                                <span className="text-white text-base">
+                                    {features[activeFeatureIndex]?.headerText || 'Email notifications for all projects'}
+                                </span>
+                            </div>
+
+                            <div className="flex-1 border-[#a2a6ac] border-6 rounded-t-4xl border-b-0 p-2 pb-0">
+                                <img
+                                    src={displayedImage}
+                                    alt={features[activeFeatureIndex]?.title || 'Email notifications'}
+                                    className="w-full h-full object-cover transition-opacity duration-500 rounded-t-3xl"
+                                    style={{ opacity: imageOpacity }}
+                                />
                             </div>
                         </div>
                     </div>
@@ -288,21 +339,96 @@ const PublicHome = () => {
             </section>
 
             <section className="py-20">
-                <div className="max-w-7xl p-14 bg-[#414651] mx-auto rounded-2xl">
-                    <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-white mb-6">
-                        Make Smarter Decisions
-                    </h2>
-                    <p className="text-[20px] text-white mb-8 leading-relaxed">
-                        Uncover hidden opportunities and automate complex tasks with AI that works as hard as you do. Just ask.
-                    </p>
+                <div className="max-w-7xl p-14 bg-[url('/images/cta-bg.png')] bg-cover bg-center mx-auto rounded-2xl relative overflow-hidden flex items-center justify-between">
+                    <div className="absolute inset-0 bg-black/50" />
+                    <div className="z-10 relative">
+                        <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-white mb-4">
+                            Make Smarter Decisions
+                        </h2>
+                        <p className="text-base text-white leading-relaxed">
+                            Get real-time insights to make quick decisions and stay ahead in Africa's construction industry.
+                        </p>
+                    </div>
                     <ActionButton
-                        buttonText="Request demo"
+                        buttonText="Book a Demo"
                         width="fit"
                         textColor="#181D27"
                         backgroundColor="#ffffff"
                         textSize="text-base"
-                        paddingX="px-8"
                     />
+                </div>
+            </section>
+
+            {/* News and Insights Section */}
+            <section className="py-20">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-base font-bold text-[#414651] mb-4 uppercase tracking-wide">
+                            NEWS AND INSIGHTS
+                        </h2>
+                        <h3 className="text-3xl text-[#414651] font-bitter">
+                            Keep up-to-date with the Construction Landscape in Africa
+                        </h3>
+                    </div>
+
+                    <div className="relative mb-10">
+                        <Swiper
+                            modules={[Navigation]}
+                            spaceBetween={20}
+                            slidesPerView={3}
+                            loop={true}
+                            centeredSlides={false}
+                            navigation={{
+                                nextEl: '.swiper-button-next-custom',
+                                prevEl: '.swiper-button-prev-custom',
+                            }}
+                            className="trending-projects-swiper"
+                        >
+                            {trendingProjects.map((project) => (
+                                <SwiperSlide key={project.id}>
+                                    <ProjectCard3 project={{
+                                        image: project.image,
+                                        id: project.id.toString(),
+                                        title: project.title,
+                                        description: project.description,
+                                        location: project.location,
+                                    }} />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+
+                        <button className="swiper-button-prev-custom absolute left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
+                            <IoArrowBack size={20} className="text-gray-600" />
+                        </button>
+                        <button className="swiper-button-next-custom absolute right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
+                            <IoArrowForward size={20} className="text-gray-600" />
+                        </button>
+                    </div>
+                    <div className="flex justify-center">
+                        <ActionButton
+                            buttonText="View More News"
+                            link="/news"
+                            width="fit"
+                            paddingX="px-8"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <section className="pb-20">
+                <div className="max-w-7xl p-14 bg-[#FAFAFA] mx-auto rounded-2xl relative overflow-hidden">
+                    <h2 className="text-3xl lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-5">
+                        Stay Ahead with Insights on LinkedIn
+                    </h2>
+                    <p className="text-base text-[#535862] mb-8 leading-relaxed max-w-xl">
+                        Get the latest project updates, trends, and expert analysis delivered directly through our LinkedIn Newsletter.
+                    </p>
+                    <ActionButton
+                        buttonText="Subscribe Now"
+                        width="fit"
+                        paddingX="px-3"
+                    />
+                    <img className="w-[400px] object-cover absolute right-0 bottom-0 rounded-tl-3xl" src="https://plus.unsplash.com/premium_photo-1681989486976-9ec9d2eac57a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29uc3RydWN0aW9ufGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900" alt="" />
                 </div>
             </section>
 
@@ -327,20 +453,25 @@ const PublicHome = () => {
             </section>
 
             <section className="py-20">
-                <div className="max-w-7xl p-14 bg-[#414651] mx-auto rounded-2xl">
-                    <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-white mb-6">
-                        Get listed
-                    </h2>
-                    <p className="text-[20px] text-white mb-8 leading-relaxed">
-                        Get a competitive edge with Construct Africa. Join thousands of companies making data-driven decisions.
-                    </p>
+                <div style={{
+                    background: "linear-gradient(26.57deg, #252B37 8.33%, #414651 91.67%)",
+                }} className="max-w-7xl p-14 mx-auto rounded-2xl flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl lg:text-[30px] font-bitter font-semibold text-white mb-4">
+                            Get listed
+                        </h2>
+                        <p className="text-base text-white leading-relaxed">
+                            Get a competitive edge with Construct Africa. Join thousands of companies making data-driven decisions.
+                        </p>
+                    </div>
                     <ActionButton
-                        buttonText="Request demo"
+                        buttonText="Request Listing"
                         width="fit"
                         textColor="#181D27"
                         backgroundColor="#ffffff"
                         textSize="text-base"
                         paddingX="px-8"
+                        link="/get-listed"
                     />
                 </div>
             </section>
@@ -353,7 +484,7 @@ const PublicHome = () => {
                     </p>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 sm:gap-6 mt-5 lg:mt-10">
-                    {teamMembers.map((member, index: number) => (
+                    {teamMembers.slice(0, 4).map((member, index: number) => (
                         <TeamMemberCard
                             key={index}
                             member={member}
@@ -440,9 +571,10 @@ const PublicHome = () => {
                                     }} />
 
                                 <ActionButton
-                                    buttonText="Request a demo"
+                                    buttonText="Request listing"
                                     backgroundColor="#E0891E"
                                     textSize="text-base"
+                                    width="full"
                                 />
                             </form>
                         </div>

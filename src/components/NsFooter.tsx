@@ -15,20 +15,20 @@ const NsFooter = () => {
         {
             title: "About",
             links: [
-                { label: "Contact Us", href: "#" },
-                { label: "About ConstructAfrica", href: "#" },
+                { label: "Contact Us", href: "/contact" },
+                { label: "About ConstructAfrica", href: "/about" },
                 { label: "Advisory Board", href: "#" }
             ]
         },
         {
             title: "Useful Links",
             links: [
-                { label: "Privacy Policy", href: "#" },
-                { label: "Terms & Conditions", href: "#" },
-                { label: "GDPR", href: "#" },
-                { label: "Refund Policy", href: "#" },
+                { label: "Privacy Policy", href: "/privacy-policy" },
+                { label: "Terms & Conditions", href: "/terms-and-conditions" },
+                { label: "GDPR", href: "/gdpr" },
+                { label: "Refund Policy", href: "/refund-policy" },
                 { label: "Advertise", href: "#" },
-                { label: "FAQS", href: "#" },
+                { label: "FAQS", href: "/faqs" },
                 { label: "Africa Press Releases", href: "#" }
             ]
         }

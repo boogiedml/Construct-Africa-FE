@@ -15,6 +15,20 @@ import ProjectDetails from "./ProjectDetails";
 import CompanyDetails from "./CompanyDetails";
 import NewsDetails from "./NewsDetails";
 import TenderDetails from "./TenderDetails";
+import PublicProjects from "./PublicProjects";
+import PublicNews from "./PublicNews";
+import PublicNewsDetails from "./PublicNewsDetails";
+import PublicTenders from "./PublicTenders";
+import PublicGetListed from "./PublicGetListed";
+import PublicBlog from "./PublicBlog";
+import PublicBlogDetails from "./PublicBlogDetails";
+import PublicFAQ from "./PublicFAQ";
+import PublicTerms from "./PublicTerms";
+import PublicPrivacy from "./PublicPrivacy";
+import PublicRefund from "./PublicRefund";
+import PublicGDPR from "./PublicGDPR";
+import PublicAbout from "./PublicAbout";
+import PublicContact from "./PublicContact";
 
 export {
   Login,
@@ -34,4 +48,18 @@ export {
   CompanyDetails,
   NewsDetails,
   TenderDetails,
+  PublicProjects,
+  PublicNews,
+  PublicNewsDetails,
+  PublicTenders,
+  PublicGetListed,
+  PublicBlog,
+  PublicBlogDetails,
+  PublicFAQ,
+  PublicTerms,
+  PublicPrivacy,
+  PublicRefund,
+  PublicGDPR,
+  PublicAbout,
+  PublicContact,
 };

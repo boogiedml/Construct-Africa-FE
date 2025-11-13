@@ -1,5 +1,5 @@
 import React from "react";
-import { BsDribbble, BsLinkedin, BsTwitterX } from "react-icons/bs";
+// import { BsDribbble, BsLinkedin, BsTwitterX } from "react-icons/bs";
 
 interface TeamMember {
     name: string;
@@ -27,7 +27,7 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
             <p className="text-base text-[#AE6A19] mb-2">{member.role}</p>
             <p className="text-center text-[#535862] text-base leading-relaxed mb-4">{member.description}</p>
 
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
                 <a href={member.twitter || "#"} target="_blank" rel="noopener noreferrer">
                     <BsTwitterX size={20} color="#A4A7AE" />
                 </a>
@@ -37,7 +37,7 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
                 <a href={member.dribbble || "#"} target="_blank" rel="noopener noreferrer">
                     <BsDribbble size={20} color="#A4A7AE" />
                 </a>
-            </div>
+            </div> */}
         </div>
     );
 };

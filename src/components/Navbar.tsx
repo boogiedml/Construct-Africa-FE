@@ -35,7 +35,7 @@ const Navbar = () => {
                 <div className="flex justify-between items-center h-full">
                     <div className='flex items-center gap-10 h-full'>
                         <div className="w-[60px] md:w-[80px] h-full">
-                            <img className='w-full h-full object-cover' src="/images/logo.png" alt="" />
+                            <img className='w-full h-full object-cover' src="/images/logo.svg" alt="" />
                         </div>
                         <div className="hidden md:flex items-center space-x-8">
                             {navItems.map((item) => (

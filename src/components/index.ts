@@ -6,6 +6,7 @@ import Textarea from "./form-fields/Textarea";
 import Select from "./form-fields/Select";
 import ProjectCard from "./ProjectCard";
 import ProjectCard2 from "./ProjectCard2";
+import ProjectCard3 from "./ProjectCard3";
 import SectionHeader from "./SectionHeader";
 import ActivityList from "./ActivityList";
 import ExpertCard from "./ExpertCard";
@@ -28,6 +29,7 @@ export {
   Select,
   ProjectCard,
   ProjectCard2,
+  ProjectCard3,
   SectionHeader,
   ActivityList,
   ExpertCard,
