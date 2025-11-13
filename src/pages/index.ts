@@ -29,6 +29,8 @@ import PublicRefund from "./PublicRefund";
 import PublicGDPR from "./PublicGDPR";
 import PublicAbout from "./PublicAbout";
 import PublicContact from "./PublicContact";
+import PublicPressReleases from "./PublicPressReleases";
+import PublicExpertOpinion from "./PublicExpertOpinion";
 
 export {
   Login,
@@ -62,4 +64,6 @@ export {
   PublicGDPR,
   PublicAbout,
   PublicContact,
+  PublicPressReleases,
+  PublicExpertOpinion,
 };

@@ -50,7 +50,7 @@ const NsNavbar = () => {
         },
         {
             name: 'Expert Opinion',
-            href: '/insights/expert-opinion',
+            href: '/#expert-opinions',
             icon: FiGlobe,
             description: 'Industry views and analysis.'
         },
@@ -113,10 +113,25 @@ const NsNavbar = () => {
                                         <div className="absolute top-full left-0 mt-2 w-[280px] bg-white rounded-lg shadow-lg border border-[#E9EAEB] py-2 z-50">
                                             {insightsDropdownItems.map((dropdownItem) => {
                                                 const Icon = dropdownItem.icon;
+                                                const isExpertOpinion = dropdownItem.name === 'Expert Opinion';
+
                                                 return (
                                                     <a
                                                         key={dropdownItem.name}
                                                         href={dropdownItem.href}
+                                                        onClick={(e) => {
+                                                            if (isExpertOpinion) {
+                                                                e.preventDefault();
+                                                                if (location.pathname !== '/') {
+                                                                    navigate('/#expert-opinions');
+                                                                } else {
+                                                                    const element = document.getElementById('expert-opinions');
+                                                                    if (element) {
+                                                                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }}
                                                         className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group"
                                                     >
                                                         <Icon

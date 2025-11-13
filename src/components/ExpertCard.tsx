@@ -1,10 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ExpertCardProps {
     expertImage: string;
     expertName: string;
     title: string;
     opinion: string;
+    expertId?: number;
 }
 
 const ExpertCard: React.FC<ExpertCardProps> = ({
@@ -12,9 +14,21 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
     expertName,
     title,
     opinion,
+    expertId,
 }) => {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        if (expertId) {
+            navigate(`/expert-opinion/${expertId}`);
+        }
+    };
+
     return (
-        <div className="md:px-16 flex flex-col gap-4 md:gap-6 bg-white py-10">
+        <div
+            className="md:px-16 flex flex-col gap-4 md:gap-6 bg-white py-10 cursor-pointer hover:bg-transparent transition-colors duration-300"
+            onClick={handleClick}
+        >
             <div className="flex justify-center">
                 <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200">
                     <img

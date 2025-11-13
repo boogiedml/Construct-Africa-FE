@@ -6,13 +6,40 @@ import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
 import { useState, useEffect, useMemo } from 'react';
 import { featuredOpinions, teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
+import { useLocation } from 'react-router-dom';
 
 
 const PublicHome = () => {
+    const location = useLocation();
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [imageOpacity, setImageOpacity] = useState(1);
     const [displayedImage, setDisplayedImage] = useState('/images/benefit-01.svg');
+
+    // Handle hash navigation to expert opinions section
+    useEffect(() => {
+        if (location.hash === '#expert-opinions') {
+            // Wait for page to fully render before scrolling
+            const scrollToSection = () => {
+                const element = document.getElementById('expert-opinions');
+                if (element) {
+                    const offset = 100; // Account for fixed navbar
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            };
+
+            // Try immediately, then with delays to ensure DOM is ready
+            scrollToSection();
+            setTimeout(scrollToSection, 100);
+            setTimeout(scrollToSection, 300);
+        }
+    }, [location.hash, location.pathname]);
 
     const brandLogos = [
         { id: 1, name: "Aksa", logo: "/logos/aksa.svg" },
@@ -340,7 +367,7 @@ const PublicHome = () => {
 
             <section className="py-20">
                 <div className="max-w-7xl p-14 bg-[url('/images/cta-bg.png')] bg-cover bg-center mx-auto rounded-2xl relative overflow-hidden flex items-center justify-between">
-                    <div className="absolute inset-0 bg-black/50" />
+                    <div className="absolute inset-0 bg-black/70" />
                     <div className="z-10 relative">
                         <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-white mb-4">
                             Make Smarter Decisions
@@ -432,7 +459,7 @@ const PublicHome = () => {
                 </div>
             </section>
 
-            <section className="py-20 px-5 sm:px-10 lg:px-20 bg-[#FEFBF8]">
+            <section id="expert-opinions" className="py-20 px-5 sm:px-10 lg:px-20 bg-[#FEFBF8]">
                 <div className="text-center mb-12 max-w-3xl mx-auto">
                     <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">Expert Opinions</h2>
                     <p className="text-lg text-[#535862] mb-6 leading-relaxed">
@@ -447,6 +474,7 @@ const PublicHome = () => {
                             expertName={expert.name}
                             title={expert.title}
                             opinion={expert.opinion}
+                            expertId={expert.id}
                         />
                     ))}
                 </div>
@@ -454,9 +482,10 @@ const PublicHome = () => {
 
             <section className="py-20">
                 <div style={{
-                    background: "linear-gradient(26.57deg, #252B37 8.33%, #414651 91.67%)",
-                }} className="max-w-7xl p-14 mx-auto rounded-2xl flex items-center justify-between">
-                    <div>
+                    // background: "linear-gradient(26.57deg, #252B37 8.33%, #414651 91.67%)",
+                }} className="max-w-7xl p-14 bg-[url('/images/cta-bg.png')] bg-cover bg-center mx-auto rounded-2xl flex items-center justify-between relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/70" />
+                    <div className="z-10 relative">
                         <h2 className="text-3xl lg:text-[30px] font-bitter font-semibold text-white mb-4">
                             Get listed
                         </h2>

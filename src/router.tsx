@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from "react-router-dom";
-import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact } from "./pages";
+import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact, PublicPressReleases, PublicExpertOpinion } from "./pages";
 import { RootLayout, NonSubscriberLayout } from "./components/templates";
 
 export const routes: RouteObject[] = [
@@ -27,6 +27,8 @@ export const routes: RouteObject[] = [
       { path: "gdpr", element: <PublicGDPR /> },
       { path: "about", element: <PublicAbout /> },
       { path: "contact", element: <PublicContact /> },
+      { path: "press-releases", element: <PublicPressReleases /> },
+      { path: "expert-opinion/:id", element: <PublicExpertOpinion /> },
       { path: "*", element: <Navigate to="/" /> },
     ],
   },

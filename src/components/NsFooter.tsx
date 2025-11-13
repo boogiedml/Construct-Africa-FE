@@ -29,7 +29,7 @@ const NsFooter = () => {
                 { label: "Refund Policy", href: "/refund-policy" },
                 { label: "Advertise", href: "#" },
                 { label: "FAQS", href: "/faqs" },
-                { label: "Africa Press Releases", href: "#" }
+                { label: "Africa Press Releases", href: "/press-releases" }
             ]
         }
     ];
