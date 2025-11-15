@@ -1,19 +1,17 @@
-// src/services/api/expertsApi.ts
-
-import { baseApi } from './index';
+import { noAuthApi } from "./index";
 import type {
   ExpertQueryParams,
   ExpertsResponse,
-  ExpertResponse
-} from '../../types/expert.types';
-import { buildQueryString } from '../../utils/index';
+  ExpertResponse,
+} from "../../types/expert.types";
+import { buildQueryString } from "../../utils/index";
 
-export const expertsApi = baseApi.injectEndpoints({
+export const expertsApi = noAuthApi.injectEndpoints({
   endpoints: (builder) => ({
     getExperts: builder.query<ExpertsResponse, ExpertQueryParams | void>({
       query: (params = {}) => {
         const defaultParams: Partial<ExpertQueryParams> = {
-          fields: '*,image.*',
+          fields: "*,photo.*",
           limit: 25,
           offset: 0,
         };
@@ -26,17 +24,19 @@ export const expertsApi = baseApi.injectEndpoints({
     getExpertBySlug: builder.query<ExpertResponse, string>({
       query: (slug) => {
         const params = {
-          fields: '*,image.*',
-          'filter[slug][_eq]': slug,
+          fields: "*,photo.*",
+          "filter[slug][_eq]": slug,
         };
         const queryString = buildQueryString(params);
         return `/items/experts_analysts${queryString}`;
       },
     }),
+    getExpertById: builder.query<ExpertResponse, string>({
+      query: (id) => ({
+        url: `items/experts_analysts/${id}?fields=*,photo.*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*`,
+      }),
+    }),
   }),
 });
 
-export const {
-  useGetExpertsQuery,
-  useGetExpertBySlugQuery,
-} = expertsApi;
+export const { useGetExpertsQuery, useGetExpertBySlugQuery, useGetExpertByIdQuery } = expertsApi;

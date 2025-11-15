@@ -20,7 +20,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
 
     const handleClick = () => {
         if (expertId) {
-            navigate(`/expert-opinion/${expertId}`);
+            navigate(`/admin/expert-opinions/${expertId}`);
         }
     };
 

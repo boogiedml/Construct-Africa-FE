@@ -8,7 +8,6 @@ export const projectsApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: 'items/projects',
         params: {
-          // fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,featured_image.*,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
           fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
           ...params,
         },
@@ -23,10 +22,23 @@ export const projectsApi = baseApi.injectEndpoints({
         },
       }),
     }),
+
+    getTrendingProjects: builder.query<ProjectsResponse, void>({
+      query: () => ({
+        url: '/projects/public/trending',
+      }),
+    }),
+    getRecentProjects: builder.query<ProjectsResponse, void>({
+      query: () => ({
+        url: '/projects/public/recent',
+      }),
+    }),
   }),
 });
 
 export const { 
   useGetProjectsQuery,
   useGetProjectByIdQuery,
+  useGetTrendingProjectsQuery,
+  useGetRecentProjectsQuery
 } = projectsApi;

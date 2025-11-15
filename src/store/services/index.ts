@@ -24,3 +24,19 @@ export const baseApi = createApi({
   refetchOnMountOrArgChange: true,
   endpoints: () => ({}),
 });
+
+export const noAuthApi = createApi({
+  reducerPath: "noAuthApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_API_URL,
+    prepareHeaders: (headers) => {
+      headers.set("Accept", "application/json");
+      headers.set("Content-Type", "application/json");
+      headers.set("User-Agent", "MyApp/1.0");
+      return headers;
+    },
+  }),
+  keepUnusedDataFor: 0,
+  refetchOnMountOrArgChange: true,
+  endpoints: () => ({}),
+});
