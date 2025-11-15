@@ -225,12 +225,12 @@ const Companies = () => {
   // Build sort options including presets
   const sortOptions = useMemo(() => {
     const baseOptions = [
-      { value: 'recently-added', label: 'Recently added' },
-      { value: 'oldest', label: 'Oldest first' },
-      { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'recently-added', label: 'Recently added' },
+    { value: 'oldest', label: 'Oldest first' },
+    { value: 'alphabetical', label: 'Alphabetical' },
       { value: 'value-high', label: 'Projects (High to Low)' },
       { value: 'value-low', label: 'Projects (Low to High)' }
-    ];
+  ];
 
     // Add presets as sort options
     const presetOptions = presets.map(preset => ({
@@ -532,21 +532,21 @@ const Companies = () => {
         </div>
       </div>
 
-      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
-        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+      <section className={showCharts || showFilters ? 'flex gap-5 w-full' : 'w-full'}>
+        <div className={showCharts || showFilters ? 'flex-1 min-w-0' : 'w-full'}>
           {/* Grid Content with Infinite Scroll */}
-          {activeView === 'grid' && (
+      {activeView === 'grid' && (
             <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
                 {companies.map((company: any) => (
-                  <ProjectCard
-                    key={company.id}
+            <ProjectCard
+              key={company.id}
                     isLogo={true}
                     image={company.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}` : "/images/null-image.svg"}
-                    status={company.company_role || "Company"}
+              status={company.company_role || "Company"}
                     title={company.name}
                     description={cleanHtmlContent(company.description) || "No description available"}
                     location={
@@ -560,10 +560,10 @@ const Companies = () => {
                         : 'Company'
                     }
                     value={`${Array.isArray(company.projects) ? company.projects.length : 0} projects`}
-                    isFavorite={false}
+              isFavorite={false}
                     onClick={() => navigate(`/admin/companies/${company.id}`)}
-                  />
-                ))}
+            />
+          ))}
               </div>
 
               {/* Loading skeleton for infinite scroll */}
@@ -599,22 +599,22 @@ const Companies = () => {
                   ))}
                 </div>
               )}
-            </div>
-          )}
+        </div>
+      )}
 
-          {/* Table View */}
-          {activeView === 'table' && (
-            <DataTable
-              data={companies as []}
-              columns={tableColumns}
-              onRowSelect={(rows) => console.log('Selected rows:', rows)}
+      {/* Table View */}
+      {activeView === 'table' && (
+        <DataTable
+          data={companies as []}
+          columns={tableColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={handleToggleFavorite}
               onRowClick={(row: any) => navigate(`/admin/companies/${row.id}`)}
-              currentPage={currentPage}
+          currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
-              showCheckboxes={true}
-              showFavorites={true}
+          showCheckboxes={true}
+          showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
             />
@@ -632,8 +632,8 @@ const Companies = () => {
             onApplyFilters={handleApplyFilters}
             initialFilters={appliedFilters}
             type="companies"
-          />
-        )}
+        />
+      )}
       </section>
     </div>
   );

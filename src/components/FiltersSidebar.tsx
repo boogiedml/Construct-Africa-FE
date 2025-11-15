@@ -4,11 +4,11 @@ import { LuChevronDown } from 'react-icons/lu';
 import ActionButton from './ActionButton';
 import PresetModal from './PresetModal';
 import type { AppFilters } from '../types/filter.types';
-import { 
-  useGetCountriesQuery, 
-  useGetRegionsQuery, 
-  useGetSectorsQuery, 
-  useGetTypesQuery 
+import {
+    useGetCountriesQuery,
+    useGetRegionsQuery,
+    useGetSectorsQuery,
+    useGetTypesQuery
 } from '../store/services/reference';
 import { savePreset } from '../utils/presets';
 import { toast } from 'react-toastify';
@@ -21,9 +21,9 @@ interface FiltersSidebarProps {
     type?: 'projects' | 'companies' | 'news' | 'tenders';
 }
 
-const FiltersSidebar: React.FC<FiltersSidebarProps> = ({ 
-    isOpen, 
-    onClose, 
+const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
+    isOpen,
+    onClose,
     onApplyFilters,
     initialFilters = {},
     type = 'projects'
@@ -83,10 +83,10 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
     const handleCheckboxChange = (category: string, option: string, checked: boolean) => {
         const categoryKey = category.toLowerCase() as keyof AppFilters;
-        
+
         setSelectedFilters(prev => {
             const currentValues = (prev[categoryKey] as string[]) || [];
-            
+
             if (checked) {
                 return {
                     ...prev,
@@ -160,7 +160,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
     return (
         <>
-            <div className="w-[340px] bg-white rounded-lg border border-[#D5D7DA] border-t-8 border-t-[#F89822] overflow-hidden flex flex-col max-h-[calc(100vh-200px)]">
+            <div className="w-[340px] bg-white rounded-lg border border-[#D5D7DA] border-t-8 border-t-[#F89822] overflow-hidden flex flex-col max-h-[calc(100vh-200px)] sticky top-5">
                 <div className="p-4 border-b border-[#E9EAEB] flex items-center justify-between sticky top-0 bg-white z-10">
                     <h3 className="text-lg font-semibold text-[#252B37]">Apply filters</h3>
                     <button
@@ -175,7 +175,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                     {filterCategories.map((category, index) => {
                         const selectedCount = getSelectedCount(category);
                         const isLoading = isCategoryLoading(category);
-                        
+
                         return (
                             <div key={category} className={`${index !== filterCategories.length - 1 ? 'border-b border-[#E9EAEB]' : ''}`}>
                                 <button
@@ -200,7 +200,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                                 {openCategory === category && (
                                     <div className="px-4 pb-4">
                                         {isLoading ? (
-                                            <div className="mt-1 space-y-2">
+                                            <div className="mt-2 space-y-4">
                                                 {Array.from({ length: 5 }).map((_, i) => (
                                                     <div key={i} className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
@@ -212,8 +212,8 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                                             <div className="mt-1 space-y-2 max-h-60 overflow-y-auto">
                                                 {(filterOptions[category as keyof typeof filterOptions] || []).map((option) => (
                                                     <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                                                        <input 
-                                                            type="checkbox" 
+                                                        <input
+                                                            type="checkbox"
                                                             className="accent-[#FDB022]"
                                                             checked={isOptionSelected(category, option)}
                                                             onChange={(e) => handleCheckboxChange(category, option, e.target.checked)}
@@ -237,13 +237,13 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
                 <div className="p-4 space-y-3 sticky bottom-0 border-t border-[#E9EAEB] bg-white">
                     <div className="flex items-center justify-between gap-3">
-                        <button 
+                        <button
                             onClick={handleReset}
                             className="text-sm font-medium text-[#535862] hover:text-[#F89822] transition-colors"
                         >
                             Reset
                         </button>
-                        <button 
+                        <button
                             onClick={() => setShowPresetModal(true)}
                             className="text-sm font-medium text-[#535862] hover:text-[#F89822] transition-colors"
                         >

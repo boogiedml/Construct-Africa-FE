@@ -210,12 +210,12 @@ const News = () => {
   // Build sort options including presets
   const sortOptions = useMemo(() => {
     const baseOptions = [
-      { value: 'recently-added', label: 'Recently added' },
-      { value: 'oldest', label: 'Oldest first' },
-      { value: 'alphabetical', label: 'Alphabetical' },
-      { value: 'date-newest', label: 'Date (Newest First)' },
-      { value: 'date-oldest', label: 'Date (Oldest First)' }
-    ];
+    { value: 'recently-added', label: 'Recently added' },
+    { value: 'oldest', label: 'Oldest first' },
+    { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'date-newest', label: 'Date (Newest First)' },
+    { value: 'date-oldest', label: 'Date (Oldest First)' }
+  ];
 
     // Add presets as sort options
     const presetOptions = presets.map(preset => ({
@@ -428,15 +428,15 @@ const News = () => {
   // Get featured image URL
   const getImageUrl = (featuredImage: string | NewsType['featured_image']) => {
     if (!featuredImage) return "/images/null-image.svg";
-
+    
     if (typeof featuredImage === 'string') {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage}`;
     }
-
+    
     if (featuredImage && typeof featuredImage === 'object' && 'filename_disk' in featuredImage) {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage.filename_disk}`;
     }
-
+    
     return "/images/null-image.svg";
   };
 
@@ -537,34 +537,34 @@ const News = () => {
         </div>
       </div>
 
-      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
-        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+      <section className={showCharts || showFilters ? 'flex gap-5 w-full' : 'w-full'}>
+        <div className={showCharts || showFilters ? 'flex-1 min-w-0' : 'w-full'}>
           {/* Grid Content with Infinite Scroll */}
-          {activeView === 'grid' && (
+      {activeView === 'grid' && (
             <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                {newsItems.map((item: NewsType) => {
-                  const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
-                    ? (item.category_id as { name: string }).name
-                    : 'News';
+              {newsItems.map((item: NewsType) => {
+                const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
+                  ? (item.category_id as { name: string }).name
+                  : 'News';
 
-                  return (
-                    <ProjectCard
-                      key={item.id}
-                      image={getImageUrl(item.featured_image)}
-                      title={item.title}
-                      description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
-                      location={new Date(item.date_created).toLocaleDateString()}
-                      category={category}
-                      value={item.is_sponsored ? 'Sponsored' : ''}
-                      isFavorite={false}
+                return (
+                  <ProjectCard
+                    key={item.id}
+                    image={getImageUrl(item.featured_image)}
+                    title={item.title}
+                    description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
+                    location={new Date(item.date_created).toLocaleDateString()}
+                    category={category}
+                    value={item.is_sponsored ? 'Sponsored' : ''}
+                    isFavorite={false}
                       onClick={() => navigate(`/admin/news/${item.id}`)}
-                    />
-                  );
-                })}
+                  />
+                );
+              })}
               </div>
 
               {/* Loading skeleton for infinite scroll */}
@@ -598,28 +598,28 @@ const News = () => {
                   {Array.from({ length: 8 }).map((_, index) => (
                     <ProjectCardSkeleton key={`initial-skeleton-${index}`} />
                   ))}
-                </div>
-              )}
             </div>
           )}
+        </div>
+      )}
 
-          {/* Table View */}
-          {activeView === 'table' && (
-            <DataTable
-              data={newsItems as []}
-              columns={tableColumns}
-              onRowSelect={(rows) => console.log('Selected rows:', rows)}
+      {/* Table View */}
+      {activeView === 'table' && (
+        <DataTable
+          data={newsItems as []}
+          columns={tableColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={handleToggleFavorite}
               onRowClick={(row: NewsType) => navigate(`/admin/news/${row.id}`)}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              totalPages={totalPages}
-              showCheckboxes={true}
-              showFavorites={true}
-              loading={isLoading || isFetching}
-              pageSize={ITEMS_PER_PAGE}
-            />
-          )}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={isLoading || isFetching}
+          pageSize={ITEMS_PER_PAGE}
+        />
+      )}
         </div>
 
         {showCharts && (

@@ -5,6 +5,9 @@ import Home from "./Home";
 import News from "./News";
 import Projects from "./Projects";
 import Tenders from "./Tenders";
+import Events from "./Events";
+import ExpertOpinions from "./ExpertOpinions";
+import RecentlyViewed from "./RecentlyViewed";
 import PublicHome from "./PublicHome";
 import PublicEvents from "./PublicEvents";
 import PublicInsights from "./PublicInsights";
@@ -31,6 +34,9 @@ import PublicAbout from "./PublicAbout";
 import PublicContact from "./PublicContact";
 import PublicPressReleases from "./PublicPressReleases";
 import PublicExpertOpinion from "./PublicExpertOpinion";
+import PublicEventDetails from "./PublicEventDetails";
+import PublicExpertOpinionsDetails from "./PublicExpertOpinionsDetails";
+import ExpertOpinionDetails from "./ExpertOpinionDetails";
 
 export {
   Login,
@@ -40,6 +46,9 @@ export {
   News,
   Projects,
   Tenders,
+  Events,
+  ExpertOpinions,
+  RecentlyViewed,
   PublicHome,
   PublicEvents,
   PublicInsights,
@@ -66,4 +75,7 @@ export {
   PublicContact,
   PublicPressReleases,
   PublicExpertOpinion,
+  PublicEventDetails,
+  PublicExpertOpinionsDetails,
+  ExpertOpinionDetails,
 };

@@ -170,12 +170,12 @@ const Tenders = () => {
   // Build sort options including presets
   const sortOptions = useMemo(() => {
     const baseOptions = [
-      { value: 'recently-added', label: 'Recently added' },
-      { value: 'oldest', label: 'Oldest first' },
-      { value: 'alphabetical', label: 'Alphabetical' },
-      { value: 'date-newest', label: 'Date (Newest First)' },
-      { value: 'date-oldest', label: 'Date (Oldest First)' }
-    ];
+    { value: 'recently-added', label: 'Recently added' },
+    { value: 'oldest', label: 'Oldest first' },
+    { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'date-newest', label: 'Date (Newest First)' },
+    { value: 'date-oldest', label: 'Date (Oldest First)' }
+  ];
 
     // Add presets as sort options
     const presetOptions = presets.map(preset => ({
@@ -230,9 +230,9 @@ const Tenders = () => {
       width: '15%',
       render: (value) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${value
-          ? 'bg-green-100 text-green-800'
-          : 'bg-orange-100 text-orange-800'
-          }`}>
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-orange-100 text-orange-800'
+        }`}>
           {value ? 'Free' : 'Premium'}
         </span>
       )
@@ -369,15 +369,15 @@ const Tenders = () => {
   // Get featured image URL
   const getImageUrl = (featuredImage: string | TenderType['featured_image']) => {
     if (!featuredImage) return "/images/null-image.svg";
-
+    
     if (typeof featuredImage === 'string') {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage}`;
     }
-
+    
     if (featuredImage && typeof featuredImage === 'object' && 'filename_disk' in featuredImage) {
       return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage.filename_disk}`;
     }
-
+    
     return "/images/null-image.svg";
   };
 
@@ -468,26 +468,26 @@ const Tenders = () => {
         </div>
       </div>
 
-      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
-        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+      <section className={showCharts || showFilters ? 'flex gap-5 w-full' : 'w-full'}>
+        <div className={showCharts || showFilters ? 'flex-1 min-w-0' : 'w-full'}>
           {/* Grid Content with Infinite Scroll */}
-          {activeView === 'grid' && (
+      {activeView === 'grid' && (
             <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                {tenders.map((tender: TenderType) => (
-                  <ProjectCard
-                    key={tender.id}
-                    image={getImageUrl(tender.featured_image)}
-                    status={tender.is_free_tender ? 'Free' : 'Premium'}
-                    title={tender.title}
-                    description={tender.summary || cleanHtmlContent(tender.content)?.substring(0, 150) + '...' || ''}
-                    location={new Date(tender.date_created).toLocaleDateString()}
-                    category="Tender"
-                    value={tender.promote ? 'Featured' : ''}
-                    isFavorite={false}
+              {tenders.map((tender: TenderType) => (
+                <ProjectCard
+                  key={tender.id}
+                  image={getImageUrl(tender.featured_image)}
+                  status={tender.is_free_tender ? 'Free' : 'Premium'}
+                  title={tender.title}
+                  description={tender.summary || cleanHtmlContent(tender.content)?.substring(0, 150) + '...' || ''}
+                  location={new Date(tender.date_created).toLocaleDateString()}
+                  category="Tender"
+                  value={tender.promote ? 'Featured' : ''}
+                  isFavorite={false}
                     onClick={() => navigate(`/admin/tenders/${tender.id}`)}
                   />
                 ))}
@@ -523,28 +523,28 @@ const Tenders = () => {
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
                   {Array.from({ length: 8 }).map((_, index) => (
                     <ProjectCardSkeleton key={`initial-skeleton-${index}`} />
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
           )}
+        </div>
+      )}
 
-          {/* Table View */}
-          {activeView === 'table' && (
-            <DataTable
-              data={tenders as []}
-              columns={tableColumns}
-              onRowSelect={(rows) => console.log('Selected rows:', rows)}
-              onToggleFavorite={(row) => {
-                console.log('Toggle favorite:', row);
-              }}
+      {/* Table View */}
+      {activeView === 'table' && (
+        <DataTable
+          data={tenders as []}
+          columns={tableColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={(row) => {
+            console.log('Toggle favorite:', row);
+          }}
               onRowClick={(row: TenderType) => navigate(`/admin/tenders/${row.id}`)}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              totalPages={totalPages}
-              showCheckboxes={true}
-              showFavorites={true}
-              loading={isLoading || isFetching}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
             />
           )}
@@ -561,8 +561,8 @@ const Tenders = () => {
             onApplyFilters={handleApplyFilters}
             initialFilters={appliedFilters}
             type="tenders"
-          />
-        )}
+        />
+      )}
       </section>
     </div>
   );

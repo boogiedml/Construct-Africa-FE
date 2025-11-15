@@ -29,6 +29,10 @@ const Navbar = () => {
         { name: 'Favourites', href: '/admin/favourites' },
     ];
 
+    const isEventsPage = location.pathname.startsWith('/admin/events');
+    const isExpertOpinionsPage = location.pathname.startsWith('/admin/expert-opinions');
+    const isRecentlyViewedPage = location.pathname.startsWith('/admin/recently-viewed');
+
     return (
         <nav className="bg-white border-b border-[#E9EAEB] h-[48px] md:h-[64px] z-20">
             <div className="mx-auto px-4 sm:px-6 lg:px-10 h-full">
@@ -54,21 +58,33 @@ const Navbar = () => {
                             <div className="relative">
                                 <button
                                     onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
-                                    className="flex cursor-pointer items-center text-base px-2 py-2 font-medium text-[#717680] hover:text-[#181D27] transition-colors duration-200"
+                                    className={`flex cursor-pointer items-center text-base px-2 py-2 font-medium transition-colors duration-200 ${isEventsPage || isExpertOpinionsPage || isRecentlyViewedPage
+                                        ? 'text-[#181D27] font-semibold'
+                                        : 'text-[#717680] hover:text-[#181D27]'
+                                        }`}
                                 >
-                                    More
+                                    {isEventsPage ? 'Events' : isExpertOpinionsPage ? 'Expert opinions' : isRecentlyViewedPage ? 'Recently viewed' : 'More'}
                                     <BiChevronDown size={24} className={`ml-1 transition-all duration-300 ${isMoreDropdownOpen ? "rotate-180" : "rotate-0"}`} />
                                 </button>
                                 {isMoreDropdownOpen && (
                                     <div className="absolute right-0 mt-4 w-48 bg-white border border-[#E9EAEB] rounded-md shadow-lg py-1 z-10">
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            Resources
+                                        <a
+                                            href="/admin/events"
+                                            className={`block px-4 py-2 text-sm hover:bg-gray-100 ${isEventsPage ? 'text-[#181D27] font-semibold bg-gray-50' : 'text-gray-700'}`}
+                                        >
+                                            Events
                                         </a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            About
+                                        <a
+                                            href="/admin/expert-opinions"
+                                            className={`block px-4 py-2 text-sm hover:bg-gray-100 ${isExpertOpinionsPage ? 'text-[#181D27] font-semibold bg-gray-50' : 'text-gray-700'}`}
+                                        >
+                                            Expert opinions
                                         </a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            Contact
+                                        <a
+                                            href="/admin/recently-viewed"
+                                            className={`block px-4 py-2 text-sm hover:bg-gray-100 ${isRecentlyViewedPage ? 'text-[#181D27] font-semibold bg-gray-50' : 'text-gray-700'}`}
+                                        >
+                                            Recently viewed
                                         </a>
                                     </div>
                                 )}

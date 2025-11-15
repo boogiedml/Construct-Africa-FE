@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from "react-router-dom";
-import { Login, Favourites, Companies, Home, News, Projects, Tenders, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact, PublicPressReleases, PublicExpertOpinion } from "./pages";
+import { Login, Favourites, Companies, Home, News, Projects, Tenders, Events, ExpertOpinions, RecentlyViewed, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact, PublicPressReleases, PublicExpertOpinion, PublicEventDetails, PublicExpertOpinionsDetails, ExpertOpinionDetails } from "./pages";
 import { RootLayout, NonSubscriberLayout } from "./components/templates";
 
 export const routes: RouteObject[] = [
@@ -11,7 +11,7 @@ export const routes: RouteObject[] = [
       { path: "insights", element: <PublicInsights /> },
       { path: "insights/:id", element: <InsightDetails /> },
       { path: "events", element: <PublicEvents /> },
-      { path: "events/:id", element: <EventDetails /> },
+      { path: "events/:id", element: <PublicEventDetails /> },
       { path: "advisory-board", element: <AdvisoryBoard /> },
       { path: "projects", element: <PublicProjects /> },
       { path: "tenders", element: <PublicTenders /> },
@@ -28,7 +28,8 @@ export const routes: RouteObject[] = [
       { path: "about", element: <PublicAbout /> },
       { path: "contact", element: <PublicContact /> },
       { path: "press-releases", element: <PublicPressReleases /> },
-      { path: "expert-opinion/:id", element: <PublicExpertOpinion /> },
+      { path: "expert-opinion", element: <PublicExpertOpinion /> },
+      { path: "expert-opinion/:id", element: <PublicExpertOpinionsDetails /> },
       { path: "*", element: <Navigate to="/" /> },
     ],
   },
@@ -46,6 +47,11 @@ export const routes: RouteObject[] = [
       { path: "projects/:id", element: <ProjectDetails /> },
       { path: "tenders", element: <Tenders /> },
       { path: "tenders/:id", element: <TenderDetails /> },
+      { path: "events", element: <Events /> },
+      { path: "events/:id", element: <EventDetails /> },
+      { path: "expert-opinions", element: <ExpertOpinions /> },
+      { path: "expert-opinions/:id", element: <ExpertOpinionDetails /> },
+      { path: "recently-viewed", element: <RecentlyViewed /> },
       { path: "*", element: <Navigate to="/admin" /> },
     ],
   },

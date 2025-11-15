@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ProjectCard, Tabs, DataTable, CustomSelect } from "../components";
+import { ProjectCard, Tabs, DataTable, CustomSelect, ProjectCardSkeleton } from "../components";
 import { LuTable } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
 import { toast } from "react-toastify";
@@ -274,11 +274,63 @@ const Favourites = () => {
 
   const renderContent = () => {
     if (isLoading) {
+      // Grid View Skeleton Loading
+      if (activeView === 'grid') {
+        if (activeCategory === 'projects') {
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
+              ))}
+            </div>
+          );
+        }
+
+        if (activeCategory === 'companies') {
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
+              ))}
+            </div>
+          );
+        }
+
+        if (activeCategory === 'main_news') {
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
+              ))}
+            </div>
+          );
+        }
+
+        if (activeCategory === 'tenders') {
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
+              ))}
+            </div>
+          );
+        }
+      }
+
+      // Table View Skeleton Loading
       return (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
-          <p className="mt-4 text-gray-500">Loading favourites...</p>
-        </div>
+        <DataTable
+          data={[]}
+          columns={getColumnsForCategory()}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={handleToggleFavorite}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={true}
+        />
       );
     }
 
@@ -427,6 +479,7 @@ const Favourites = () => {
         totalPages={totalPages}
         showCheckboxes={true}
         showFavorites={true}
+        loading={false}
       />
     );
   };

@@ -60,7 +60,7 @@ const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="w-[340px] bg-white rounded-lg border border-[#D5D7DA] border-t-8 border-t-[#F89822] overflow-hidden">
+        <div className="w-[340px] bg-white rounded-lg border border-[#D5D7DA] border-t-8 border-t-[#F89822] overflow-hidden sticky top-5 self-start">
             <div className="p-4 space-y-6">
                 <div>
                     <CustomSelect

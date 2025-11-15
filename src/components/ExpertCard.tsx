@@ -26,7 +26,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
 
     return (
         <div
-            className="md:px-16 flex flex-col gap-4 md:gap-6 bg-white py-10 cursor-pointer hover:bg-transparent transition-colors duration-300"
+            className="md:px-8 flex flex-col gap-4 md:gap-6 bg-white py-10 cursor-pointer hover:bg-transparent transition-colors duration-300"
             onClick={handleClick}
         >
             <div className="flex justify-center">

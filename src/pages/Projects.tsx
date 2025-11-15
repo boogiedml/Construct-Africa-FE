@@ -18,12 +18,12 @@ import {
   useGetSectorsQuery,
   useGetTypesQuery
 } from "../store/services/reference";
-import { 
-  getPresets, 
-  getPresetById, 
-  saveDefaultView, 
+import {
+  getPresets,
+  getPresetById,
+  saveDefaultView,
   getDefaultView,
-  type FilterPreset 
+  type FilterPreset
 } from "../utils/presets";
 import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
 import { useToggleFavouriteMutation } from "../store/services/favourite";
@@ -32,10 +32,10 @@ const ITEMS_PER_PAGE = 25;
 
 const Projects = () => {
   const navigate = useNavigate();
-  
+
   // Load default view on component mount
   const defaultView = getDefaultView('projects');
-  
+
   const [activeView, setActiveView] = useState(defaultView?.activeView || 'table');
   const [currentPage, setCurrentPage] = useState(1);
   const [grouping, setGrouping] = useState(defaultView?.grouping || 'none');
@@ -73,14 +73,14 @@ const Projects = () => {
   const { data: sectorsData } = useGetSectorsQuery();
   const { data: typesData } = useGetTypesQuery();
 
-  
-    const [toggleFavourite] = useToggleFavouriteMutation();
+
+  const [toggleFavourite] = useToggleFavouriteMutation();
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
     // Use gridPage for grid view, currentPage for table/stage views
     const pageToUse = activeView === 'grid' ? gridPage : currentPage;
-    
+
     const params: ProjectQueryParams = {
       limit: ITEMS_PER_PAGE,
       offset: (pageToUse - 1) * ITEMS_PER_PAGE,
@@ -339,20 +339,20 @@ const Projects = () => {
     return [...baseOptions, ...presetOptions];
   }, [presets]);
 
-    const handleToggleFavorite = async (row: any) => {
-      try {
-        await toggleFavourite({
-          collection: "projects",
-          item_id: row.id
-        }).unwrap();
-        
-        toast.success('Add to favourites');
-        refetch();
-      } catch (error) {
-        console.error('Failed to toggle favourite:', error);
-        toast.error('Failed to remove favourite');
-      }
-    };
+  const handleToggleFavorite = async (row: any) => {
+    try {
+      await toggleFavourite({
+        collection: "projects",
+        item_id: row.id
+      }).unwrap();
+
+      toast.success('Add to favourites');
+      refetch();
+    } catch (error) {
+      console.error('Failed to toggle favourite:', error);
+      toast.error('Failed to remove favourite');
+    }
+  };
 
   const tableColumns: TableColumn<typeof projectsWithStage[0]>[] = [
     {
@@ -444,17 +444,17 @@ const Projects = () => {
 
   // Use accumulated projects for grid view, regular data for other views
   const projects = activeView === 'grid' ? accumulatedProjects : (projectsResponse?.data || []);
-  
+
   const projectsWithStage = projects.map((p: Project) => ({
     ...p,
     stage: mapStatusToGroup(p.current_stage),
     status: mapStatusToStatusName(p.current_stage),
     stageName: mapStatusToStageName(p.current_stage)
   }));
-  
+
   const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-  
+
   // Check if there are more items to load for infinite scroll
   const hasMore = activeView === 'grid' && accumulatedProjects.length < totalCount;
 
@@ -514,10 +514,10 @@ const Projects = () => {
     setCurrentPage(1);
     setGridPage(1);
     setAccumulatedProjects([]);
-    
+
     // Clear active preset since filters were manually changed
     setActivePresetId(undefined);
-    
+
     // If sortBy was a preset, reset to default
     if (sortBy.startsWith('preset_')) {
       setSortBy('recently-added');
@@ -535,14 +535,14 @@ const Projects = () => {
       },
       'projects'
     );
-    
+
     toast.success('View saved as default successfully!');
   };
 
   // Handle view change
   const handleViewChange = (newView: string) => {
     setActiveView(newView);
-    
+
     // Reset pagination when switching views
     if (newView === 'grid') {
       setGridPage(1);
@@ -653,11 +653,11 @@ const Projects = () => {
         </div>
       </div>
 
-      <section className={showCharts || showFilters ? 'flex gap-5' : ''}>
-        <div className={showCharts || showFilters ? 'flex-1' : ''}>
+      <section className={showCharts || showFilters ? 'flex gap-5 w-full' : 'w-full'}>
+        <div className={showCharts || showFilters ? 'flex-1 min-w-0' : 'w-full'}>
           {/* Grid Content with Infinite Scroll */}
           {activeView === 'grid' && (
-            <div 
+            <div
               className="overflow-y-auto space-y-4"
               style={{ height: 'calc(100vh - 280px)' }}
             >

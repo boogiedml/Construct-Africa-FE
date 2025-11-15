@@ -12,7 +12,7 @@ interface ExpertOpinion {
     image: string;
 }
 
-const PublicExpertOpinion = () => {
+const ExpertOpinions = () => {
     const [sortBy, setSortBy] = useState('recently-added');
     const [showFilters, setShowFilters] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
@@ -109,7 +109,7 @@ const PublicExpertOpinion = () => {
     ).length;
 
     return (
-        <div className="min-h-screen mx-auto py-5 md:py-8 px-5 sm:px-10 lg:px-20">
+        <div className="min-h-screen mx-auto py-5 md:py-8">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Expert Opinion</h1>
@@ -188,5 +188,5 @@ const PublicExpertOpinion = () => {
     );
 };
 
-export default PublicExpertOpinion;
+export default ExpertOpinions;
 
