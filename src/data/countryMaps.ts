@@ -1,0 +1,57 @@
+export const countryMapImages: Record<string, string> = {
+  algeria: "/images/maps/ConstructAfrica_Africa Map_Algeria.jpg",
+  angola: "/images/maps/ConstructAfrica_Africa Map_Angola.jpg",
+  benin: "/images/maps/ConstructAfrica_Africa Map_Benin.jpg",
+  botswana: "/images/maps/ConstructAfrica_Africa Map_Botswana.jpg",
+  burkinafaso: "/images/maps/ConstructAfrica_Africa Map_Burkina Faso.jpg",
+  burundi: "/images/maps/ConstructAfrica_Africa Map_Burundi.jpg",
+  cameroon: "/images/maps/ConstructAfrica_Africa Map_Cameroon.jpg",
+  capeverde: "", // File not found in maps directory
+  centralafricarepublic:
+    "/images/maps/ConstructAfrica_Africa Map_Central African republic.jpg",
+  chad: "/images/maps/ConstructAfrica_Africa Map_Chad.jpg",
+  comoros: "", // File not found in maps directory
+  congobrazzaville: "/images/maps/ConstructAfrica_Africa Map_Congo.jpg",
+  congokinshasa: "/images/maps/ConstructAfrica_Africa Map_DR Congo.jpg",
+  CotedIvoire: "/images/maps/ConstructAfrica_Africa Map_Ivory Coast.jpg",
+  djibouti: "/images/maps/ConstructAfrica_Africa Map_Djibouti.jpg",
+  egypt: "/images/maps/ConstructAfrica_Africa Map_Egypt.jpg",
+  equatorialguinea:
+    "/images/maps/ConstructAfrica_Africa Map_Equatorial Guinea.jpg",
+  eritrea: "/images/maps/ConstructAfrica_Africa Map_Eritrea.jpg",
+  swaziland: "/images/maps/ConstructAfrica_Africa Map_Swaziland.jpg",
+  ethiopia: "/images/maps/ConstructAfrica_Africa Map_Ethiopia.jpg",
+  gabon: "/images/maps/ConstructAfrica_Africa Map_Gabon.jpg",
+  gambia: "/images/maps/ConstructAfrica_Africa Map_Gambia.jpg",
+  ghana: "/images/maps/ConstructAfrica_Africa Map_Ghana.jpg",
+  guinea: "/images/maps/ConstructAfrica_Africa Map_Guinea.jpg",
+  guineabissau: "/images/maps/ConstructAfrica_Africa Map_Guinea-Bissau.jpg",
+  kenya: "/images/maps/ConstructAfrica_Africa Map_Kenya.jpg",
+  lesotho: "/images/maps/ConstructAfrica_Africa Map_Lesotho.jpg",
+  liberia: "", // File not found in maps directory
+  madagascar: "/images/maps/ConstructAfrica_Africa Map_Madagascar.jpg",
+  malawi: "/images/maps/ConstructAfrica_Africa Map_Malawi.jpg",
+  mali: "/images/maps/ConstructAfrica_Africa Map_Mali.jpg",
+  mauritania: "/images/maps/ConstructAfrica_Africa Map_Mauritania.jpg",
+  mauritius: "", // File not found in maps directory
+  morocco: "/images/maps/ConstructAfrica_Africa Map_Morocco.jpg",
+  mozambique: "/images/maps/ConstructAfrica_Africa Map_Mozambique.jpg",
+  namibia: "/images/maps/ConstructAfrica_Africa Map_Namibia.jpg",
+  niger: "/images/maps/ConstructAfrica_Africa Map_Niger.jpg",
+  nigeria: "/images/maps/ConstructAfrica_Africa Map_Nigeria.jpg",
+  rwanda: "/images/maps/ConstructAfrica_Africa Map_Rwanda.jpg",
+  saotomeandprincipe: "", // File not found in maps directory
+  senegal: "/images/maps/ConstructAfrica_Africa Map_Senegal.jpg",
+  seychelles: "", // File not found in maps directory
+  sierraleone: "/images/maps/ConstructAfrica_Africa Map_Sierra Leone.jpg",
+  somalia: "/images/maps/ConstructAfrica_Africa Map_Somalia.jpg",
+  southafrica: "/images/maps/ConstructAfrica_Africa Map_SouthAfrica.jpg",
+  southsudan: "/images/maps/ConstructAfrica_Africa Map_South Sudan.jpg",
+  sudan: "/images/maps/ConstructAfrica_Africa Map_Sudan.jpg",
+  tanzania: "/images/maps/ConstructAfrica_Africa Map_Tanzania.jpg",
+  togo: "/images/maps/ConstructAfrica_Africa Map_Togo.jpg",
+  tunisia: "/images/maps/ConstructAfrica_Africa Map_Tunisia.jpg",
+  uganda: "/images/maps/ConstructAfrica_Africa Map_Uganda.jpg",
+  zambia: "/images/maps/ConstructAfrica_Africa Map_Zambia.jpg",
+  zimbabwe: "/images/maps/ConstructAfrica_Africa Map_Zimbabwe.jpg",
+};

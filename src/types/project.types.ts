@@ -184,7 +184,6 @@ export interface ProjectsResponse {
   };
 }
 
-
 export interface SingleProject {
   id: string;
   status?: string;
@@ -275,9 +274,10 @@ export interface SingleProject {
       description?: string | null;
       sort_weight?: number;
       drupal_tid?: number;
+      drupal_key?: string;
     };
   }>;
-  
+
   regions?: Array<{
     regions_id: {
       id: number;
@@ -285,7 +285,7 @@ export interface SingleProject {
       user_created?: string;
     };
   }>;
-  
+
   sectors?: Array<{
     sectors_id: {
       id: string;
@@ -293,7 +293,7 @@ export interface SingleProject {
       status?: string;
     };
   }>;
-  
+
   types?: Array<{
     types_id: {
       id: string;

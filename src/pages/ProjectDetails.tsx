@@ -9,6 +9,7 @@ import { LuBuilding } from 'react-icons/lu';
 import { RxDashboard } from 'react-icons/rx';
 import { useGetProjectByIdQuery } from '../store/services/projects';
 import { DetailPageSkeleton } from '../components';
+import { countryMapImages } from '../data/countryMaps';
 
 const ProjectDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -142,11 +143,16 @@ const ProjectDetails = () => {
 
     // Extract data from project
     const country = project.countries?.[0]?.countries_id.name || 'N/A';
+    const countrySlug = project.countries?.[0]?.countries_id.drupal_key || '';
     const region = project.regions?.[0]?.regions_id.name || '';
     const fullLocation = region ? `${country}, ${region}` : country;
     const sectors = project.sectors?.map(s => s.sectors_id.name).join(', ') || 'N/A';
     const projectTypes = project.types?.map(t => t.types_id.name) || [];
     const specificLocation = parseLocation(project.location);
+
+    const countryMapImage = countrySlug
+        ? countryMapImages[countrySlug.toLowerCase()] || ''
+        : '';
 
     const imageUrl = project.featured_image?.filename_disk
         ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}`
@@ -444,8 +450,17 @@ const ProjectDetails = () => {
                                     Location
                                 </h3>
                                 <p className='text-base text-[#535862] mb-2 leading-relaxed'>{fullLocation}</p>
+                                {countryMapImage && (
+                                    <div className='w-full h-[240px]'>
+                                        <img
+                                            src={countryMapImage}
+                                            alt={`Map of ${country}`}
+                                            className='w-full h-full object-cover rounded-lg'
+                                        />
+                                    </div>
+                                )}
                                 {specificLocation && (
-                                    <p className='text-sm text-[#717680]'>{specificLocation}</p>
+                                    <p className='text-sm text-[#717680] mt-1'>{specificLocation}</p>
                                 )}
                             </div>
 

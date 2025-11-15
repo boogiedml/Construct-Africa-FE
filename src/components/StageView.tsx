@@ -22,13 +22,15 @@ export interface StageViewProps {
     stageKey?: string;
     className?: string;
     onProjectClick?: (id: number | string) => void;
+    toggleFavorite?: (id: number | string) => void;
 }
 
 const StageView: React.FC<StageViewProps> = ({
     data,
     stageKey = 'stage',
     className = '',
-    onProjectClick
+    onProjectClick,
+    toggleFavorite
 }) => {
     const stages = ['Study', 'Design', 'Bid', 'Build'];
 
@@ -113,6 +115,7 @@ const StageView: React.FC<StageViewProps> = ({
                                             isFavorite={item.isFavorite}
                                             deadline={item.deadline}
                                             onClick={() => onProjectClick?.(item.id)}
+                                            toggleFavorite={() => toggleFavorite?.(item.id)}
                                         />
                                     ))
                                 ) : (
