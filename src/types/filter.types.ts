@@ -60,6 +60,31 @@ export interface TenderQueryParams extends BaseQueryParams {
   "filter[date_created][_gte]"?: string;
   "filter[date_created][_lte]"?: string;
 }
+
+// types/filter.types.ts (add to existing file)
+
+export interface EventQueryParams extends BaseQueryParams {
+  "filter[status][_eq]"?: string;
+  "filter[moderation_state][_eq]"?: string;
+  "filter[registration_required][_eq]"?: 0 | 1;
+  "filter[event_type][_eq]"?: string;
+  "filter[country][_eq]"?: string;
+  "filter[city][_eq]"?: string;
+  "filter[state][_eq]"?: string;
+  "filter[start_date][_gte]"?: string;
+  "filter[start_date][_lte]"?: string;
+  "filter[end_date][_gte]"?: string;
+  "filter[end_date][_lte]"?: string;
+  "filter[registration_deadline][_gte]"?: string;
+  "filter[registration_deadline][_lte]"?: string;
+  "filter[countries][countries_id][_eq]"?: string;
+  "filter[regions][regions_id][_eq]"?: string;
+  "filter[sectors][sectors_id][_eq]"?: string;
+  [key: string]: any;
+}
+
+export type FilterCollection = 'projects' | 'companies' | 'news' | 'tenders'| 'events' | 'experts';
+
 export type FavouriteCollection = 'projects' | 'companies' | 'news' | 'tenders';
 
 export interface FavouriteQueryParams extends BaseQueryParams {

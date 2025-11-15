@@ -1,4 +1,4 @@
-import type { AppFilters } from '../types/filter.types';
+import type { AppFilters, FilterCollection } from '../types/filter.types';
 
 // Types
 export interface FilterPreset {
@@ -6,7 +6,7 @@ export interface FilterPreset {
   name: string;
   filters: AppFilters;
   createdAt: string;
-  type: 'projects' | 'companies' | 'news' | 'tenders';
+  type: FilterCollection;
 }
 
 export interface DefaultView {
@@ -46,7 +46,7 @@ const getDefaultViewKey = (type: string): string => {
 export const savePreset = (
   name: string, 
   filters: AppFilters, 
-  type: 'projects' | 'companies' | 'news' | 'tenders'
+  type: FilterCollection
 ): FilterPreset => {
   const preset: FilterPreset = {
     id: generateId(),
@@ -112,7 +112,7 @@ export const updatePreset = (
 // Default View Management Functions
 export const saveDefaultView = (
   view: DefaultView,
-  type: 'projects' | 'companies' | 'news' | 'tenders'
+  type: FilterCollection
 ): void => {
   localStorage.setItem(getDefaultViewKey(type), JSON.stringify(view));
 };

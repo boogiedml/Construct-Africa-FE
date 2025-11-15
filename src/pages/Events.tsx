@@ -1,3 +1,354 @@
+// import { useState, useMemo } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { ActionButton, Tabs, DataTable, CustomSelect, FiltersSidebar, ProjectCard, ProjectCardSkeleton } from "../components";
+// import { LuTable } from "react-icons/lu";
+// import { CiGrid41 } from "react-icons/ci";
+// import { CgSortAz } from "react-icons/cg";
+// import type { TabItem } from "../components/Tabs";
+// import type { TableColumn } from "../components/DataTable";
+// import type { AppFilters } from "../types/filter.types";
+
+// const ITEMS_PER_PAGE = 25;
+
+// interface Event {
+//     id: number;
+//     date_favourited: string;
+//     location: string;
+//     title: string;
+//     description: string;
+// }
+
+// const Events = () => {
+//     const navigate = useNavigate();
+
+//     const [activeView, setActiveView] = useState('table');
+//     const [currentPage, setCurrentPage] = useState(1);
+//     const [sortBy, setSortBy] = useState('recently-added');
+//     const [showFilters, setShowFilters] = useState(false);
+//     const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
+//     const [isLoading] = useState(false);
+
+//     const dummyEvents: Event[] = useMemo(() => [
+//         {
+//             id: 1,
+//             date_favourited: "01/01/2025",
+//             location: "Senegal",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//         {
+//             id: 2,
+//             date_favourited: "01/01/2025",
+//             location: "Ghana",
+//             title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//         {
+//             id: 3,
+//             date_favourited: "01/01/2025",
+//             location: "Nairobi",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
+//             description: "Facilitating cross-border trade and economic partnerships."
+//         },
+//         {
+//             id: 4,
+//             date_favourited: "01/01/2025",
+//             location: "Cairo",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
+//             description: "A vital infrastructure project enhancing trade and connectivity in East Africa."
+//         },
+//         {
+//             id: 5,
+//             date_favourited: "01/01/2025",
+//             location: "Lagos",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//         {
+//             id: 6,
+//             date_favourited: "01/01/2025",
+//             location: "Dakar",
+//             title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//         {
+//             id: 7,
+//             date_favourited: "01/01/2025",
+//             location: "Abuja",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
+//             description: "Facilitating cross-border trade and economic partnerships."
+//         },
+//         {
+//             id: 8,
+//             date_favourited: "01/01/2025",
+//             location: "Accra",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
+//             description: "A vital infrastructure project enhancing trade and connectivity in East Africa."
+//         },
+//         {
+//             id: 9,
+//             date_favourited: "01/01/2025",
+//             location: "Tunis",
+//             title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//         {
+//             id: 10,
+//             date_favourited: "01/01/2025",
+//             location: "Algiers",
+//             title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
+//             description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
+//         },
+//     ], []);
+
+//     const viewTabs: TabItem[] = [
+//         {
+//             id: 'table',
+//             label: 'Table',
+//             icon: <LuTable size={16} />
+//         },
+//         {
+//             id: 'grid',
+//             label: 'Grid',
+//             icon: <CiGrid41 size={16} />
+//         }
+//     ];
+
+//     const sortOptions = [
+//         { value: 'recently-added', label: 'Recently added' },
+//         { value: 'oldest', label: 'Oldest first' },
+//         { value: 'alphabetical', label: 'Alphabetical' },
+//         { value: 'date-newest', label: 'Date (Newest First)' },
+//         { value: 'date-oldest', label: 'Date (Oldest First)' }
+//     ];
+
+//     const filteredEvents = useMemo(() => {
+//         let events = [...dummyEvents];
+
+//         if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0) {
+//             events = events.filter(event =>
+//                 appliedFilters.country!.some(country =>
+//                     event.location.toLowerCase().includes(country.toLowerCase())
+//                 )
+//             );
+//         }
+
+//         if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0) {
+//             events = events.filter(event =>
+//                 appliedFilters.region!.some(region =>
+//                     event.location.toLowerCase().includes(region.toLowerCase())
+//                 )
+//             );
+//         }
+
+//         switch (sortBy) {
+//             case 'recently-added':
+//                 events.sort((a, b) => new Date(b.date_favourited).getTime() - new Date(a.date_favourited).getTime());
+//                 break;
+//             case 'oldest':
+//                 events.sort((a, b) => new Date(a.date_favourited).getTime() - new Date(b.date_favourited).getTime());
+//                 break;
+//             case 'alphabetical':
+//                 events.sort((a, b) => a.title.localeCompare(b.title));
+//                 break;
+//             case 'date-newest':
+//                 events.sort((a, b) => new Date(b.date_favourited).getTime() - new Date(a.date_favourited).getTime());
+//                 break;
+//             case 'date-oldest':
+//                 events.sort((a, b) => new Date(a.date_favourited).getTime() - new Date(b.date_favourited).getTime());
+//                 break;
+//         }
+
+//         return events;
+//     }, [dummyEvents, appliedFilters, sortBy]);
+
+//     // Pagination
+//     const paginatedEvents = useMemo(() => {
+//         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+//         return filteredEvents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+//     }, [filteredEvents, currentPage]);
+
+//     const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
+
+//     const tableColumns: TableColumn<Event>[] = [
+//         {
+//             key: 'date_favourited',
+//             label: 'Date favourited',
+//             sortable: true,
+//             width: '20%',
+//             render: (value) => value as string
+//         },
+//         {
+//             key: 'location',
+//             label: 'Location',
+//             sortable: true,
+//             width: '20%',
+//             render: (value) => value as string
+//         },
+//         {
+//             key: 'title',
+//             label: 'Website',
+//             sortable: true,
+//             width: '60%',
+//             render: (_, row) => (
+//                 <button
+//                     onClick={(e) => {
+//                         e.stopPropagation();
+//                         navigate(`/admin/events/${row.id}`);
+//                     }}
+//                     className="text-left w-full"
+//                 >
+//                     <div className="font-semibold text-[#181D27] hover:text-[#F89822] transition-colors mb-1 line-clamp-1">
+//                         {row.title}
+//                     </div>
+//                     <div className="text-sm text-[#535862] line-clamp-2 leading-relaxed">
+//                         {row.description}
+//                     </div>
+//                 </button>
+//             )
+//         }
+//     ];
+
+//     const handleSortChange = (newSortBy: string) => {
+//         setSortBy(newSortBy);
+//         setCurrentPage(1);
+//     };
+
+//     const handleApplyFilters = (filters: AppFilters) => {
+//         setAppliedFilters(filters);
+//         setCurrentPage(1);
+//     };
+
+//     // Count active filters
+//     const activeFiltersCount = Object.values(appliedFilters).filter(
+//         val => (Array.isArray(val) && val.length > 0) || (typeof val === 'object' && val !== null && Object.keys(val).length > 0)
+//     ).length;
+
+//     return (
+//         <div className="min-h-screen mx-auto py-5 md:py-8">
+//             <div className="flex justify-between items-center mb-6">
+//                 <div>
+//                     <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Events</h1>
+//                     <p className="text-[#535862]">
+//                         Showing recently added events
+//                         {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
+//                     </p>
+//                 </div>
+
+//                 <div className="flex items-center gap-3">
+//                     <CustomSelect
+//                         options={sortOptions}
+//                         value={sortBy}
+//                         onChange={handleSortChange}
+//                         placeholder="Recently added"
+//                     />
+//                 </div>
+//             </div>
+
+//             <div className="flex justify-between items-center mb-6">
+//                 <Tabs
+//                     tabs={viewTabs}
+//                     activeTab={activeView}
+//                     onTabChange={setActiveView}
+//                     variant="pills"
+//                 />
+
+//                 <div className="flex items-center gap-3">
+//                     <ActionButton
+//                         buttonText={
+//                             <div className="flex items-center gap-2">
+//                                 <CgSortAz size={20} />
+//                                 Filters
+//                                 {activeFiltersCount > 0 && (
+//                                     <span className="ml-1 px-2 py-0.5 bg-[#F89822] text-white text-xs rounded-full">
+//                                         {activeFiltersCount}
+//                                     </span>
+//                                 )}
+//                             </div>
+//                         }
+//                         outline={true}
+//                         width="fit"
+//                         attributes={{
+//                             onClick: () => setShowFilters(!showFilters)
+//                         }}
+//                     />
+//                 </div>
+//             </div>
+
+//             <section className={showFilters ? 'flex gap-5 w-full' : 'w-full'}>
+//                 <div className={showFilters ? 'flex-1 min-w-0' : 'w-full'}>
+//                     {/* Table View */}
+//                     {activeView === 'table' && (
+//                         <>
+//                             {isLoading ? (
+//                                 <div className="flex items-center justify-center py-12">
+//                                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+//                                 </div>
+//                             ) : (
+//                                 <DataTable
+//                                     data={paginatedEvents as []}
+//                                     columns={tableColumns}
+//                                     onRowSelect={(rows) => console.log('Selected rows:', rows)}
+//                                     onRowClick={(row: Record<string, unknown> & { id: unknown }) => navigate(`/admin/events/${row.id}`)}
+//                                     currentPage={currentPage}
+//                                     onPageChange={setCurrentPage}
+//                                     totalPages={totalPages}
+//                                     showCheckboxes={true}
+//                                     showFavorites={false}
+//                                     loading={false}
+//                                     pageSize={ITEMS_PER_PAGE}
+//                                 />
+//                             )}
+//                         </>
+//                     )}
+
+//                     {/* Grid View */}
+//                     {activeView === 'grid' && (
+//                         <>
+//                             {isLoading ? (
+//                                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+//                                     {Array.from({ length: 8 }).map((_, index) => (
+//                                         <ProjectCardSkeleton key={`loading-skeleton-${index}`} />
+//                                     ))}
+//                                 </div>
+//                             ) : (
+//                                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+//                                     {paginatedEvents.map((event) => (
+//                                         <ProjectCard
+//                                             key={event.id}
+//                                             image="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0"
+//                                             // status="Event"
+//                                             title={event.title}
+//                                             description={event.description}
+//                                             location={event.location}
+//                                             value={event.date_favourited}
+//                                             onClick={() => navigate(`/admin/events/${event.id}`)}
+//                                         />
+//                                     ))}
+//                                 </div>
+//                             )}
+//                         </>
+//                     )}
+//                 </div>
+
+//                 {showFilters && (
+//                     <FiltersSidebar
+//                         isOpen={showFilters}
+//                         onClose={() => setShowFilters(false)}
+//                         onApplyFilters={handleApplyFilters}
+//                         initialFilters={appliedFilters}
+//                         type="projects"
+//                     />
+//                 )}
+//             </section>
+//         </div>
+//     );
+// };
+
+// export default Events;
+
+
+
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ActionButton, Tabs, DataTable, CustomSelect, FiltersSidebar, ProjectCard, ProjectCardSkeleton } from "../components";
@@ -6,17 +357,11 @@ import { CiGrid41 } from "react-icons/ci";
 import { CgSortAz } from "react-icons/cg";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
-import type { AppFilters } from "../types/filter.types";
+import type { AppFilters, EventQueryParams } from "../types/filter.types";
+import { useGetEventsQuery } from "../store/services/events";
+import type { Event } from "../types/events.types";
 
 const ITEMS_PER_PAGE = 25;
-
-interface Event {
-    id: number;
-    date_favourited: string;
-    location: string;
-    title: string;
-    description: string;
-}
 
 const Events = () => {
     const navigate = useNavigate();
@@ -26,80 +371,59 @@ const Events = () => {
     const [sortBy, setSortBy] = useState('recently-added');
     const [showFilters, setShowFilters] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState<AppFilters>({});
-    const [isLoading] = useState(false);
 
-    const dummyEvents: Event[] = useMemo(() => [
-        {
-            id: 1,
-            date_favourited: "01/01/2025",
-            location: "Senegal",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-        {
-            id: 2,
-            date_favourited: "01/01/2025",
-            location: "Ghana",
-            title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-        {
-            id: 3,
-            date_favourited: "01/01/2025",
-            location: "Nairobi",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
-            description: "Facilitating cross-border trade and economic partnerships."
-        },
-        {
-            id: 4,
-            date_favourited: "01/01/2025",
-            location: "Cairo",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
-            description: "A vital infrastructure project enhancing trade and connectivity in East Africa."
-        },
-        {
-            id: 5,
-            date_favourited: "01/01/2025",
-            location: "Lagos",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-        {
-            id: 6,
-            date_favourited: "01/01/2025",
-            location: "Dakar",
-            title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-        {
-            id: 7,
-            date_favourited: "01/01/2025",
-            location: "Abuja",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
-            description: "Facilitating cross-border trade and economic partnerships."
-        },
-        {
-            id: 8,
-            date_favourited: "01/01/2025",
-            location: "Accra",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor)",
-            description: "A vital infrastructure project enhancing trade and connectivity in East Africa."
-        },
-        {
-            id: 9,
-            date_favourited: "01/01/2025",
-            location: "Tunis",
-            title: "Horn of Africa Initiative: Regional Economic Corridor (Addis-Djibouti Corridor), Ethiopia and Djibouti",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-        {
-            id: 10,
-            date_favourited: "01/01/2025",
-            location: "Algiers",
-            title: "Greater Cairo Air Pollution Management and Climate Change, Egypt",
-            description: "This project aims to develop a cutting-edge public transport system that reduces traffic congestion and lowers emissions in urban areas."
-        },
-    ], []);
+    // Build query parameters
+    const queryParams = useMemo((): EventQueryParams => {
+        const params: EventQueryParams = {
+            limit: ITEMS_PER_PAGE,
+            offset: (currentPage - 1) * ITEMS_PER_PAGE,
+            meta: "filter_count,total_count",
+        };
+
+        // Apply filters
+        if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0) {
+            params["filter[countries][countries_id][_eq]"] = appliedFilters.country[0];
+        }
+
+        if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0) {
+            params["filter[regions][regions_id][_eq]"] = appliedFilters.region[0];
+        }
+
+        if (appliedFilters.sector && Array.isArray(appliedFilters.sector) && appliedFilters.sector.length > 0) {
+            params["filter[sectors][sectors_id][_eq]"] = appliedFilters.sector[0];
+        }
+
+        // Apply sorting
+        switch (sortBy) {
+            case 'recently-added':
+                params.sort = '-date_created';
+                break;
+            case 'oldest':
+                params.sort = 'date_created';
+                break;
+            case 'alphabetical':
+                params.sort = 'title';
+                break;
+            case 'date-newest':
+                params.sort = '-start_date';
+                break;
+            case 'date-oldest':
+                params.sort = 'start_date';
+                break;
+        }
+
+        // Only published events
+        params["filter[status][_eq]"] = "published";
+
+        return params;
+    }, [currentPage, appliedFilters, sortBy]);
+
+    // Fetch events using RTK Query
+    const { data: eventsResponse, isLoading, isFetching } = useGetEventsQuery(queryParams);
+
+    const events = eventsResponse?.data || [];
+    const totalCount = eventsResponse?.meta?.filter_count || 0;
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     const viewTabs: TabItem[] = [
         {
@@ -122,72 +446,56 @@ const Events = () => {
         { value: 'date-oldest', label: 'Date (Oldest First)' }
     ];
 
-    const filteredEvents = useMemo(() => {
-        let events = [...dummyEvents];
+    // Helper function to format date
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit' 
+        });
+    };
 
-        if (appliedFilters.country && Array.isArray(appliedFilters.country) && appliedFilters.country.length > 0) {
-            events = events.filter(event =>
-                appliedFilters.country!.some(country =>
-                    event.location.toLowerCase().includes(country.toLowerCase())
-                )
-            );
+    // Helper function to get event location
+    const getEventLocation = (event: Event) => {
+        const parts: string[] = [];
+        if (event.city) parts.push(event.city);
+        if (event.state) parts.push(event.state);
+        if (event.country) parts.push(event.country);
+        return parts.join(', ') || event.venue_address;
+    };
+
+    // Helper function to get event image
+    const getEventImage = (event: Event) => {
+        if (!event.featured_image) {
+            return "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0";
         }
-
-        if (appliedFilters.region && Array.isArray(appliedFilters.region) && appliedFilters.region.length > 0) {
-            events = events.filter(event =>
-                appliedFilters.region!.some(region =>
-                    event.location.toLowerCase().includes(region.toLowerCase())
-                )
-            );
+        
+        if (typeof event.featured_image === 'string') {
+            return `${import.meta.env.VITE_API_BASE_URL}/assets/${event.featured_image}`;
         }
-
-        switch (sortBy) {
-            case 'recently-added':
-                events.sort((a, b) => new Date(b.date_favourited).getTime() - new Date(a.date_favourited).getTime());
-                break;
-            case 'oldest':
-                events.sort((a, b) => new Date(a.date_favourited).getTime() - new Date(b.date_favourited).getTime());
-                break;
-            case 'alphabetical':
-                events.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-            case 'date-newest':
-                events.sort((a, b) => new Date(b.date_favourited).getTime() - new Date(a.date_favourited).getTime());
-                break;
-            case 'date-oldest':
-                events.sort((a, b) => new Date(a.date_favourited).getTime() - new Date(b.date_favourited).getTime());
-                break;
-        }
-
-        return events;
-    }, [dummyEvents, appliedFilters, sortBy]);
-
-    // Pagination
-    const paginatedEvents = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredEvents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    }, [filteredEvents, currentPage]);
-
-    const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
+        
+        return `${import.meta.env.VITE_API_BASE_URL}/assets/${event.featured_image.id}`;
+    };
 
     const tableColumns: TableColumn<Event>[] = [
         {
-            key: 'date_favourited',
-            label: 'Date favourited',
+            key: 'start_date',
+            label: 'Event Date',
             sortable: true,
             width: '20%',
-            render: (value) => value as string
+            render: (value) => formatDate(value as string)
         },
         {
-            key: 'location',
+            key: 'venue_address',
             label: 'Location',
             sortable: true,
             width: '20%',
-            render: (value) => value as string
+            render: (_, row) => getEventLocation(row)
         },
         {
             key: 'title',
-            label: 'Website',
+            label: 'Event Details',
             sortable: true,
             width: '60%',
             render: (_, row) => (
@@ -202,7 +510,7 @@ const Events = () => {
                         {row.title}
                     </div>
                     <div className="text-sm text-[#535862] line-clamp-2 leading-relaxed">
-                        {row.description}
+                        {row.description?.replace(/<[^>]*>/g, '') || 'No description available'}
                     </div>
                 </button>
             )
@@ -230,7 +538,7 @@ const Events = () => {
                 <div>
                     <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Events</h1>
                     <p className="text-[#535862]">
-                        Showing recently added events
+                        Showing {events.length} of {totalCount} events
                         {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
                     </p>
                 </div>
@@ -286,7 +594,7 @@ const Events = () => {
                                 </div>
                             ) : (
                                 <DataTable
-                                    data={paginatedEvents as []}
+                                    data={events as []}
                                     columns={tableColumns}
                                     onRowSelect={(rows) => console.log('Selected rows:', rows)}
                                     onRowClick={(row: Record<string, unknown> & { id: unknown }) => navigate(`/admin/events/${row.id}`)}
@@ -295,7 +603,7 @@ const Events = () => {
                                     totalPages={totalPages}
                                     showCheckboxes={true}
                                     showFavorites={false}
-                                    loading={false}
+                                    loading={isFetching}
                                     pageSize={ITEMS_PER_PAGE}
                                 />
                             )}
@@ -312,20 +620,44 @@ const Events = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                                    {paginatedEvents.map((event) => (
-                                        <ProjectCard
-                                            key={event.id}
-                                            image="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0"
-                                            // status="Event"
-                                            title={event.title}
-                                            description={event.description}
-                                            location={event.location}
-                                            value={event.date_favourited}
-                                            onClick={() => navigate(`/admin/events/${event.id}`)}
-                                        />
-                                    ))}
-                                </div>
+                                <>
+                                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
+                                        {events.map((event) => (
+                                            <ProjectCard
+                                                key={event.id}
+                                                image={getEventImage(event)}
+                                                title={event.title}
+                                                description={event.description?.replace(/<[^>]*>/g, '') || 'No description available'}
+                                                location={getEventLocation(event)}
+                                                value={formatDate(event.start_date)}
+                                                onClick={() => navigate(`/admin/events/${event.id}`)}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Pagination for Grid View */}
+                                    {totalPages > 1 && (
+                                        <div className="flex justify-center items-center gap-2 mt-6">
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                disabled={currentPage === 1 || isFetching}
+                                                className="px-4 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            >
+                                                Previous
+                                            </button>
+                                            <span className="text-sm text-gray-600">
+                                                Page {currentPage} of {totalPages}
+                                            </span>
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                                disabled={currentPage === totalPages || isFetching}
+                                                className="px-4 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </>
                     )}
@@ -337,7 +669,7 @@ const Events = () => {
                         onClose={() => setShowFilters(false)}
                         onApplyFilters={handleApplyFilters}
                         initialFilters={appliedFilters}
-                        type="projects"
+                        type="events"
                     />
                 )}
             </section>
@@ -346,4 +678,3 @@ const Events = () => {
 };
 
 export default Events;
-

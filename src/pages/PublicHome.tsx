@@ -7,6 +7,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { featuredOpinions, teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
 import { useLocation } from 'react-router-dom';
+import { useGetTrendingProjectsQuery } from "../store/services/projects";
+import { useGetExpertsQuery } from "../store/services/expert";
 
 
 const PublicHome = () => {
@@ -15,6 +17,13 @@ const PublicHome = () => {
     const [progress, setProgress] = useState(0);
     const [imageOpacity, setImageOpacity] = useState(1);
     const [displayedImage, setDisplayedImage] = useState('/images/benefit-01.svg');
+
+    const {data: trendingProjectsData, isLoading: isTrendingProjectsLoading} = useGetTrendingProjectsQuery();
+
+    const {data: expertOpinionsData, isLoading: isExpertOpinionsLoading} = useGetExpertsQuery({
+        limit: 3,
+    });
+
 
     // Handle hash navigation to expert opinions section
     useEffect(() => {
@@ -256,7 +265,7 @@ const PublicHome = () => {
                             }}
                             className="trending-projects-swiper"
                         >
-                            {trendingProjects.map((project) => (
+                            {trendingProjectsData?.data.map((project) => (
                                 <SwiperSlide key={project.id}>
                                     <ProjectCard3 project={{
                                         image: project.image,
@@ -467,10 +476,10 @@ const PublicHome = () => {
                     </p>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-4 mt-5 lg:mt-10">
-                    {featuredOpinions.map((expert, index) => (
+                    {expertOpinionsData?.data.map((expert, index) => (
                         <ExpertCard
                             key={expert.id || index}
-                            expertImage={expert.image}
+                            expertImage={expert.photo}
                             expertName={expert.name}
                             title={expert.title}
                             opinion={expert.opinion}
