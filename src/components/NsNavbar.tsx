@@ -50,7 +50,7 @@ const NsNavbar = () => {
         },
         {
             name: 'Expert Opinion',
-            href: '/#expert-opinions',
+            href: '/insights/expert-opinions',
             icon: FiGlobe,
             description: 'Industry views and analysis.'
         },
@@ -62,11 +62,11 @@ const NsNavbar = () => {
         }
     ];
 
-    const navClassName = `border-[#E9EAEB] h-[48px] md:h-[90px] top-0 left-0 right-0 z-50 transition-all duration-300 fixed ${isPublicHome
+    const navClassName = `border-[#E9EAEB] top-0 left-0 right-0 z-50 transition-all duration-300 fixed ${isPublicHome
         ? isScrolled
-            ? 'bg-white border-b shadow-sm'
-            : 'bg-transparent'
-        : 'bg-white'
+            ? 'bg-white border-0 shadow-sm pb-2 h-[56px] md:h-[106px]'
+            : 'bg-transparent h-[48px] md:h-[90px]'
+        : 'bg-white h-[48px] md:h-[90px]'
         }`;
 
 
@@ -74,7 +74,7 @@ const NsNavbar = () => {
         <nav className={navClassName}>
             <div className="mx-auto px-4 sm:px-6 lg:px-8 h-full">
                 <div className="flex justify-between items-center h-full">
-                    <div onClick={() => navigate("/")} className="w-[60px] md:w-[120px] h-full">
+                    <div onClick={() => navigate("/")} className="w-[60px] md:w-[120px] h-[48px] md:h-[90px]">
                         <img className="w-full h-full object-cover" src="/images/logo.svg" alt="Logo" />
                     </div>
 
@@ -113,29 +113,15 @@ const NsNavbar = () => {
                                         <div className="absolute top-full left-0 mt-2 w-[280px] bg-white rounded-lg shadow-lg border border-[#E9EAEB] py-2 z-50">
                                             {insightsDropdownItems.map((dropdownItem) => {
                                                 const Icon = dropdownItem.icon;
-                                                const isExpertOpinion = dropdownItem.name === 'Expert Opinion';
 
                                                 return (
                                                     <a
                                                         key={dropdownItem.name}
                                                         href={dropdownItem.href}
-                                                        onClick={(e) => {
-                                                            if (isExpertOpinion) {
-                                                                e.preventDefault();
-                                                                if (location.pathname !== '/') {
-                                                                    navigate('/#expert-opinions');
-                                                                } else {
-                                                                    const element = document.getElementById('expert-opinions');
-                                                                    if (element) {
-                                                                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                                                    }
-                                                                }
-                                                            }
-                                                        }}
                                                         className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group"
                                                     >
                                                         <Icon
-                                                            size={22}
+                                                            size={20}
                                                             className="text-[#717680] group-hover:text-[#E0891E] transition-colors mt-0.5 flex-shrink-0"
                                                         />
                                                         <div className="flex-1">
@@ -157,12 +143,17 @@ const NsNavbar = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <ActionButton buttonText="Login" textColor={isPublicHome && !isScrolled ? 'white' : '#414651'} backgroundColor='transparent' paddingX="px-8" attributes={{
+                        {location.pathname !== '/login' && <ActionButton buttonText="Login" textColor={isPublicHome && !isScrolled ? 'white' : '#414651'} backgroundColor='transparent' paddingX="px-8" attributes={{
                             onClick: () => navigate('/login')
-                        }} />
-                        <ActionButton buttonText="Request Listing" paddingX="px-5" attributes={{
+                        }} />}
+
+                        {location.pathname !== '/login' && < ActionButton buttonText="Book a Demo" paddingX="px-5" attributes={{
                             onClick: () => navigate('/get-listed')
-                        }} />
+                        }} />}
+
+                        {location.pathname === '/login' && <ActionButton buttonText="Contact us" paddingX="px-5" attributes={{
+                            onClick: () => navigate('/contact')
+                        }} />}
                     </div>
                 </div>
             </div>

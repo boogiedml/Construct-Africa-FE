@@ -15,6 +15,7 @@ interface ProjectCardProps {
     category?: string;
     value?: string | number;
     isFavorite?: boolean;
+    toggleFavorite?: () => void;
     deadline?: string;
     onClick?: () => void;
     isLogo?: boolean;
@@ -31,6 +32,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     category,
     value,
     isFavorite = false,
+    toggleFavorite,
     deadline,
     onClick,
     isLogo = false,
@@ -74,39 +76,44 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
             <div className="p-3 md:p-4">
                 <div className="flex justify-between items-center mb-3 gap-2">
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-3 flex-1">
                         {status && (
                             <span className="py-1 text-xs font-medium text-gray-700 whitespace-nowrap">
                                 {status}
                             </span>
                         )}
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-1 justify-end">
                         {stageName && stageGroup && (
                             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStageStyles(stageGroup).bg} whitespace-nowrap`}>
                                 <div className={`w-2 h-2 rounded-full ${getStageStyles(stageGroup).dot}`}></div>
                                 <span className={`text-xs font-medium ${getStageStyles(stageGroup).text}`}>{stageName}</span>
                             </div>
                         )}
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+
                         {deadline && (
                             <div className="text-sm text-[#535862] whitespace-nowrap">
                                 {deadline}
                             </div>
                         )}
-                        {isFavorite && (
-                            <div className="">
-                                <FaStar className="w-5 h-5 text-[#FDB022]" />
-                            </div>
-                        )}
+
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite?.();
+                            }}
+                            className=""
+                        >
+                            <FaStar className={`w-5 h-5 cursor-pointer ${isFavorite ? 'text-[#FDB022]' : 'text-[#D5D7DA]'}`} />
+                        </div>
                     </div>
                 </div>
-                <h3 className="font-semibold text-[#181D27] text-base md:text-lg mb-2 line-clamp-1 leading-tight group-hover:text-[#F89822] transition-colors duration-200">
+                <h3 className="font-semibold text-[#181D27] text-base md:text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#F89822] transition-colors duration-200">
                     {title}
                 </h3>
 
                 {description && (
-                    <p className="text-[#535862] text-sm md:text-base mb-3 line-clamp-2 leading-relaxed">
+                    <p className="text-[#535862] text-sm md:text-base mb-3 line-clamp-3 leading-relaxed">
                         {description}
                     </p>
                 )}

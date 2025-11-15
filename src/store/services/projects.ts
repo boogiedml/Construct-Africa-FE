@@ -8,7 +8,8 @@ export const projectsApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: 'items/projects',
         params: {
-          fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,featured_image.*,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
+          // fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,featured_image.*,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
+          fields: 'id,title,slug,description,current_stage,contract_value_usd,date_created,countries.countries_id.id,countries.countries_id.name,sectors.sectors_id.id,sectors.sectors_id.name,regions.regions_id.id,regions.regions_id.name',
           ...params,
         },
       }),

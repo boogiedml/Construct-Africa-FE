@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ProjectCard, Tabs, DataTable, CustomSelect, ProjectCardSkeleton } from "../components";
 import { LuTable } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -9,10 +9,13 @@ import {
   useGetMyFavouritesQuery,
   useToggleFavouriteMutation
 } from "../store/services/favourite";
+import { cleanHtmlContent } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 type FavouriteCategory = 'projects' | 'companies' | 'main_news' | 'tenders';
 
 const Favourites = () => {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState('table');
   const [activeCategory, setActiveCategory] = useState<FavouriteCategory>('projects');
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,6 +63,20 @@ const Favourites = () => {
     }
   ];
 
+  const getItemImageUrl = (featuredImage: string | any['featured_image']) => {
+    if (!featuredImage) return "/images/null-image.svg";
+
+    if (typeof featuredImage === 'string') {
+      return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage}`;
+    }
+
+    if (featuredImage && typeof featuredImage === 'object' && 'filename_disk' in featuredImage) {
+      return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage.filename_disk}`;
+    }
+
+    return "/images/null-image.svg";
+  };
+
   const queryParams = useMemo(() => ({
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
@@ -68,17 +85,35 @@ const Favourites = () => {
   const { data: favouritesData, isLoading, isError, refetch } = useGetMyFavouritesQuery(queryParams);
   const [toggleFavourite] = useToggleFavouriteMutation();
 
-  // Extract and flatten items - THE KEY FIX IS HERE
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
+
+  // Extract and flatten items - Filter by active category only
   const displayItems = useMemo(() => {
-    if (!favouritesData?.favorites?.[activeCategory]) return [];
-    
-    const data = favouritesData.favorites[activeCategory].map((fav: any) => ({
-      ...fav, // Extract the actual item data from "0" key
-      favorite_id: fav.favorite_id,
-      favorite_date: fav.favorite_date,
-      isFavorite: true
-    }));
-    return data
+    // Ensure we have data and the active category exists
+    if (!favouritesData?.favorites || !favouritesData.favorites[activeCategory]) {
+      return [];
+    }
+
+    // Only process items for the current active category
+    const categoryData = favouritesData.favorites[activeCategory];
+    if (!Array.isArray(categoryData) || categoryData.length === 0) {
+      return [];
+    }
+
+    // Explicitly filter to ensure we only get items for the active category
+    const data = categoryData
+      .filter((fav: any) => fav !== null && fav !== undefined)
+      .map((fav: any) => ({
+        ...fav, // Extract the actual item data
+        favorite_id: fav.favorite_id,
+        favorite_date: fav.favorite_date,
+        isFavorite: true
+      }));
+
+    return data;
   }, [favouritesData, activeCategory]);
 
   const itemCount = favouritesData?.counts?.[activeCategory] || 0;
@@ -115,7 +150,7 @@ const Favourites = () => {
         collection: activeCategory,
         item_id: row.id
       }).unwrap();
-      
+
       toast.success('Added to favourites');
       refetch();
     } catch (error) {
@@ -257,21 +292,6 @@ const Favourites = () => {
     }
   ];
 
-  const getColumnsForCategory = () => {
-    switch (activeCategory) {
-      case 'projects':
-        return projectColumns;
-      case 'companies':
-        return companyColumns;
-      case 'main_news':
-        return newsColumns;
-      case 'tenders':
-        return tenderColumns;
-      default:
-        return projectColumns;
-    }
-  };
-
   const renderContent = () => {
     if (isLoading) {
       // Grid View Skeleton Loading
@@ -317,21 +337,74 @@ const Favourites = () => {
         }
       }
 
-      // Table View Skeleton Loading
-      return (
-        <DataTable
-          data={[]}
-          columns={getColumnsForCategory()}
-          onRowSelect={(rows) => console.log('Selected rows:', rows)}
-          onToggleFavorite={handleToggleFavorite}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          totalPages={totalPages}
-          showCheckboxes={true}
-          showFavorites={true}
-          loading={true}
-        />
-      );
+      // Table View Skeleton Loading - Separate for each category
+      if (activeCategory === 'projects') {
+        return (
+          <DataTable
+            data={[]}
+            columns={projectColumns}
+            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+            onToggleFavorite={handleToggleFavorite}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+            showCheckboxes={true}
+            showFavorites={true}
+            loading={true}
+          />
+        );
+      }
+
+      if (activeCategory === 'companies') {
+        return (
+          <DataTable
+            data={[]}
+            columns={companyColumns}
+            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+            onToggleFavorite={handleToggleFavorite}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+            showCheckboxes={true}
+            showFavorites={true}
+            loading={true}
+          />
+        );
+      }
+
+      if (activeCategory === 'main_news') {
+        return (
+          <DataTable
+            data={[]}
+            columns={newsColumns}
+            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+            onToggleFavorite={handleToggleFavorite}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+            showCheckboxes={true}
+            showFavorites={true}
+            loading={true}
+          />
+        );
+      }
+
+      if (activeCategory === 'tenders') {
+        return (
+          <DataTable
+            data={[]}
+            columns={tenderColumns}
+            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+            onToggleFavorite={handleToggleFavorite}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+            showCheckboxes={true}
+            showFavorites={true}
+            loading={true}
+          />
+        );
+      }
     }
 
     if (isError) {
@@ -367,7 +440,7 @@ const Favourites = () => {
                 category={item.current_stage || '-'}
                 value={item.contract_value_usd ? `$${item.contract_value_usd}` : '-'}
                 isFavorite={true}
-                // onToggleFavorite={() => handleToggleFavorite(item)}
+              // onToggleFavorite={() => handleToggleFavorite(item)}
               />
             ))}
           </div>
@@ -379,27 +452,27 @@ const Favourites = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sortedItems.map((item) => (
-              <div key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div className="flex items-start gap-3">
-                  {item.logo && (
-                    <img 
-                      src={item.logo} 
-                      alt={item.name}
-                      className="w-12 h-12 rounded object-contain"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {item.company_role?.join(', ') || '-'}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>{item.employees || 0} employees</span>
-                      <span>{item.projects_completed || 0} projects</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProjectCard
+                key={item.id}
+                isLogo={true}
+                image={item.logo?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${item.logo.filename_disk}` : "/images/null-image.svg"}
+                status={item.company_role || "Company"}
+                title={item.name}
+                description={cleanHtmlContent(item.description) || "No description available"}
+                location={
+                  item.countries && Array.isArray(item.countries) && item.countries.length > 0
+                    ? item.countries.map((c: any) => c?.countries_id?.name).filter(Boolean).join(', ')
+                    : '---'
+                }
+                category={
+                  item.sectors && Array.isArray(item.sectors) && item.sectors.length > 0
+                    ? item.sectors.map((s: any) => s?.sectors_id?.name).filter(Boolean).join(', ')
+                    : 'Company'
+                }
+                value={`${Array.isArray(item.projects) ? item.projects.length : 0} projects`}
+                isFavorite={true}
+                onClick={() => navigate(`/admin/companies/${item.id}`)}
+              />
             ))}
           </div>
         );
@@ -410,23 +483,19 @@ const Favourites = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedItems.map((item) => (
-              <article key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                {item.featured_image && (
-                  <img 
-                    src={item.featured_image} 
-                    alt={item.title}
-                    className="w-full h-48 object-cover"
-                  />
-                )}
-                <div className="p-4">
-                  <span className="text-xs text-[#E0891E] font-medium">{item.category}</span>
-                  <h3 className="font-semibold text-gray-900 mt-1 mb-2 line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-3">{item.summary}</p>
-                  <div className="mt-3 text-xs text-gray-500">
-                    {item.date_published && new Date(item.date_published).toLocaleDateString()}
-                  </div>
-                </div>
-              </article>
+              <ProjectCard
+                key={item.id}
+                image={getItemImageUrl(item.featured_image)}
+                title={item.title}
+                description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
+                location={new Date(item.date_created).toLocaleDateString()}
+                category={typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
+                  ? (item.category_id as { name: string }).name
+                  : 'News'}
+                value={item.is_sponsored ? 'Sponsored' : ''}
+                isFavorite={true}
+                onClick={() => navigate(`/admin/news/${item.id}`)}
+              />
             ))}
           </div>
         );
@@ -437,51 +506,98 @@ const Favourites = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedItems.map((item) => (
-              <div key={item.favorite_id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
-                <p className="text-sm text-gray-600 mb-3 line-clamp-3">{item.description}</p>
-                <div className="space-y-1 text-sm">
-                  {item.tender_date && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Tender Date:</span>
-                      <span className="text-gray-900">{new Date(item.tender_date).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {item.closing_date && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Closing Date:</span>
-                      <span className="text-gray-900">{new Date(item.closing_date).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Type:</span>
-                    <span className={`${item.is_free_tender ? 'text-green-600' : 'text-blue-600'} font-medium`}>
-                      {item.is_free_tender ? 'Free' : 'Premium'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <ProjectCard
+                key={item.id}
+                image={getItemImageUrl(item.featured_image)}
+                status={item.is_free_tender ? 'Free' : 'Premium'}
+                title={item.title}
+                description={item.summary || cleanHtmlContent(item.content)?.substring(0, 150) + '...' || ''}
+                location={new Date(item.date_created).toLocaleDateString()}
+                category="Tender"
+                value={item.promote ? 'Featured' : ''}
+                isFavorite={true}
+                onClick={() => navigate(`/admin/tenders/${item.id}`)}
+              />
             ))}
           </div>
         );
       }
     }
 
-    // Table View (All Categories)
-    return (
-      <DataTable
-        data={sortedItems}
-        columns={getColumnsForCategory()}
-        onRowSelect={(rows) => console.log('Selected rows:', rows)}
-        onToggleFavorite={handleToggleFavorite}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        totalPages={totalPages}
-        showCheckboxes={true}
-        showFavorites={true}
-        loading={false}
-      />
-    );
+    // Table View - Separate tables for each category with key to force re-render
+    if (activeCategory === 'projects') {
+      return (
+        <DataTable
+          key={`projects-table-${activeCategory}`}
+          data={sortedItems}
+          columns={projectColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={handleToggleFavorite}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={false}
+        />
+      );
+    }
+
+    if (activeCategory === 'companies') {
+      return (
+        <DataTable
+          key={`companies-table-${activeCategory}`}
+          data={sortedItems}
+          columns={companyColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={handleToggleFavorite}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={false}
+        />
+      );
+    }
+
+    if (activeCategory === 'main_news') {
+      return (
+        <DataTable
+          key={`news-table-${activeCategory}`}
+          data={sortedItems}
+          columns={newsColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={handleToggleFavorite}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={false}
+        />
+      );
+    }
+
+    if (activeCategory === 'tenders') {
+      return (
+        <DataTable
+          key={`tenders-table-${activeCategory}`}
+          data={sortedItems}
+          columns={tenderColumns}
+          onRowSelect={(rows) => console.log('Selected rows:', rows)}
+          onToggleFavorite={handleToggleFavorite}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          showCheckboxes={true}
+          showFavorites={true}
+          loading={false}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (

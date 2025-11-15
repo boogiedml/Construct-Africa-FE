@@ -6,40 +6,13 @@ import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
 import { useState, useEffect, useMemo } from 'react';
 import { featuredOpinions, teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
-import { useLocation } from 'react-router-dom';
 
 
 const PublicHome = () => {
-    const location = useLocation();
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [imageOpacity, setImageOpacity] = useState(1);
     const [displayedImage, setDisplayedImage] = useState('/images/benefit-01.svg');
-
-    // Handle hash navigation to expert opinions section
-    useEffect(() => {
-        if (location.hash === '#expert-opinions') {
-            // Wait for page to fully render before scrolling
-            const scrollToSection = () => {
-                const element = document.getElementById('expert-opinions');
-                if (element) {
-                    const offset = 100; // Account for fixed navbar
-                    const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            };
-
-            // Try immediately, then with delays to ensure DOM is ready
-            scrollToSection();
-            setTimeout(scrollToSection, 100);
-            setTimeout(scrollToSection, 300);
-        }
-    }, [location.hash, location.pathname]);
 
     const brandLogos = [
         { id: 1, name: "Aksa", logo: "/logos/aksa.svg" },
@@ -97,7 +70,7 @@ const PublicHome = () => {
         const fadeTimeout = setTimeout(() => {
             setDisplayedImage(currentImage);
             setImageOpacity(1);
-        }, 300);
+        }, 200);
 
         return () => clearTimeout(fadeTimeout);
     }, [activeFeatureIndex, features]);
@@ -278,7 +251,7 @@ const PublicHome = () => {
                     </div>
                     <div className="flex justify-center">
                         <ActionButton
-                            buttonText="View More Projects"
+                            buttonText="Learn More"
                             link="/projects"
                             width="fit"
                             paddingX="px-8"
@@ -290,18 +263,18 @@ const PublicHome = () => {
             {/* Features Section */}
             <section className="py-20 px-5 sm:px-10 lg:px-20">
                 <div className="flex flex-col items-start lg:flex-row gap-20">
-                    <div className="flex-1">
+                    <div className="basis-[40%]">
                         <p className="text-base text-[#414651] uppercase tracking-wide mb-4">
                             BUILT FOR RESULTS. POWERED BY INSIGHTS.
                         </p>
-                        <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-6 leading-tight">
+                        <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">
                             Uncover Real Opportunities, Win Businesses
                         </h2>
-                        <p className="text-lg text-[#414651] mb-8 leading-relaxed">
+                        <p className="text-lg text-[#414651] mb-4.5 leading-relaxed">
                             We deliver trusted, on-the-ground project intelligence, giving you clarity to act fast, plan smarter, and lead in Africa's evolving construction markets.
                         </p>
 
-                        <div className="space-y-0">
+                        <div className="space-y-0 max-w-md">
                             {features.map((feature, index) => {
                                 const isActive = index === activeFeatureIndex;
                                 return (
@@ -600,7 +573,7 @@ const PublicHome = () => {
                                     }} />
 
                                 <ActionButton
-                                    buttonText="Request listing"
+                                    buttonText="Submit"
                                     backgroundColor="#E0891E"
                                     textSize="text-base"
                                     width="full"

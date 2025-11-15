@@ -676,6 +676,7 @@ const Projects = () => {
                     value={`$${project.contract_value_usd || 0} million`}
                     isFavorite={false}
                     onClick={() => navigate(`/admin/projects/${project.id}`)}
+                    toggleFavorite={() => handleToggleFavorite(project)}
                   />
                 ))}
               </div>
@@ -785,6 +786,12 @@ const Projects = () => {
                 }))}
                 stageKey="stage"
                 onProjectClick={(id) => navigate(`/admin/projects/${id}`)}
+                toggleFavorite={(id) => {
+                  const project = projectsWithStage.find((p: Project) => p.id === id);
+                  if (project) {
+                    handleToggleFavorite(project);
+                  }
+                }}
               />
             )
           )}

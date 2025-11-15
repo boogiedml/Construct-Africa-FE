@@ -10,7 +10,7 @@ export const referenceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCountries: builder.query<CountriesResponse, void>({
       query: () => ({
-        url: 'items/countries?fields=id,name&sort=name',
+        url: 'items/countries?fields=id,name,drupal_key&sort=name',
       }),
     }),
 
