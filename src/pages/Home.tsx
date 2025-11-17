@@ -273,7 +273,7 @@ const Home = () => {
                   <div className="relative h-[300px] md:h-[400px] lg:h-[565px] rounded-2xl overflow-hidden cursor-pointer"
                     onClick={() => navigate(`/news/${featuredNews.slug}`)}>
                     <img
-                      src={featuredNews.featured_image || "https://plus.unsplash.com/premium_photo-1722944969391-1d21a2d404ea?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxN3x8fGVufDB8fHx8fA%3D%3D"}
+                      src={`https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredNews?.featured_image?.filename_disk}` || "https://plus.unsplash.com/premium_photo-1722944969391-1d21a2d404ea?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxN3x8fGVufDB8fHx8fA%3D%3D"}
                       alt={featuredNews.title}
                       className="w-full h-full object-cover"
                     />

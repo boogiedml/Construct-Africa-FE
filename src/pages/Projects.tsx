@@ -378,8 +378,8 @@ const Projects = () => {
       sortable: true,
       width: '15%',
       render: (value: unknown) => {
-        const sectors = value as { sectors_id: { name: string } }[];
-        return sectors?.map(sector => sector.sectors_id.name).join(', ') || '---';
+        const sectors = value as { name: string }[];
+        return sectors?.map(sector => sector?.name).join(', ') || '---';
       }
     },
     {
@@ -388,8 +388,8 @@ const Projects = () => {
       sortable: true,
       width: '15%',
       render: (value: unknown) => {
-        const countries = value as { countries_id: { name: string } }[];
-        return countries?.map(country => country.countries_id.name).join(', ') || '---';
+        const countries = value as {  name: string }[];
+        return countries?.map(country => country?.name).join(', ') || '---';
       }
     },
     {
@@ -671,8 +671,8 @@ const Projects = () => {
                     stageGroup={project.stage}
                     title={project.title}
                     description={project.description || ''}
-                    location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
-                    category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
+                    location={project.countries.map((country: { name: string }) => country.name).join(', ') || '---'}
+                    category={project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---'}
                     value={`$${project.contract_value_usd || 0} million`}
                     isFavorite={false}
                     onClick={() => navigate(`/admin/projects/${project.id}`)}
@@ -779,8 +779,8 @@ const Projects = () => {
                   stageName: project.stageName,
                   stageGroup: project.stage,
                   description: project.description || '',
-                  location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
-                  category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',
+                  location: project.countries.map((country: { name: string }) => country.name).join(', ') || '---',
+                  category: project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---',
                   value: `$${project.contract_value_usd || 0} million`,
                   isFavorite: false
                 }))}

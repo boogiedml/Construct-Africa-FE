@@ -142,12 +142,12 @@ const ProjectDetails = () => {
     }
 
     // Extract data from project
-    const country = project.countries?.[0]?.countries_id.name || 'N/A';
-    const countrySlug = project.countries?.[0]?.countries_id.drupal_key || '';
-    const region = project.regions?.[0]?.regions_id.name || '';
+    const country = project.countries?.[0]?.name || 'N/A';
+    const countrySlug = project.countries?.[0]?.drupal_key || '';
+    const region = project.regions?.[0]?.name || '';
     const fullLocation = region ? `${country}, ${region}` : country;
-    const sectors = project.sectors?.map(s => s.sectors_id.name).join(', ') || 'N/A';
-    const projectTypes = project.types?.map(t => t.types_id.name) || [];
+    const sectors = project.sectors?.map(s => s.name).join(', ') || 'N/A';
+    const projectTypes = project.types?.map(t => t.name) || [];
     const specificLocation = parseLocation(project.location);
 
     const countryMapImage = countrySlug
