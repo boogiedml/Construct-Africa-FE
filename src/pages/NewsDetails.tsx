@@ -303,11 +303,11 @@ const NewsDetails = () => {
                                                 : "/images/null-image.svg";
 
                                             const projectCountries = Array.isArray(project.countries)
-                                                ? project.countries.map((c: { countries_id: { name: string } }) => c.countries_id.name).join(', ')
+                                                ? project.countries.map((c: { name: string }) => c.name).join(', ')
                                                 : '';
 
                                             const projectSectors = Array.isArray(project.sectors)
-                                                ? project.sectors.map((s: { sectors_id: { name: string } }) => s.sectors_id.name).join(', ')
+                                                ? project.sectors.map((s: { name: string }) => s.name).join(', ')
                                                 : '';
 
                                             return (

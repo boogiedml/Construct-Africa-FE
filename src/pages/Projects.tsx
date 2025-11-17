@@ -734,6 +734,7 @@ const Projects = () => {
               pageSize={ITEMS_PER_PAGE}
               groupBy={grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'country' ? 'countries' : grouping === 'stage' ? 'stage' : undefined}
               valueColumn="contract_value_usd"
+              favoriteKey="is_favorited"
             />
           )}
 

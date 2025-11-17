@@ -151,16 +151,6 @@ const CompanyDetails = () => {
             )
         },
         {
-            key: 'sectors',
-            label: 'Sector',
-            sortable: true,
-            width: '15%',
-            render: (value: unknown) => {
-                const sectors = value as { sectors_id: { name: string } }[];
-                return <span className="text-sm text-[#535862]">{sectors?.map(sector => sector.sectors_id.name).join(', ') || '---'}</span>;
-            }
-        },
-        {
             key: 'countries',
             label: 'Country',
             sortable: true,
@@ -179,15 +169,6 @@ const CompanyDetails = () => {
                 if (!value) return 'N/A';
                 const numericValue = String(value).replace(/[^0-9.]/g, '');
                 return `${parseFloat(numericValue).toLocaleString()}`;
-            }
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-            width: '12%',
-            render: (value: unknown) => {
-                return <span className="text-sm text-[#181D27]">{value as string || '---'}</span>;
             }
         },
         {

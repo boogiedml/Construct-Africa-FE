@@ -118,6 +118,7 @@ export interface Project {
   seaport_water_depth: number | null;
   current_stage: string;
   is_free_project: boolean;
+  is_favorited: boolean;
   in_planning: boolean;
   under_construction: boolean;
   bid_evaluation: string | null;
@@ -209,6 +210,7 @@ export interface SingleProject {
   under_construction?: boolean;
   in_operation?: boolean | null;
   is_free_project?: boolean;
+  is_favorited?: boolean;
   contract_value_usd?: number | null;
   estimated_project_value_usd?: number | null;
   revised_budget_value_usd?: number | null;

@@ -211,11 +211,17 @@ const Home = () => {
   const recentTenders = recentTendersData?.data || [];
   const experts = expertsData?.data || [];
   const favourites = [
-    ...(Array.isArray(favouritesData?.favorites?.projects)
-      ? favouritesData!.favorites!.projects.map((p: any) => ({ ...p, collection: "project" }))
+    ...(Array.isArray(favouritesData?.group?.projects)
+      ? favouritesData!.group!.projects.map((p: any) => ({ ...p, collection: "project" }))
       : []),
-    ...(Array.isArray(favouritesData?.favorites?.companies)
-      ? favouritesData!.favorites!.companies.map((c: any) => ({ ...c, collection: "company" }))
+    ...(Array.isArray(favouritesData?.group?.companies)
+      ? favouritesData!.group!.companies.map((c: any) => ({ ...c, collection: "company" }))
+      : []),
+    ...(Array.isArray(favouritesData?.group?.news)
+      ? favouritesData!.group!.news.map((n: any) => ({ ...n, collection: "news" }))
+      : []),
+    ...(Array.isArray(favouritesData?.group?.tenders)
+      ? favouritesData!.group!.tenders.map((t: any) => ({ ...t, collection: "tender" }))
       : []),
   ];
 
@@ -342,12 +348,12 @@ const Home = () => {
                 {recentProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
-                    image={project.featured_image || "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80"}
+                    image={`https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project?.featured_image?.filename_disk}` || "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80"}
                     status={project.status || "Active"}
                     title={project.title}
                     description={project.summary || project.description}
-                    location={project.countries?.[0]?.countries_id?.name || '-'}
-                    category={project.sectors?.[0]?.sectors_id?.name || '-'}
+                    location={project.countries?.[0]?.name || '-'}
+                    category={project.sectors?.[0]?.name || '-'}
                     value={project.value ? `$ ${project.value} (USD million)` : '-'}
                     isFavorite={false}
                     onToggleFavorite={() => handleToggleFavourite('projects', project.id)}
