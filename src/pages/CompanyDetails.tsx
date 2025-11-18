@@ -137,7 +137,7 @@ const CompanyDetails = () => {
             key: 'title',
             label: 'Name',
             sortable: true,
-            width: '30%',
+            width: '40%',
             render: (value: unknown, row: ProjectWithStage) => (
                 <button
                     onClick={(e) => {
@@ -151,20 +151,10 @@ const CompanyDetails = () => {
             )
         },
         {
-            key: 'sectors',
-            label: 'Sector',
-            sortable: true,
-            width: '15%',
-            render: (value: unknown) => {
-                const sectors = value as { sectors_id: { name: string } }[];
-                return <span className="text-sm text-[#535862]">{sectors?.map(sector => sector.sectors_id.name).join(', ') || '---'}</span>;
-            }
-        },
-        {
             key: 'countries',
             label: 'Country',
             sortable: true,
-            width: '15%',
+            width: '20%',
             render: (value: unknown) => {
                 const countries = value as { countries_id: { name: string } }[];
                 return <span className="text-sm text-[#535862]">{countries?.map(country => country.countries_id.name).join(', ') || '---'}</span>;
@@ -174,7 +164,7 @@ const CompanyDetails = () => {
             key: 'contract_value_usd',
             label: 'Value ($mn)',
             sortable: true,
-            width: '12%',
+            width: '20%',
             render: (value) => {
                 if (!value) return 'N/A';
                 const numericValue = String(value).replace(/[^0-9.]/g, '');
@@ -182,19 +172,10 @@ const CompanyDetails = () => {
             }
         },
         {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-            width: '12%',
-            render: (value: unknown) => {
-                return <span className="text-sm text-[#181D27]">{value as string || '---'}</span>;
-            }
-        },
-        {
             key: 'stageName',
             label: 'Stage',
             sortable: true,
-            width: '18%',
+            width: '20%',
             render: (value: unknown, row: ProjectWithStage) => {
                 const stageName = value as string;
                 if (!stageName) return <span className="text-sm text-[#535862]">---</span>;

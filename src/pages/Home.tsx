@@ -138,7 +138,7 @@
 
 // src/pages/Home.tsx
 
-import { ActionButton, ActivityList, ExpertCard, ProjectCard, SectionHeader, HomeSkeleton } from "../components";
+import { ActionButton, ActivityList, ExpertCard, ProjectCard, SectionHeader, HomeSkeleton, ProjectCardSkeleton, ExpertCardSkeleton } from "../components";
 import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "../store/services/projects";
 import { useGetNewsQuery } from "../store/services/news";
@@ -329,8 +329,10 @@ const Home = () => {
           <section className="">
             <SectionHeader title="Recently added projects" />
             {projectsLoading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <ProjectCardSkeleton key={`project-skeleton-${index}`} />
+                ))}
               </div>
             ) : recentProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -359,8 +361,10 @@ const Home = () => {
           <section>
             <SectionHeader title="Tenders" />
             {tendersLoading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <ProjectCardSkeleton key={`tender-skeleton-${index}`} />
+                ))}
               </div>
             ) : recentTenders.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -387,8 +391,10 @@ const Home = () => {
           <section>
             <SectionHeader title="Expert opinion" />
             {expertsLoading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-4 mt-5 lg:mt-10">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <ExpertCardSkeleton key={`expert-skeleton-${index}`} />
+                ))}
               </div>
             ) : experts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-4 mt-5 lg:mt-10">

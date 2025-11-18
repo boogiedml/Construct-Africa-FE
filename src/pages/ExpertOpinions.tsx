@@ -193,7 +193,7 @@
 
 
 import { useState, useMemo } from "react";
-import { ActionButton, CustomSelect, FiltersSidebar, ExpertCard } from "../components";
+import { ActionButton, CustomSelect, FiltersSidebar, ExpertCard, ExpertCardSkeleton } from "../components";
 import { CgSortAz } from "react-icons/cg";
 import type { AppFilters } from "../types/filter.types";
 import { useGetExpertsQuery } from "../store/services/expert";
@@ -269,11 +269,11 @@ const ExpertOpinions = () => {
         if (!expert.photo) {
             return "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&h=400&fit=crop";
         }
-        
+
         if (typeof expert.photo === 'string') {
             return `${import.meta.env.VITE_API_BASE_URL}/assets/${expert.photo}`;
         }
-        
+
         return `${import.meta.env.VITE_API_BASE_URL}/assets/${expert.photo.id}`;
     };
 
@@ -344,8 +344,10 @@ const ExpertOpinions = () => {
             <section className={showFilters ? 'flex gap-5 w-full' : 'w-full'}>
                 <div className={showFilters ? 'flex-1 min-w-0' : 'w-full'}>
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+                        <div className={`grid grid-cols-1 ${!showFilters ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'} gap-8 sm:gap-4`}>
+                            {Array.from({ length: 8 }).map((_, index) => (
+                                <ExpertCardSkeleton key={`loading-skeleton-${index}`} />
+                            ))}
                         </div>
                     ) : (
                         <>

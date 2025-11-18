@@ -135,7 +135,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaLinkedin, FaXTwitter, FaGlobe } from 'react-icons/fa6';
 import { FiMail, FiPhone, FiBriefcase } from 'react-icons/fi';
 import { useGetExpertByIdQuery, useGetExpertBySlugQuery } from '../store/services/expert';
-import { ActionButton } from '../components';
+import { ActionButton, ExpertOpinionDetailsSkeleton } from '../components';
 
 const ExpertOpinionDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -184,11 +184,7 @@ const ExpertOpinionDetails = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#F89822]"></div>
-            </div>
-        );
+        return <ExpertOpinionDetailsSkeleton />;
     }
 
     if (error || !expert) {
