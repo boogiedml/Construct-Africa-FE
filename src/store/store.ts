@@ -4,12 +4,13 @@ import authSlice from "./features/authSlice";
 
 import { authApi } from "./services/auth";
 import { commonApi } from "./services/common";
-import { baseApi } from "./services";
+import { baseApi, noAuthApi } from "./services";
 
 const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
     [baseApi.reducerPath]: baseApi.reducer,
+    [noAuthApi.reducerPath]: noAuthApi.reducer,
     [commonApi.reducerPath]: commonApi.reducer,
 
     app: appSlice,
@@ -21,6 +22,7 @@ const store = configureStore({
     getDefaultMiddleware().concat(
       authApi.middleware,
       baseApi.middleware,
+      noAuthApi.middleware,
       commonApi.middleware
     ),
 });

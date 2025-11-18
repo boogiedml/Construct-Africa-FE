@@ -4,7 +4,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import { FiCheck } from 'react-icons/fi';
 import ActionButton from './ActionButton';
 import PresetModal from './PresetModal';
-import type { AppFilters } from '../types/filter.types';
+import type { AppFilters, FilterCollection } from '../types/filter.types';
 import {
     useGetCountriesQuery,
     useGetRegionsQuery,
@@ -19,7 +19,7 @@ interface FiltersSidebarProps {
     onClose: () => void;
     onApplyFilters?: (filters: AppFilters) => void;
     initialFilters?: AppFilters;
-    type?: 'projects' | 'companies' | 'news' | 'tenders';
+    type?: FilterCollection;
 }
 
 const FiltersSidebar: React.FC<FiltersSidebarProps> = ({

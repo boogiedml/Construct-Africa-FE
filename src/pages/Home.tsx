@@ -247,9 +247,9 @@ const Home = () => {
 
   const handleShowMore = (type: 'viewed' | 'favourites') => {
     if (type === 'viewed') {
-      navigate('/recently-viewed');
+      navigate('/admin/recently-viewed');
     } else {
-      navigate('/favourites');
+      navigate('/admin/favourites');
     }
   };
 

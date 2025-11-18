@@ -13,7 +13,7 @@ export const companiesApi = baseApi.injectEndpoints({
       query: (params = {}) => {
         const defaultParams: Partial<CompanyQueryParams> = {
           fields:
-            "*,logo.*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*,projects.*",
+            "*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*,projects.*",
           limit: 25,
         };
 
@@ -23,7 +23,7 @@ export const companiesApi = baseApi.injectEndpoints({
     }),
     getCompanyById: builder.query<SingleCompanyResponse, string>({
       query: (id) => ({
-        url: `items/companies/${id}?fields=*,logo.*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*,projects.projects_id.*`,
+        url: `items/companies/${id}?fields=*,countries.countries_id.*,sectors.sectors_id.*,regions.regions_id.*,projects.projects_id.*`,
       }),
     }),
   }),
