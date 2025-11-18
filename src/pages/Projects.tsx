@@ -10,7 +10,7 @@ import type { TableColumn } from "../components/DataTable";
 import { CgSortAz } from "react-icons/cg";
 import { PiFloppyDisk } from "react-icons/pi";
 import { useGetProjectsQuery } from "../store/services/projects";
-import type { Project } from "../types/project.types";
+import type { Project, GroupedProjectData } from "../types/project.types";
 import type { ProjectQueryParams, AppFilters } from "../types/filter.types";
 import {
   useGetCountriesQuery,
@@ -79,6 +79,7 @@ const Projects = () => {
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
     // Use gridPage for grid view, currentPage for table/stage views
+    // Always use 1 for offset when switching views to prevent infinite refetch
     const pageToUse = activeView === 'grid' ? gridPage : currentPage;
 
     const params: ProjectQueryParams = {
@@ -112,20 +113,20 @@ const Projects = () => {
         break;
     }
 
-    // Add groupBy parameter based on grouping selection
-    if (grouping !== 'none') {
+    // Add groupBy parameter based on grouping selection (only for table view)
+    if (activeView === 'table' && grouping !== 'none') {
       switch (grouping) {
         case 'country':
-          params.groupBy = 'countries.countries_id.name';
+          params.groupBy = 'country';
+          break;
+        case 'region':
+          params.groupBy = 'region';
           break;
         case 'sector':
-          params.groupBy = 'sectors.sectors_id.name';
+          params.groupBy = 'sector';
           break;
-        case 'stage':
-          params.groupBy = 'current_stage';
-          break;
-        case 'value':
-          params.groupBy = 'contract_value_usd';
+        case 'type':
+          params.groupBy = 'type';
           break;
       }
     }
@@ -202,26 +203,28 @@ const Projects = () => {
     refetchOnMountOrArgChange: true
   });
 
-  // Reset accumulated projects when filters, sorting, or view changes
+  // Reset accumulated projects when filters, sorting, or grouping changes (not view - handled in handleViewChange)
   useEffect(() => {
-    if (activeView === 'grid') {
-      setAccumulatedProjects([]);
-      setGridPage(1);
-    }
-  }, [sortBy, grouping, appliedFilters, activeView]);
+    setAccumulatedProjects([]);
+    setGridPage(1);
+    setCurrentPage(1);
+  }, [sortBy, grouping, appliedFilters]);
 
-  // Accumulate projects for grid view infinite scroll
+  // Accumulate projects for grid view infinite scroll (only when grouping is disabled)
   useEffect(() => {
-    if (activeView === 'grid' && projectsResponse?.data) {
+    if (activeView === 'grid' && grouping === 'none' && projectsResponse?.data && !isGroupedDataFormat(projectsResponse.data)) {
       if (gridPage === 1) {
         // First page - replace accumulated projects
-        setAccumulatedProjects(projectsResponse.data);
+        setAccumulatedProjects(projectsResponse.data as Project[]);
       } else {
         // Subsequent pages - append to accumulated projects
-        setAccumulatedProjects(prev => [...prev, ...projectsResponse.data]);
+        setAccumulatedProjects(prev => [...prev, ...(projectsResponse.data as Project[])]);
       }
+    } else if (activeView === 'grid' && grouping !== 'none') {
+      // Clear accumulated projects when grouping is active
+      setAccumulatedProjects([]);
     }
-  }, [projectsResponse, gridPage, activeView]);
+  }, [projectsResponse, gridPage, activeView, grouping]);
 
   const mapStatusToGroup = (status: string): string => {
     switch ((status || '').toLowerCase()) {
@@ -297,9 +300,9 @@ const Projects = () => {
   const groupingOptions = [
     { value: 'none', label: 'None' },
     { value: 'country', label: 'By country' },
+    { value: 'region', label: 'By region' },
     { value: 'sector', label: 'By sector' },
-    { value: 'stage', label: 'By stage' },
-    { value: 'value', label: 'By value' }
+    { value: 'type', label: 'By type' }
   ];
 
   const viewTabs: TabItem[] = [
@@ -339,11 +342,15 @@ const Projects = () => {
     return [...baseOptions, ...presetOptions];
   }, [presets]);
 
-  const handleToggleFavorite = async (row: any) => {
+  const handleToggleFavorite = async (row: Project | TableRow) => {
+    // Skip if it's a group row
+    if ('isGroupRow' in row && row.isGroupRow) return;
+
+    const project = row as Project;
     try {
       await toggleFavourite({
         collection: "projects",
-        item_id: row.id
+        item_id: project.id
       }).unwrap();
 
       toast.success('Add to favourites');
@@ -378,8 +385,8 @@ const Projects = () => {
       sortable: true,
       width: '15%',
       render: (value: unknown) => {
-        const sectors = value as { sectors_id: { name: string } }[];
-        return sectors?.map(sector => sector.sectors_id.name).join(', ') || '---';
+        const sectors = value as { name: string }[];
+        return sectors?.map(sector => sector?.name).join(', ') || '---';
       }
     },
     {
@@ -388,8 +395,8 @@ const Projects = () => {
       sortable: true,
       width: '15%',
       render: (value: unknown) => {
-        const countries = value as { countries_id: { name: string } }[];
-        return countries?.map(country => country.countries_id.name).join(', ') || '---';
+        const countries = value as { name: string }[];
+        return countries?.map(country => country?.name).join(', ') || '---';
       }
     },
     {
@@ -442,17 +449,167 @@ const Projects = () => {
     }
   ];
 
+  // Helper function to check if data is in grouped format
+  const isGroupedDataFormat = (data: unknown[]): data is GroupedProjectData[] => {
+    if (!data || data.length === 0) return false;
+    const firstItem = data[0] as Record<string, unknown>;
+    // Check for grouped format: has 'projects' array OR has 'data', 'name', 'count' properties
+    return (
+      ('projects' in firstItem && Array.isArray(firstItem.projects)) ||
+      ('data' in firstItem && 'name' in firstItem && 'count' in firstItem && 'projects' in firstItem && Array.isArray(firstItem.projects))
+    );
+  };
+
+  // Check if data is grouped (API returns grouped format when groupBy is used)
+  // Only check for grouped data when in table view
+  const isGroupedData = activeView === 'table' &&
+    grouping !== 'none' &&
+    projectsResponse?.data &&
+    projectsResponse.data.length > 0 &&
+    isGroupedDataFormat(projectsResponse.data);
+
+  // Transform grouped data into flat array with group headers
+  interface GroupRow {
+    id: string;
+    isGroupRow: true;
+    groupKey: string;
+    groupId: number;
+    totalCount: number;
+    totalValue: number;
+    title: string;
+    contract_value_usd: number;
+    countries: never[];
+    sectors: never[];
+    current_stage: string;
+    stage: string;
+    status: string;
+    stageName: string;
+  }
+
+  interface ProjectWithStage extends Project {
+    stage: string;
+    status: string;
+    stageName: string;
+    isGroupRow: false;
+  }
+
+  type TableRow = GroupRow | ProjectWithStage;
+
+  const transformGroupedData = (groupedData: GroupedProjectData[]): TableRow[] => {
+    const result: TableRow[] = [];
+
+    groupedData.forEach((group) => {
+      // Add group header row
+      const groupRow: GroupRow = {
+        id: `group-${group.id || group.name}`,
+        isGroupRow: true,
+        groupKey: group.name,
+        groupId: group.id,
+        totalCount: group.count || (group.projects?.length || 0),
+        totalValue: group.totalValue || 0,
+        // Add a dummy value for each column to ensure proper rendering
+        title: '',
+        contract_value_usd: 0,
+        countries: [],
+        sectors: [],
+        current_stage: '',
+        stage: '',
+        status: '',
+        stageName: ''
+      };
+      result.push(groupRow);
+
+      // Add project rows for this group
+      if (group.projects && Array.isArray(group.projects)) {
+        group.projects.forEach((project: Project) => {
+          const projectWithStage: ProjectWithStage = {
+            ...project,
+            stage: mapStatusToGroup(project.current_stage),
+            status: mapStatusToStatusName(project.current_stage),
+            stageName: mapStatusToStageName(project.current_stage),
+            isGroupRow: false
+          };
+          result.push(projectWithStage);
+        });
+      }
+    });
+
+    return result;
+  };
+
   // Use accumulated projects for grid view, regular data for other views
-  const projects = activeView === 'grid' ? accumulatedProjects : (projectsResponse?.data || []);
+  let projects: Project[] | TableRow[] = [];
 
-  const projectsWithStage = projects.map((p: Project) => ({
-    ...p,
-    stage: mapStatusToGroup(p.current_stage),
-    status: mapStatusToStatusName(p.current_stage),
-    stageName: mapStatusToStageName(p.current_stage)
-  }));
+  // Helper to check if response data matches current grouping state
+  const dataMatchesGrouping = (responseData: unknown[]): boolean => {
+    if (grouping === 'none') {
+      // When no grouping, data should NOT be in grouped format
+      return !isGroupedDataFormat(responseData);
+    } else {
+      // When grouping is active, data SHOULD be in grouped format
+      return isGroupedDataFormat(responseData);
+    }
+  };
 
-  const totalCount = projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length;
+  if (activeView === 'grid') {
+    // Grid view - grouping is not supported, always use accumulated projects
+    projects = accumulatedProjects;
+  } else {
+    // Table/Stage view logic
+    if (grouping === 'none') {
+      // No grouping - only use data if it's NOT in grouped format
+      if (projectsResponse?.data && !isGroupedDataFormat(projectsResponse.data)) {
+        projects = projectsResponse.data as Project[];
+      } else {
+        projects = [];
+      }
+    } else if (projectsResponse?.data && dataMatchesGrouping(projectsResponse.data) && isGroupedDataFormat(projectsResponse.data)) {
+      // Grouping active and data is in grouped format - transform it
+      projects = transformGroupedData(projectsResponse.data);
+    } else {
+      // Grouping active but data not in grouped format yet OR data doesn't match grouping - show empty
+      projects = [];
+    }
+  }
+
+  // Only map projects if they're actual Project objects (not group rows or empty)
+  const projectsWithStage = (() => {
+    // If grouping is active but data is not in grouped format, return empty array immediately
+    // This prevents showing stale ungrouped data when switching groupings
+    if (grouping !== 'none' && !isGroupedData) {
+      return [];
+    }
+
+    if (isGroupedData && activeView === 'table') {
+      // Already transformed with group rows
+      return projects;
+    }
+
+    // Only map if we have valid Project data
+    if (Array.isArray(projects) && projects.length > 0) {
+      // Check if first item is a Project (has id and title) and not a group row
+      const firstItem = projects[0] as Record<string, unknown>;
+      if ('isGroupRow' in firstItem && firstItem.isGroupRow) {
+        return projects; // Already has group rows
+      }
+      if ('id' in firstItem && 'title' in firstItem) {
+        return projects.map((p: Project) => ({
+          ...p,
+          stage: mapStatusToGroup(p.current_stage),
+          status: mapStatusToStatusName(p.current_stage),
+          stageName: mapStatusToStageName(p.current_stage),
+          isGroupRow: false
+        }));
+      }
+    }
+
+    return [];
+  })();
+
+  // Calculate total count - for grouped data, sum up all group counts
+  const totalCount = isGroupedData && projectsResponse?.data && isGroupedDataFormat(projectsResponse.data)
+    ? projectsResponse.data.reduce((sum: number, group: GroupedProjectData) => sum + (group.count || 0), 0)
+    : (projectsResponse?.meta?.filter_count || projectsResponse?.meta?.total_count || projects.length);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Check if there are more items to load for infinite scroll
@@ -541,15 +698,19 @@ const Projects = () => {
 
   // Handle view change
   const handleViewChange = (newView: string) => {
-    setActiveView(newView);
-
-    // Reset pagination when switching views
+    // Reset pagination BEFORE changing view to prevent query param conflicts
     if (newView === 'grid') {
       setGridPage(1);
       setAccumulatedProjects([]);
     } else {
       setCurrentPage(1);
     }
+    // Reset grouping when switching away from table view (grouping only works in table)
+    if (newView !== 'table' && grouping !== 'none') {
+      setGrouping('none');
+    }
+    // Change view after resetting pages
+    setActiveView(newView);
   };
 
   // Count active filters
@@ -602,15 +763,17 @@ const Projects = () => {
         />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#414651]">Grouping:</span>
-            <CustomSelect
-              options={groupingOptions}
-              value={grouping}
-              onChange={handleGroupingChange}
-              placeholder="None"
-            />
-          </div>
+          {activeView === 'table' && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#414651]">Grouping:</span>
+              <CustomSelect
+                options={groupingOptions}
+                value={grouping}
+                onChange={handleGroupingChange}
+                placeholder="None"
+              />
+            </div>
+          )}
 
           <ActionButton
             buttonText={
@@ -671,8 +834,8 @@ const Projects = () => {
                     stageGroup={project.stage}
                     title={project.title}
                     description={project.description || ''}
-                    location={project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---'}
-                    category={project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---'}
+                    location={project.countries.map((country: { name: string }) => country.name).join(', ') || '---'}
+                    category={project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---'}
                     value={`$${project.contract_value_usd || 0} million`}
                     isFavorite={false}
                     onClick={() => navigate(`/admin/projects/${project.id}`)}
@@ -720,11 +883,17 @@ const Projects = () => {
           {/* Table View */}
           {activeView === 'table' && (
             <DataTable
+              key={`projects-table-${grouping}-${isGroupedData}`}
               data={projectsWithStage as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={handleToggleFavorite}
-              onRowClick={(row: Project) => navigate(`/admin/projects/${row.id}`)}
+              onRowClick={(row: Project | TableRow) => {
+                // Don't navigate if it's a group row
+                if ('isGroupRow' in row && row.isGroupRow) return;
+                const project = row as Project;
+                navigate(`/admin/projects/${project.id}`);
+              }}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
@@ -732,8 +901,10 @@ const Projects = () => {
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
-              groupBy={grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'country' ? 'countries' : grouping === 'stage' ? 'stage' : undefined}
+              // Only use groupBy if data is not already grouped from API
+              groupBy={isGroupedData ? undefined : (grouping === 'none' ? undefined : grouping === 'sector' ? 'sectors' : grouping === 'region' ? 'regions' : grouping === 'type' ? 'types' : undefined)}
               valueColumn="contract_value_usd"
+              favoriteKey="is_favorited"
             />
           )}
 
@@ -779,8 +950,8 @@ const Projects = () => {
                   stageName: project.stageName,
                   stageGroup: project.stage,
                   description: project.description || '',
-                  location: project.countries.map((country: { countries_id: { name: string } }) => country.countries_id.name).join(', ') || '---',
-                  category: project.sectors.map((sector: { sectors_id: { name: string } }) => sector.sectors_id.name).join(', ') || '---',
+                  location: project.countries.map((country: { name: string }) => country.name).join(', ') || '---',
+                  category: project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---',
                   value: `$${project.contract_value_usd || 0} million`,
                   isFavorite: false
                 }))}

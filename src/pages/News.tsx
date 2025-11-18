@@ -9,7 +9,7 @@ import { PiFloppyDisk } from "react-icons/pi";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetNewsQuery } from "../store/services/news";
-import type { News as NewsType } from "../types/news.types";
+import type { News as NewsType, GroupedNewsData } from "../types/news.types";
 import type { NewsQueryParams, AppFilters } from "../types/filter.types";
 import { cleanHtmlContent } from "../utils";
 import { useInfiniteScroll } from "../store/hooks/useInfiniteScrolling";
@@ -43,6 +43,27 @@ const News = () => {
   const [accumulatedNews, setAccumulatedNews] = useState<NewsType[]>([]);
   const [gridPage, setGridPage] = useState(1);
 
+  // Transform grouped data into flat array with group headers
+  interface GroupRow {
+    id: string;
+    isGroupRow: true;
+    groupKey: string;
+    groupId: number | string;
+    totalCount: number;
+    totalValue?: number;
+    title: string;
+    date_created: string;
+    category_id: never;
+    author_id: never;
+    is_sponsored: boolean;
+  }
+
+  interface NewsWithGroup extends NewsType {
+    isGroupRow: false;
+  }
+
+  type NewsTableRow = GroupRow | NewsWithGroup;
+
   // Load presets
   const [presets, setPresets] = useState<FilterPreset[]>([]);
 
@@ -63,11 +84,15 @@ const News = () => {
 
   const [toggleFavourite] = useToggleFavouriteMutation();
 
-  const handleToggleFavorite = async (row: any) => {
+  const handleToggleFavorite = async (row: NewsType | NewsTableRow) => {
+    // Skip if it's a group row
+    if ('isGroupRow' in row && row.isGroupRow) return;
+
+    const newsItem = row as NewsType;
     try {
       await toggleFavourite({
-        collection: "companies",
-        item_id: row.id
+        collection: "main_news",
+        item_id: newsItem.id
       }).unwrap();
 
       toast.success('Added to favourites');
@@ -115,17 +140,17 @@ const News = () => {
         break;
     }
 
-    // Add groupBy parameter based on grouping selection
-    if (grouping !== 'none') {
+    // Add groupBy parameter based on grouping selection (only for table view)
+    if (activeView === 'table' && grouping !== 'none') {
       switch (grouping) {
         case 'category':
-          params.groupBy = 'category_id.name';
+          params.groupBy = 'category';
           break;
         case 'author':
-          params.groupBy = 'author_id.first_name';
+          params.groupBy = 'author';
           break;
         case 'date':
-          params.groupBy = 'date_created';
+          params.groupBy = 'date';
           break;
       }
     }
@@ -179,26 +204,47 @@ const News = () => {
 
   const { data: newsResponse, isLoading, isFetching, refetch } = useGetNewsQuery(queryParams);
 
-  // Reset accumulated news when filters, sorting, or view changes
-  useEffect(() => {
-    if (activeView === 'grid') {
-      setAccumulatedNews([]);
-      setGridPage(1);
-    }
-  }, [sortBy, grouping, appliedFilters, activeView]);
+  // Helper function to check if data is in grouped format
+  const isGroupedDataFormat = (data: unknown[]): data is GroupedNewsData[] => {
+    if (!data || data.length === 0) return false;
+    const firstItem = data[0] as Record<string, unknown>;
+    // Check for grouped format: has 'news' array OR has 'data', 'name', 'count' properties
+    return (
+      ('news' in firstItem && Array.isArray(firstItem.news)) ||
+      ('data' in firstItem && 'name' in firstItem && 'count' in firstItem && 'news' in firstItem && Array.isArray(firstItem.news))
+    );
+  };
 
-  // Accumulate news for grid view infinite scroll
+  // Check if data is grouped (API returns grouped format when groupBy is used)
+  // Only check for grouped data when in table view
+  const isGroupedData = activeView === 'table' &&
+    grouping !== 'none' &&
+    newsResponse?.data &&
+    newsResponse.data.length > 0 &&
+    isGroupedDataFormat(newsResponse.data);
+
+  // Reset accumulated news when filters, sorting, or grouping changes (not view - handled in handleViewChange)
   useEffect(() => {
-    if (activeView === 'grid' && newsResponse?.data) {
+    setAccumulatedNews([]);
+    setGridPage(1);
+    setCurrentPage(1);
+  }, [sortBy, grouping, appliedFilters]);
+
+  // Accumulate news for grid view infinite scroll (only when grouping is disabled)
+  useEffect(() => {
+    if (activeView === 'grid' && grouping === 'none' && newsResponse?.data && !isGroupedDataFormat(newsResponse.data)) {
       if (gridPage === 1) {
         // First page - replace accumulated news
-        setAccumulatedNews(newsResponse.data);
+        setAccumulatedNews(newsResponse.data as NewsType[]);
       } else {
         // Subsequent pages - append to accumulated news
-        setAccumulatedNews(prev => [...prev, ...newsResponse.data]);
+        setAccumulatedNews(prev => [...prev, ...(newsResponse.data as NewsType[])]);
       }
+    } else if (activeView === 'grid' && grouping !== 'none') {
+      // Clear accumulated news when grouping is active
+      setAccumulatedNews([]);
     }
-  }, [newsResponse, gridPage, activeView]);
+  }, [newsResponse, gridPage, activeView, grouping]);
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
@@ -226,28 +272,70 @@ const News = () => {
     return [...baseOptions, ...presetOptions];
   }, [presets]);
 
-  const tableColumns: TableColumn<typeof newsItems[0]>[] = [
+  const transformGroupedData = (groupedData: GroupedNewsData[]): NewsTableRow[] => {
+    const result: NewsTableRow[] = [];
+
+    groupedData.forEach((group) => {
+      // Add group header row
+      const groupRow: GroupRow = {
+        id: `group-${group.id || group.name}`,
+        isGroupRow: true,
+        groupKey: group.name,
+        groupId: group.id,
+        totalCount: group.count || (group.news?.length || 0),
+        totalValue: group.totalValue || 0,
+        title: '',
+        date_created: '',
+        category_id: null as never,
+        author_id: null as never,
+        is_sponsored: false
+      };
+      result.push(groupRow);
+
+      // Add news rows for this group
+      if (group.news && Array.isArray(group.news)) {
+        group.news.forEach((newsItem: NewsType) => {
+          const newsWithGroup: NewsWithGroup = {
+            ...newsItem,
+            isGroupRow: false
+          };
+          result.push(newsWithGroup);
+        });
+      }
+    });
+
+    return result;
+  };
+
+  const tableColumns: TableColumn<NewsType | NewsTableRow>[] = [
     {
       key: 'title',
       label: 'Name',
       sortable: true,
       width: '40%',
-      render: (_, row) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/admin/news/${row.id}`);
-          }}
-          className="text-left w-full"
-        >
-          <div className="font-semibold text-[#181D27] hover:text-[#F89822] transition-colors mb-1 line-clamp-1">
-            {row.title}
-          </div>
-          <div className="text-sm text-[#535862] line-clamp-2 leading-relaxed">
-            {row.summary || cleanHtmlContent(row.content)?.substring(0, 150) + '...'}
-          </div>
-        </button>
-      )
+      render: (_, row) => {
+        // Skip rendering for group rows
+        if ('isGroupRow' in row && row.isGroupRow) {
+          return <span></span>;
+        }
+        const newsItem = row as NewsType;
+        return (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/admin/news/${newsItem.id}`);
+            }}
+            className="text-left w-full"
+          >
+            <div className="font-semibold text-[#181D27] hover:text-[#F89822] transition-colors mb-1 line-clamp-1">
+              {newsItem.title}
+            </div>
+            <div className="text-sm text-[#535862] line-clamp-2 leading-relaxed">
+              {newsItem.summary || cleanHtmlContent(newsItem.content)?.substring(0, 150) + '...'}
+            </div>
+          </button>
+        );
+      }
     },
     {
       key: 'date_created',
@@ -319,8 +407,44 @@ const News = () => {
   ];
 
   // Use accumulated news for grid view, regular data for table view
-  const newsItems = activeView === 'grid' ? accumulatedNews : (newsResponse?.data || []);
-  const totalCount = newsResponse?.meta?.filter_count || newsResponse?.meta?.total_count || newsItems.length;
+  let newsItems: NewsType[] | NewsTableRow[] = [];
+
+  // Helper to check if response data matches current grouping state
+  const dataMatchesGrouping = (responseData: unknown[]): boolean => {
+    if (grouping === 'none') {
+      // When no grouping, data should NOT be in grouped format
+      return !isGroupedDataFormat(responseData);
+    } else {
+      // When grouping is active, data SHOULD be in grouped format
+      return isGroupedDataFormat(responseData);
+    }
+  };
+
+  if (activeView === 'grid') {
+    // Grid view - grouping is not supported, always use accumulated news
+    newsItems = accumulatedNews;
+  } else {
+    // Table view logic
+    if (grouping === 'none') {
+      // No grouping - only use data if it's NOT in grouped format
+      if (newsResponse?.data && !isGroupedDataFormat(newsResponse.data)) {
+        newsItems = newsResponse.data as NewsType[];
+      } else {
+        newsItems = [];
+      }
+    } else if (newsResponse?.data && dataMatchesGrouping(newsResponse.data) && isGroupedDataFormat(newsResponse.data)) {
+      // Grouping active and data is in grouped format - transform it
+      newsItems = transformGroupedData(newsResponse.data);
+    } else {
+      // Grouping active but data not in grouped format yet OR data doesn't match grouping - show empty
+      newsItems = [];
+    }
+  }
+
+  // Calculate total count - for grouped data, sum up all group counts
+  const totalCount = isGroupedData && newsResponse?.data && isGroupedDataFormat(newsResponse.data)
+    ? newsResponse.data.reduce((sum: number, group: GroupedNewsData) => sum + (group.count || 0), 0)
+    : (newsResponse?.meta?.filter_count || newsResponse?.meta?.total_count || newsItems.length);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Check if there are more items to load for infinite scroll
@@ -409,15 +533,19 @@ const News = () => {
 
   // Handle view change
   const handleViewChange = (newView: string) => {
-    setActiveView(newView);
-
-    // Reset pagination when switching views
+    // Reset pagination BEFORE changing view to prevent query param conflicts
     if (newView === 'grid') {
       setGridPage(1);
       setAccumulatedNews([]);
     } else {
       setCurrentPage(1);
     }
+    // Reset grouping when switching away from table view (grouping only works in table)
+    if (newView !== 'table' && grouping !== 'none') {
+      setGrouping('none');
+    }
+    // Change view after resetting pages
+    setActiveView(newView);
   };
 
   // Count active filters
@@ -486,15 +614,17 @@ const News = () => {
         />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#414651]">Grouping:</span>
-            <CustomSelect
-              options={groupingOptions}
-              value={grouping}
-              onChange={handleGroupingChange}
-              placeholder="None"
-            />
-          </div>
+          {activeView === 'table' && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#414651]">Grouping:</span>
+              <CustomSelect
+                options={groupingOptions}
+                value={grouping}
+                onChange={handleGroupingChange}
+                placeholder="None"
+              />
+            </div>
+          )}
 
           <ActionButton
             buttonText={
@@ -546,7 +676,7 @@ const News = () => {
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                {newsItems.map((item: NewsType) => {
+                {(newsItems as NewsType[]).map((item: NewsType) => {
                   const category = typeof item.category_id === 'object' && item.category_id !== null && 'name' in item.category_id
                     ? (item.category_id as { name: string }).name
                     : 'News';
@@ -607,11 +737,17 @@ const News = () => {
           {/* Table View */}
           {activeView === 'table' && (
             <DataTable
+              key={`news-table-${grouping}-${isGroupedData}`}
               data={newsItems as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={handleToggleFavorite}
-              onRowClick={(row: NewsType) => navigate(`/admin/news/${row.id}`)}
+              onRowClick={(row: NewsType | NewsTableRow) => {
+                // Don't navigate if it's a group row
+                if ('isGroupRow' in row && row.isGroupRow) return;
+                const newsItem = row as NewsType;
+                navigate(`/admin/news/${newsItem.id}`);
+              }}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
@@ -619,6 +755,8 @@ const News = () => {
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
+              // Only use groupBy if data is not already grouped from API
+              groupBy={isGroupedData ? undefined : (grouping === 'none' ? undefined : grouping === 'category' ? 'category_id' : grouping === 'author' ? 'author_id' : grouping === 'date' ? 'date_created' : undefined)}
             />
           )}
         </div>

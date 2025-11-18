@@ -9,6 +9,7 @@ import { PiFloppyDisk } from "react-icons/pi";
 import type { TabItem } from "../components/Tabs";
 import type { TableColumn } from "../components/DataTable";
 import { useGetCompaniesQuery } from "../store/services/companies";
+import type { Company, GroupedCompanyData, CompanyCountry } from "../types/company.types";
 import {
   useGetCountriesQuery,
   useGetRegionsQuery,
@@ -44,8 +45,29 @@ const Companies = () => {
   const [activePresetId, setActivePresetId] = useState<string | undefined>(defaultView?.presetId);
 
   // Infinite scroll state for grid view
-  const [accumulatedCompanies, setAccumulatedCompanies] = useState<any[]>([]);
+  const [accumulatedCompanies, setAccumulatedCompanies] = useState<Company[]>([]);
   const [gridPage, setGridPage] = useState(1);
+
+  // Transform grouped data into flat array with group headers
+  interface GroupRow {
+    id: string;
+    isGroupRow: true;
+    groupKey: string;
+    groupId: number | string;
+    totalCount: number;
+    totalValue?: number;
+    name: string;
+    countries: never[];
+    sectors: never[];
+    company_role: string;
+    projects: never[];
+  }
+
+  interface CompanyWithGroup extends Company {
+    isGroupRow: false;
+  }
+
+  type CompanyTableRow = GroupRow | CompanyWithGroup;
 
   // Load presets
   const [presets, setPresets] = useState<FilterPreset[]>([]);
@@ -72,11 +94,15 @@ const Companies = () => {
 
   const [toggleFavourite] = useToggleFavouriteMutation();
 
-  const handleToggleFavorite = async (row: any) => {
+  const handleToggleFavorite = async (row: Company | CompanyTableRow) => {
+    // Skip if it's a group row
+    if ('isGroupRow' in row && row.isGroupRow) return;
+
+    const company = row as Company;
     try {
       await toggleFavourite({
         collection: "companies",
-        item_id: row.id
+        item_id: company.id
       }).unwrap();
 
       toast.success('Added to favourites');
@@ -123,20 +149,20 @@ const Companies = () => {
         break;
     }
 
-    // Add groupBy parameter based on grouping selection
-    if (grouping !== 'none') {
+    // Add groupBy parameter based on grouping selection (only for table view)
+    if (activeView === 'table' && grouping !== 'none') {
       switch (grouping) {
         case 'country':
-          params.groupBy = 'countries.countries_id.name';
+          params.groupBy = 'country';
           break;
         case 'sector':
-          params.groupBy = 'sectors.sectors_id.name';
+          params.groupBy = 'sector';
           break;
         case 'region':
-          params.groupBy = 'regions.regions_id.name';
+          params.groupBy = 'region';
           break;
         case 'role':
-          params.groupBy = 'company_role';
+          params.groupBy = 'role';
           break;
       }
     }
@@ -175,26 +201,47 @@ const Companies = () => {
 
   const { data: companiesResponse, isLoading, isFetching, refetch } = useGetCompaniesQuery(queryParams);
 
-  // Reset accumulated companies when filters, sorting, or view changes
-  useEffect(() => {
-    if (activeView === 'grid') {
-      setAccumulatedCompanies([]);
-      setGridPage(1);
-    }
-  }, [sortBy, grouping, appliedFilters, activeView]);
+  // Helper function to check if data is in grouped format
+  const isGroupedDataFormat = (data: unknown[]): data is GroupedCompanyData[] => {
+    if (!data || data.length === 0) return false;
+    const firstItem = data[0] as Record<string, unknown>;
+    // Check for grouped format: has 'companies' array OR has 'data', 'name', 'count' properties
+    return (
+      ('companies' in firstItem && Array.isArray(firstItem.companies)) ||
+      ('data' in firstItem && 'name' in firstItem && 'count' in firstItem && 'companies' in firstItem && Array.isArray(firstItem.companies))
+    );
+  };
 
-  // Accumulate companies for grid view infinite scroll
+  // Check if data is grouped (API returns grouped format when groupBy is used)
+  // Only check for grouped data when in table view
+  const isGroupedData = activeView === 'table' &&
+    grouping !== 'none' &&
+    companiesResponse?.data &&
+    companiesResponse.data.length > 0 &&
+    isGroupedDataFormat(companiesResponse.data);
+
+  // Reset accumulated companies when filters, sorting, or grouping changes (not view - handled in handleViewChange)
   useEffect(() => {
-    if (activeView === 'grid' && companiesResponse?.data) {
+    setAccumulatedCompanies([]);
+    setGridPage(1);
+    setCurrentPage(1);
+  }, [sortBy, grouping, appliedFilters]);
+
+  // Accumulate companies for grid view infinite scroll (only when grouping is disabled)
+  useEffect(() => {
+    if (activeView === 'grid' && grouping === 'none' && companiesResponse?.data && !isGroupedDataFormat(companiesResponse.data)) {
       if (gridPage === 1) {
         // First page - replace accumulated companies
-        setAccumulatedCompanies(companiesResponse.data);
+        setAccumulatedCompanies(companiesResponse.data as Company[]);
       } else {
         // Subsequent pages - append to accumulated companies
-        setAccumulatedCompanies(prev => [...prev, ...companiesResponse.data]);
+        setAccumulatedCompanies(prev => [...prev, ...(companiesResponse.data as Company[])]);
       }
+    } else if (activeView === 'grid' && grouping !== 'none') {
+      // Clear accumulated companies when grouping is active
+      setAccumulatedCompanies([]);
     }
-  }, [companiesResponse, gridPage, activeView]);
+  }, [companiesResponse, gridPage, activeView, grouping]);
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
@@ -241,7 +288,42 @@ const Companies = () => {
     return [...baseOptions, ...presetOptions];
   }, [presets]);
 
-  const tableColumns: TableColumn<typeof companies[0]>[] = [
+  const transformGroupedData = (groupedData: GroupedCompanyData[]): CompanyTableRow[] => {
+    const result: CompanyTableRow[] = [];
+
+    groupedData.forEach((group) => {
+      // Add group header row
+      const groupRow: GroupRow = {
+        id: `group-${group.id || group.name}`,
+        isGroupRow: true,
+        groupKey: group.name,
+        groupId: group.id,
+        totalCount: group.count || (group.companies?.length || 0),
+        totalValue: group.totalValue || 0,
+        name: '',
+        countries: [],
+        sectors: [],
+        company_role: '',
+        projects: []
+      };
+      result.push(groupRow);
+
+      // Add company rows for this group
+      if (group.companies && Array.isArray(group.companies)) {
+        group.companies.forEach((company: Company) => {
+          const companyWithGroup: CompanyWithGroup = {
+            ...company,
+            isGroupRow: false
+          };
+          result.push(companyWithGroup);
+        });
+      }
+    });
+
+    return result;
+  };
+
+  const tableColumns: TableColumn<Company | CompanyTableRow>[] = [
     {
       key: 'name',
       label: 'Name',
@@ -329,8 +411,44 @@ const Companies = () => {
   ];
 
   // Use accumulated companies for grid view, regular data for table view
-  const companies = activeView === 'grid' ? accumulatedCompanies : (companiesResponse?.data || []);
-  const totalCount = companiesResponse?.meta?.filter_count || companiesResponse?.meta?.total_count || companies.length;
+  let companies: Company[] | CompanyTableRow[] = [];
+
+  // Helper to check if response data matches current grouping state
+  const dataMatchesGrouping = (responseData: unknown[]): boolean => {
+    if (grouping === 'none') {
+      // When no grouping, data should NOT be in grouped format
+      return !isGroupedDataFormat(responseData);
+    } else {
+      // When grouping is active, data SHOULD be in grouped format
+      return isGroupedDataFormat(responseData);
+    }
+  };
+
+  if (activeView === 'grid') {
+    // Grid view - grouping is not supported, always use accumulated companies
+    companies = accumulatedCompanies;
+  } else {
+    // Table view logic
+    if (grouping === 'none') {
+      // No grouping - only use data if it's NOT in grouped format
+      if (companiesResponse?.data && !isGroupedDataFormat(companiesResponse.data)) {
+        companies = companiesResponse.data as Company[];
+      } else {
+        companies = [];
+      }
+    } else if (companiesResponse?.data && dataMatchesGrouping(companiesResponse.data) && isGroupedDataFormat(companiesResponse.data)) {
+      // Grouping active and data is in grouped format - transform it
+      companies = transformGroupedData(companiesResponse.data);
+    } else {
+      // Grouping active but data not in grouped format yet OR data doesn't match grouping - show empty
+      companies = [];
+    }
+  }
+
+  // Calculate total count - for grouped data, sum up all group counts
+  const totalCount = isGroupedData && companiesResponse?.data && isGroupedDataFormat(companiesResponse.data)
+    ? companiesResponse.data.reduce((sum: number, group: GroupedCompanyData) => sum + (group.count || 0), 0)
+    : (companiesResponse?.meta?.filter_count || companiesResponse?.meta?.total_count || companies.length);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Check if there are more items to load for infinite scroll
@@ -419,15 +537,19 @@ const Companies = () => {
 
   // Handle view change
   const handleViewChange = (newView: string) => {
-    setActiveView(newView);
-
-    // Reset pagination when switching views
+    // Reset pagination BEFORE changing view to prevent query param conflicts
     if (newView === 'grid') {
       setGridPage(1);
       setAccumulatedCompanies([]);
     } else {
       setCurrentPage(1);
     }
+    // Reset grouping when switching away from table view (grouping only works in table)
+    if (newView !== 'table' && grouping !== 'none') {
+      setGrouping('none');
+    }
+    // Change view after resetting pages
+    setActiveView(newView);
   };
 
   // Count active filters
@@ -481,15 +603,17 @@ const Companies = () => {
         />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#414651]">Grouping:</span>
-            <CustomSelect
-              options={groupingOptions}
-              value={grouping}
-              onChange={handleGroupingChange}
-              placeholder="None"
-            />
-          </div>
+          {activeView === 'table' && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#414651]">Grouping:</span>
+              <CustomSelect
+                options={groupingOptions}
+                value={grouping}
+                onChange={handleGroupingChange}
+                placeholder="None"
+              />
+            </div>
+          )}
 
           <ActionButton
             buttonText={
@@ -541,7 +665,7 @@ const Companies = () => {
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                {companies.map((company: any) => (
+                {(companies as Company[]).map((company: Company) => (
                   <ProjectCard
                     key={company.id}
                     isLogo={true}
@@ -551,12 +675,15 @@ const Companies = () => {
                     description={cleanHtmlContent(company.description) || "No description available"}
                     location={
                       company.countries && Array.isArray(company.countries) && company.countries.length > 0
-                        ? company.countries.map((c: any) => c?.countries_id?.name).filter(Boolean).join(', ')
+                        ? company.countries.map((c: CompanyCountry) => c?.countries_id?.name).filter(Boolean).join(', ')
                         : '---'
                     }
                     category={
                       company.sectors && Array.isArray(company.sectors) && company.sectors.length > 0
-                        ? company.sectors.map((s: any) => s?.sectors_id?.name).filter(Boolean).join(', ')
+                        ? (company.sectors as unknown as Array<{ sectors_id?: { name: string } }>)
+                          .map((s) => s?.sectors_id?.name)
+                          .filter(Boolean)
+                          .join(', ') || 'Company'
                         : 'Company'
                     }
                     value={`${Array.isArray(company.projects) ? company.projects.length : 0} projects`}
@@ -606,11 +733,17 @@ const Companies = () => {
           {/* Table View */}
           {activeView === 'table' && (
             <DataTable
+              key={`companies-table-${grouping}-${isGroupedData}`}
               data={companies as []}
               columns={tableColumns}
               onRowSelect={(rows) => console.log('Selected rows:', rows)}
               onToggleFavorite={handleToggleFavorite}
-              onRowClick={(row: any) => navigate(`/admin/companies/${row.id}`)}
+              onRowClick={(row: Company | CompanyTableRow) => {
+                // Don't navigate if it's a group row
+                if ('isGroupRow' in row && row.isGroupRow) return;
+                const company = row as Company;
+                navigate(`/admin/companies/${company.id}`);
+              }}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
@@ -618,6 +751,8 @@ const Companies = () => {
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}
+              // Only use groupBy if data is not already grouped from API
+              groupBy={isGroupedData ? undefined : (grouping === 'none' ? undefined : grouping === 'country' ? 'countries' : grouping === 'sector' ? 'sectors' : grouping === 'region' ? 'regions' : grouping === 'role' ? 'company_role' : undefined)}
             />
           )}
         </div>

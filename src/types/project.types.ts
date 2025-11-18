@@ -1,5 +1,4 @@
 export interface ProjectCountry {
-  countries_id: {
     id: number;
     name: string;
     description: string | null;
@@ -9,11 +8,9 @@ export interface ProjectCountry {
     status: boolean;
     region: number;
     drupal_key: string;
-  };
 }
 
 export interface ProjectSector {
-  sectors_id: {
     id: string;
     status: string;
     user_created: string;
@@ -24,7 +21,6 @@ export interface ProjectSector {
     description: string | null;
     drupal_key: string;
     drupal_id: string;
-  };
 }
 
 export interface ProjectImage {
@@ -56,6 +52,19 @@ export interface ProjectImage {
   uploaded_on: string;
   drupal_uuid: string;
   drupal_id: number | null;
+}
+
+// Grouped data structure from API when groupBy is used
+export interface GroupedProjectData {
+  id: number;
+  name: string;
+  data: {
+    id: number;
+    name: string;
+  };
+  projects: Project[];
+  count: number;
+  totalValue: number;
 }
 
 export interface Project {
@@ -122,6 +131,7 @@ export interface Project {
   seaport_water_depth: number | null;
   current_stage: string;
   is_free_project: boolean;
+  is_favorited: boolean;
   in_planning: boolean;
   under_construction: boolean;
   bid_evaluation: string | null;
@@ -213,6 +223,7 @@ export interface SingleProject {
   under_construction?: boolean;
   in_operation?: boolean | null;
   is_free_project?: boolean;
+  is_favorited?: boolean;
   contract_value_usd?: number | null;
   estimated_project_value_usd?: number | null;
   revised_budget_value_usd?: number | null;
@@ -268,38 +279,30 @@ export interface SingleProject {
   facebook?: string | null;
   twitter?: string | null;
   countries: Array<{
-    countries_id: {
       id: number;
       name: string;
       description?: string | null;
       sort_weight?: number;
       drupal_tid?: number;
       drupal_key?: string;
-    };
   }>;
 
   regions?: Array<{
-    regions_id: {
       id: number;
       name: string;
       user_created?: string;
-    };
   }>;
 
   sectors?: Array<{
-    sectors_id: {
       id: string;
       name: string;
       status?: string;
-    };
   }>;
 
   types?: Array<{
-    types_id: {
       id: string;
       name: string;
       status?: string;
-    };
   }>;
   companies?: any[];
   client_owner?: Array<{

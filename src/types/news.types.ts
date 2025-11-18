@@ -51,6 +51,19 @@ export interface NewsAuthor {
   avatar?: string | null;
 }
 
+// Grouped data structure from API when groupBy is used
+export interface GroupedNewsData {
+  id: number | string;
+  name: string;
+  data: {
+    id: number | string;
+    name: string;
+  };
+  news: News[];
+  count: number;
+  totalValue?: number;
+}
+
 export interface News {
   id: string;
   drupal_nid: number;
