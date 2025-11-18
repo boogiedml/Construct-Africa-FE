@@ -558,11 +558,11 @@ const News = () => {
     if (!featuredImage) return "/images/null-image.svg";
 
     if (typeof featuredImage === 'string') {
-      return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage}`;
+      return `${import.meta.env.VITE_API_URL}assets/${featuredImage}`;
     }
 
     if (featuredImage && typeof featuredImage === 'object' && 'filename_disk' in featuredImage) {
-      return `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredImage.filename_disk}`;
+      return `${import.meta.env.VITE_API_URL}assets/${featuredImage.id}`;
     }
 
     return "/images/null-image.svg";

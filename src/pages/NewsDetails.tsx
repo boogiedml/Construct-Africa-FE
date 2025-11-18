@@ -129,6 +129,24 @@ const NewsDetails = () => {
     // Get related projects
     const relatedProjects = relatedProjectsResponse?.data || [];
 
+    const fixImageSources = (htmlContent: any, baseImageUrl = 'https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev') => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const images = doc.querySelectorAll('img[data-entity-uuid]');
+
+        images.forEach(img => {
+            const uuid = img.getAttribute('data-entity-uuid');
+            if (uuid) {
+                img.setAttribute('src', `${baseImageUrl}/${uuid}`);
+            }
+        });
+        return doc.body.innerHTML;
+    };
+
+    const formattedContent = fixImageSources(
+        news.content || news.summary,
+        'https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev'
+    );
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
@@ -214,7 +232,7 @@ const NewsDetails = () => {
                                 <div
                                     className='text-base text-[#535862] leading-relaxed prose prose-sm max-w-none'
                                     dangerouslySetInnerHTML={{
-                                        __html: news.content || news.summary || 'No content available.'
+                                        __html: formattedContent || 'No content available.'
                                     }}
                                 />
                             </div>
@@ -285,11 +303,11 @@ const NewsDetails = () => {
                                                 : "/images/null-image.svg";
 
                                             const projectCountries = Array.isArray(project.countries)
-                                                ? project.countries.map((c: { countries_id: { name: string } }) => c.countries_id.name).join(', ')
+                                                ? project.countries.map((c: { name: string }) => c.name).join(', ')
                                                 : '';
 
                                             const projectSectors = Array.isArray(project.sectors)
-                                                ? project.sectors.map((s: { sectors_id: { name: string } }) => s.sectors_id.name).join(', ')
+                                                ? project.sectors.map((s: { name: string }) => s.name).join(', ')
                                                 : '';
 
                                             return (

@@ -31,6 +31,12 @@ export const referenceApi = baseApi.injectEndpoints({
         url: 'items/types?fields=id,name&sort=name',
       }),
     }),
+
+    generalSearch: builder.query<void, void>({
+      query: (params) => ({
+        url: `/search?q=${params}`,
+      }),
+    }),
   }),
 });
 
@@ -38,5 +44,6 @@ export const {
   useGetCountriesQuery, 
   useGetRegionsQuery, 
   useGetSectorsQuery, 
-  useGetTypesQuery 
+  useGetTypesQuery,
+  useGeneralSearchQuery 
 } = referenceApi;

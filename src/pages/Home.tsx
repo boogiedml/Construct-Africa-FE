@@ -211,11 +211,17 @@ const Home = () => {
   const recentTenders = recentTendersData?.data || [];
   const experts = expertsData?.data || [];
   const favourites = [
-    ...(Array.isArray(favouritesData?.favorites?.projects)
-      ? favouritesData!.favorites!.projects.map((p: any) => ({ ...p, collection: "project" }))
+    ...(Array.isArray(favouritesData?.group?.projects)
+      ? favouritesData!.group!.projects.map((p: any) => ({ ...p, collection: "project" }))
       : []),
-    ...(Array.isArray(favouritesData?.favorites?.companies)
-      ? favouritesData!.favorites!.companies.map((c: any) => ({ ...c, collection: "company" }))
+    ...(Array.isArray(favouritesData?.group?.companies)
+      ? favouritesData!.group!.companies.map((c: any) => ({ ...c, collection: "company" }))
+      : []),
+    ...(Array.isArray(favouritesData?.group?.news)
+      ? favouritesData!.group!.news.map((n: any) => ({ ...n, collection: "news" }))
+      : []),
+    ...(Array.isArray(favouritesData?.group?.tenders)
+      ? favouritesData!.group!.tenders.map((t: any) => ({ ...t, collection: "tender" }))
       : []),
   ];
 
@@ -268,7 +274,7 @@ const Home = () => {
                   <div className="relative h-[300px] md:h-[400px] lg:h-[565px] rounded-2xl overflow-hidden cursor-pointer"
                     onClick={() => navigate(`/news/${featuredNews.slug}`)}>
                     <img
-                      src={featuredNews.featured_image || "https://plus.unsplash.com/premium_photo-1722944969391-1d21a2d404ea?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxN3x8fGVufDB8fHx8fA%3D%3D"}
+                      src={`https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${featuredNews?.featured_image?.filename_disk}` || "https://plus.unsplash.com/premium_photo-1722944969391-1d21a2d404ea?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxN3x8fGVufDB8fHx8fA%3D%3D"}
                       alt={featuredNews.title}
                       className="w-full h-full object-cover"
                     />
@@ -339,12 +345,12 @@ const Home = () => {
                 {recentProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
-                    image={project.featured_image || "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80"}
+                    image={`https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project?.featured_image?.filename_disk}` || "https://images.unsplash.com/photo-1486304873000-235643847519?auto=format&fit=crop&w=800&q=80"}
                     status={project.status || "Active"}
                     title={project.title}
                     description={project.summary || project.description}
-                    location={project.countries?.[0]?.countries_id?.name || '-'}
-                    category={project.sectors?.[0]?.sectors_id?.name || '-'}
+                    location={project.countries?.[0]?.name || '-'}
+                    category={project.sectors?.[0]?.name || '-'}
                     value={project.value ? `$ ${project.value} (USD million)` : '-'}
                     isFavorite={false}
                     onToggleFavorite={() => handleToggleFavourite('projects', project.id)}

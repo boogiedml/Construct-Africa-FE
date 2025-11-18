@@ -72,7 +72,7 @@ export interface News {
   slug: string;
   summary: string | null;
   content: string;
-  featured_image: string | NewsImage | null;
+  featured_image: NewsImage | null;
   category_id: string | NewsCategory | null;
   author_id: string | NewsAuthor | null;
   is_sponsored: boolean;

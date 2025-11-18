@@ -38,7 +38,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     onRowSelect,
     onToggleFavorite,
     onRowClick,
-    favoriteKey = 'isFavorite',
+    favoriteKey = 'is_favourited',
     className = '',
     showCheckboxes = true,
     showFavorites = true,
@@ -233,11 +233,11 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                             {showCheckboxes && (
                                 <th className="w-12 px-4 py-3 text-left">
                                     <div className="flex items-center justify-center">
-                                    <Checkbox
-                                        checked={allSelected}
-                                        onChange={handleSelectAll}
-                                        size="lg"
-                                    />
+                                        <Checkbox
+                                            checked={allSelected}
+                                            onChange={handleSelectAll}
+                                            size="lg"
+                                        />
                                     </div>
                                 </th>
                             )}
@@ -352,39 +352,42 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                                     >
                                         {showCheckboxes && (
                                             <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                                            <Checkbox
-                                                checked={selectedRows.has(row.id)}
+                                                <Checkbox
+                                                    checked={selectedRows.has(row.id)}
                                                     onChange={(checked) => handleRowSelect(row as T, checked)}
-                                                size="lg"
-                                            />
-                                        </td>
-                                    )}
-                                    {columns.map((column) => (
-                                        <td
-                                            key={String(column.key)}
-                                            className="px-4 py-3 text-sm text-[#181D27]"
-                                        >
-                                            {column.render
+                                                    size="lg"
+                                                />
+                                            </td>
+                                        )}
+                                        {columns.map((column) => (
+                                            <td
+                                                key={String(column.key)}
+                                                className="px-4 py-3 text-sm text-[#181D27]"
+                                            >
+                                                {column.render
                                                     ? column.render((row as T)[column.key], row as T)
                                                     : String((row as T)[column.key] || '')}
-                                        </td>
-                                    ))}
-                                    {showFavorites && (
+                                            </td>
+                                        ))}
+                                        {showFavorites && onToggleFavorite && (
                                             <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                                            <button
-                                                    onClick={() => handleToggleFavorite(row as T)}
-                                                className="p-1 rounded hover:bg-gray-100 transition-colors"
-                                            >
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleToggleFavorite(row as T)
+                                                    }}
+                                                    className="p-1 rounded hover:bg-gray-100 transition-colors"
+                                                >
                                                     {(row as T)[favoriteKey] ? (
-                                                    <AiFillStar size={18} className="text-[#FDB022]" />
-                                                ) : (
-                                                    <AiFillStar size={18} className="text-[#D5D7DA] transition-colors opacity-0 group-hover:opacity-100" />
-                                                )}
-                                            </button>
-                                        </td>
-                                    )}
-                                </tr>
-                            );
+                                                        <AiFillStar size={18} className="text-[#FDB022]" />
+                                                    ) : (
+                                                        <AiFillStar size={18} className="text-[#D5D7DA] transition-colors opacity-0 group-hover:opacity-100" />
+                                                    )}
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                );
                             })
                         )}
                     </tbody>

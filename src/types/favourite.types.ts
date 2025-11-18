@@ -20,7 +20,7 @@ export interface FavouritesByCollection {
   data: FavouriteItem[];
   projects: FavouriteItem[];
   companies: FavouriteItem[];
-  main_news: FavouriteItem[];
+  news: FavouriteItem[];
   tenders: FavouriteItem[];
 }
 
@@ -46,7 +46,7 @@ export interface FavouritesResponse {
     main_news: number;
     tenders: number;
   };
-  favorites: FavouritesByCollection;
+  group: FavouritesByCollection;
 }
 
 /**
