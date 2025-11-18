@@ -13,7 +13,7 @@ const NonSubscriberLayout = () => {
             <NsNavbar />
             <section
                 id="scrollable-section"
-                className={`flex-grow overflow-y-scroll overflow-x-hidden ${isPublicHome ? '' : 'mt-[48px] md:mt-[90px]'}`}
+                className={`flex-grow overflow-y-scroll  overflow-x-hidden ${isPublicHome ? '' : 'mt-[48px] md:mt-[90px]'}`}
             >
                 <main className="">
                     <Outlet />

@@ -18,7 +18,7 @@ const RootLayout = () => {
       <Navbar />
       <section
         id="scrollable-section"
-        className="flex-grow overflow-scroll"
+        className="flex-grow overflow-y-scroll"
       >
         <main className="px-4 sm:px-6 lg:px-10 mb-10">
           <Outlet />
