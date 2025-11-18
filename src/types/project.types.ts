@@ -54,6 +54,19 @@ export interface ProjectImage {
   drupal_id: number | null;
 }
 
+// Grouped data structure from API when groupBy is used
+export interface GroupedProjectData {
+  id: number;
+  name: string;
+  data: {
+    id: number;
+    name: string;
+  };
+  projects: Project[];
+  count: number;
+  totalValue: number;
+}
+
 export interface Project {
   id: string;
   status: string;

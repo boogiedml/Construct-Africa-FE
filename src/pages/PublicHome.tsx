@@ -538,6 +538,7 @@ const PublicHome = () => {
                         textSize="text-base"
                         paddingX="px-8"
                         borderColor="#D5D7DA"
+                        link="/advisory-board"
                     />
                 </div>
             </section >

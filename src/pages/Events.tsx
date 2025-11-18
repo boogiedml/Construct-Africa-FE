@@ -587,27 +587,19 @@ const Events = () => {
                 <div className={showFilters ? 'flex-1 min-w-0' : 'w-full'}>
                     {/* Table View */}
                     {activeView === 'table' && (
-                        <>
-                            {isLoading ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
-                                </div>
-                            ) : (
-                                <DataTable
-                                    data={events as []}
-                                    columns={tableColumns}
-                                    onRowSelect={(rows) => console.log('Selected rows:', rows)}
-                                    onRowClick={(row: Record<string, unknown> & { id: unknown }) => navigate(`/admin/events/${row.id}`)}
-                                    currentPage={currentPage}
-                                    onPageChange={setCurrentPage}
-                                    totalPages={totalPages}
-                                    showCheckboxes={true}
-                                    showFavorites={false}
-                                    loading={isFetching}
-                                    pageSize={ITEMS_PER_PAGE}
-                                />
-                            )}
-                        </>
+                        <DataTable
+                            data={events as []}
+                            columns={tableColumns}
+                            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+                            onRowClick={(row: Record<string, unknown> & { id: unknown }) => navigate(`/admin/events/${row.id}`)}
+                            currentPage={currentPage}
+                            onPageChange={setCurrentPage}
+                            totalPages={totalPages}
+                            showCheckboxes={true}
+                            showFavorites={false}
+                            loading={isLoading || isFetching}
+                            pageSize={ITEMS_PER_PAGE}
+                        />
                     )}
 
                     {/* Grid View */}

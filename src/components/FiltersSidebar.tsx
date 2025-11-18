@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { LuChevronDown } from 'react-icons/lu';
+import { FiCheck } from 'react-icons/fi';
 import ActionButton from './ActionButton';
 import PresetModal from './PresetModal';
 import type { AppFilters, FilterCollection } from '../types/filter.types';
@@ -210,17 +211,36 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                                             </div>
                                         ) : (
                                             <div className="mt-1 space-y-2 max-h-60 overflow-y-auto">
-                                                {(filterOptions[category as keyof typeof filterOptions] || []).map((option) => (
-                                                    <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="accent-[#FDB022]"
-                                                            checked={isOptionSelected(category, option)}
-                                                            onChange={(e) => handleCheckboxChange(category, option, e.target.checked)}
-                                                        />
-                                                        <span className="text-sm text-[#535862]">{option}</span>
-                                                    </label>
-                                                ))}
+                                                {(filterOptions[category as keyof typeof filterOptions] || []).map((option) => {
+                                                    const isChecked = isOptionSelected(category, option);
+                                                    return (
+                                                        <label key={option} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <div className="relative flex items-center justify-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="sr-only"
+                                                                    checked={isChecked}
+                                                                    onChange={(e) => handleCheckboxChange(category, option, e.target.checked)}
+                                                                />
+                                                                <div
+                                                                    className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${isChecked
+                                                                        ? 'bg-[#FDB022] border-[#FDB022]'
+                                                                        : 'border-[#D5D7DA] bg-white'
+                                                                        }`}
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        handleCheckboxChange(category, option, !isChecked);
+                                                                    }}
+                                                                >
+                                                                    {isChecked && (
+                                                                        <FiCheck size={12} className="text-white" />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <span className="text-sm text-[#535862]">{option}</span>
+                                                        </label>
+                                                    );
+                                                })}
                                                 {(filterOptions[category as keyof typeof filterOptions] || []).length === 0 && (
                                                     <div className="text-sm text-[#535862] text-center py-2">
                                                         No options available

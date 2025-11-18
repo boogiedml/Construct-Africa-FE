@@ -175,7 +175,7 @@ const Favourites = () => {
     },
     {
       key: 'contract_value_usd',
-      label: 'Value (USD)',
+      label: 'Value ($mn)',
       sortable: true,
       width: '20%',
       render: (value) => value ? `$${value.toLocaleString()}` : '-'

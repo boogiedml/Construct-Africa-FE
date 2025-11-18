@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { BiBell, BiChevronDown, BiMenu, BiX } from 'react-icons/bi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Input from './form-fields/Input';
@@ -6,6 +6,7 @@ import { LuSearch } from 'react-icons/lu';
 import { useAppDispatch } from '../store/hooks';
 import { logout } from '../store/features/authSlice';
 import { useGeneralSearchQuery } from '../store/services/reference';
+import GlobalSearch from './GlobalSearch';
 
 const Navbar = () => {
     const location = useLocation();
@@ -17,6 +18,9 @@ const Navbar = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const {data, loading, error} = useGeneralSearchQuery(searchQuery);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -37,20 +41,38 @@ const Navbar = () => {
     const isExpertOpinionsPage = location.pathname.startsWith('/admin/expert-opinions');
     const isRecentlyViewedPage = location.pathname.startsWith('/admin/recently-viewed');
 
+    // Handle search input focus and click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+                // Check if click is outside the GlobalSearch component
+                const globalSearch = document.querySelector('[data-global-search]');
+                if (globalSearch && !globalSearch.contains(event.target as Node)) {
+                    setIsSearchOpen(false);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <nav className="bg-white border-b border-[#E9EAEB] h-[48px] md:h-[64px] z-20">
-            <div className="mx-auto px-4 sm:px-6 lg:px-10 h-full">
-                <div className="flex justify-between items-center h-full">
-                    <div className='flex items-center gap-10 h-full'>
-                        <div className="w-[60px] md:w-[80px] h-full">
-                            <img className='w-full h-full object-cover' src="/images/logo.svg" alt="" />
+        <nav className="bg-white border-b border-[#E9EAEB] h-[48px] md:h-[64px] z-20 sticky top-0">
+            <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-10 h-full">
+                <div className="flex justify-between items-center h-full gap-2 md:gap-4">
+                    <div className='flex items-center gap-3 md:gap-6 lg:gap-10 h-full min-w-0 flex-1'>
+                        <div className="w-[50px] sm:w-[60px] md:w-[80px] h-full flex-shrink-0">
+                            <img className='w-full h-full object-contain' src="/images/logo.svg" alt="Construct Africa" />
                         </div>
-                        <div className="hidden md:flex items-center space-x-8">
+                        <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 min-w-0">
                             {navItems.map((item) => (
                                 <a
                                     key={item.name}
                                     href={item.href}
-                                    className={`text-base transition-colors px-2 py-2 duration-200 ${item.href === location.pathname
+                                    className={`text-sm xl:text-base transition-colors px-1 xl:px-2 py-2 duration-200 whitespace-nowrap ${item.href === location.pathname
                                         ? 'text-[#181D27] font-semibold'
                                         : 'text-[#717680] font-normal'
                                         }`}
@@ -62,13 +84,13 @@ const Navbar = () => {
                             <div className="relative">
                                 <button
                                     onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
-                                    className={`flex cursor-pointer items-center text-base px-2 py-2 font-medium transition-colors duration-200 ${isEventsPage || isExpertOpinionsPage || isRecentlyViewedPage
+                                    className={`flex cursor-pointer items-center text-sm xl:text-base px-1 xl:px-2 py-2 font-medium transition-colors duration-200 whitespace-nowrap ${isEventsPage || isExpertOpinionsPage || isRecentlyViewedPage
                                         ? 'text-[#181D27] font-semibold'
                                         : 'text-[#717680] hover:text-[#181D27]'
                                         }`}
                                 >
                                     {isEventsPage ? 'Events' : isExpertOpinionsPage ? 'Expert opinions' : isRecentlyViewedPage ? 'Recently viewed' : 'More'}
-                                    <BiChevronDown size={24} className={`ml-1 transition-all duration-300 ${isMoreDropdownOpen ? "rotate-180" : "rotate-0"}`} />
+                                    <BiChevronDown size={20} className={`ml-1 transition-all duration-300 ${isMoreDropdownOpen ? "rotate-180" : "rotate-0"}`} />
                                 </button>
                                 {isMoreDropdownOpen && (
                                     <div className="absolute right-0 mt-4 w-48 bg-white border border-[#E9EAEB] rounded-md shadow-lg py-1 z-10">
@@ -96,27 +118,42 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    <div className="hidden md:flex items-center space-x-4">
-                        <div className='w-64'>
+                    <div className="hidden md:flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                        <div className='w-48 lg:w-56 xl:w-64 relative' ref={searchInputRef}>
                             <Input
                                 icon={<LuSearch />}
                                 attributes={{
-                                    placeholder: "Search"
+                                    placeholder: "Search",
+                                    value: searchQuery,
+                                    onChange: (e) => {
+                                        setSearchQuery(e.target.value);
+                                        setIsSearchOpen(true);
+                                    },
+                                    onFocus: () => {
+                                        setIsSearchOpen(true);
+                                    }
                                 }}
                             />
+                            {isSearchOpen && (
+                                <GlobalSearch
+                                    isOpen={isSearchOpen}
+                                    onClose={() => setIsSearchOpen(false)}
+                                    searchQuery={searchQuery}
+                                />
+                            )}
                         </div>
 
-                        <button className="p-2 text-[#717680] hover:text-gray-600 transition-colors duration-200 cursor-pointer">
+                        <button className="p-2 text-[#717680] hover:text-gray-600 transition-colors duration-200 cursor-pointer flex-shrink-0">
                             <BiBell size={20} />
                         </button>
 
                         <div className="relative">
                             <button
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                className="flex items-center text-base text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                                className="flex items-center text-sm lg:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200 whitespace-nowrap"
                             >
-                                Welcome, <span className='font-semibold ml-1'>Muaz</span>
-                                <BiChevronDown size={24} color='#717680' className={`ml-1 transition-all duration-300 ${isProfileDropdownOpen ? "rotate-180" : "rotate-0"}`} />
+                                <span className="hidden xl:inline">Welcome, </span><span className='font-semibold'>Muaz</span>
+                                <BiChevronDown size={20} color='#717680' className={`ml-1 transition-all duration-300 ${isProfileDropdownOpen ? "rotate-180" : "rotate-0"}`} />
                             </button>
                             {isProfileDropdownOpen && (
                                 <div className="absolute right-0 mt-6 w-48 bg-white border border-[#E9EAEB] rounded-md shadow-lg py-1 z-10">
@@ -158,6 +195,7 @@ const Navbar = () => {
                             <a
                                 key={item.name}
                                 href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
                                 className={`block px-3 py-2 text-sm font-medium transition-colors duration-200 ${item.href === location.pathname
                                     ? 'text-[#181D27] font-semibold'
                                     : 'text-[#717680] font-normal'
@@ -168,6 +206,7 @@ const Navbar = () => {
                         ))}
                         <a
                             href="#"
+                            onClick={() => setIsMenuOpen(false)}
                             className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                         >
                             More
@@ -175,13 +214,28 @@ const Navbar = () => {
                     </div>
 
                     <div className="mt-4 px-3">
-                        <div className='w-full'>
+                        <div className='w-full relative'>
                             <Input
                                 icon={<LuSearch />}
                                 attributes={{
-                                    placeholder: "Search"
+                                    placeholder: "Search",
+                                    value: searchQuery,
+                                    onChange: (e) => {
+                                        setSearchQuery(e.target.value);
+                                        setIsSearchOpen(true);
+                                    },
+                                    onFocus: () => {
+                                        setIsSearchOpen(true);
+                                    }
                                 }}
                             />
+                            {isSearchOpen && (
+                                <GlobalSearch
+                                    isOpen={isSearchOpen}
+                                    onClose={() => setIsSearchOpen(false)}
+                                    searchQuery={searchQuery}
+                                />
+                            )}
                         </div>
                     </div>
 

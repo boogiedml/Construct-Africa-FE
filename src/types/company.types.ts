@@ -52,6 +52,19 @@ export interface CompanyLogo {
   drupal_id: number | null;
 }
 
+// Grouped data structure from API when groupBy is used
+export interface GroupedCompanyData {
+  id: number | string;
+  name: string;
+  data: {
+    id: number | string;
+    name: string;
+  };
+  companies: Company[];
+  count: number;
+  totalValue?: number;
+}
+
 export interface Company {
   id: string;
   user_created: string;

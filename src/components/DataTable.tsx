@@ -54,6 +54,16 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     const [sortDirection, setSortDirection] = useState<SortDirection>(null);
     const [selectedRows, setSelectedRows] = useState<Set<unknown>>(new Set());
 
+    // Check if data is already grouped (has isGroupRow markers)
+    const isPreGrouped = data.some((row) => 'isGroupRow' in row && (row as any).isGroupRow === true);
+
+    // Reset internal state when data structure changes (grouped vs ungrouped)
+    React.useEffect(() => {
+        setSortColumn(null);
+        setSortDirection(null);
+        setSelectedRows(new Set());
+    }, [isPreGrouped, groupBy]);
+
     const handleSort = (columnKey: keyof T) => {
         if (sortColumn === columnKey) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : sortDirection === 'desc' ? null : 'asc');
@@ -92,10 +102,16 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     };
 
     const groupedData = React.useMemo(() => {
-        if (!groupBy) return data;
+        // If data is already grouped from API, don't group again
+        if (isPreGrouped) return null;
+        
+        if (!groupBy) return null;
 
         const groups = new Map<unknown, T[]>();
         data.forEach((row) => {
+            // Skip group rows when grouping
+            if ('isGroupRow' in row && (row as any).isGroupRow) return;
+            
             const groupKey = row[groupBy];
             if (!groups.has(groupKey)) {
                 groups.set(groupKey, []);
@@ -114,9 +130,53 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                 return sum + (typeof val === 'number' ? val : 0);
             }, 0) : 0
         }));
-    }, [data, groupBy, valueColumn]);
+    }, [data, groupBy, valueColumn, isPreGrouped]);
 
     const sortedData = React.useMemo(() => {
+        // If data is pre-grouped, preserve the group structure
+        if (isPreGrouped) {
+            if (!sortColumn || !sortDirection) return data;
+
+            // Sort groups and their children
+            const groups: any[] = [];
+            const groupMap = new Map<string, any[]>();
+            let currentGroup: any = null;
+
+            data.forEach((row) => {
+                if ('isGroupRow' in row && (row as any).isGroupRow) {
+                    if (currentGroup) {
+                        groupMap.set(currentGroup.id, currentGroup.children);
+                    }
+                    currentGroup = { ...row, children: [] };
+                    groups.push(currentGroup);
+                } else if (currentGroup) {
+                    currentGroup.children.push(row);
+                }
+            });
+
+            if (currentGroup) {
+                groupMap.set(currentGroup.id, currentGroup.children);
+            }
+
+            // Sort groups
+            const sortedGroups = [...groups].sort((a, b) => {
+                const aVal = String(a.groupKey || '');
+                const bVal = String(b.groupKey || '');
+
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Rebuild data with sorted groups
+            const result: any[] = [];
+            sortedGroups.forEach(group => {
+                result.push(group);
+                group.children.forEach((row: T) => result.push(row));
+            });
+            return result;
+        }
+
         if (groupBy && groupedData) {
             const sortedGroups = [...groupedData].sort((a, b) => {
                 if (!sortColumn || !sortDirection) return 0;
@@ -140,6 +200,10 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
         if (!sortColumn || !sortDirection) return data;
 
         return [...data].sort((a, b) => {
+            // Skip group rows when sorting
+            if ('isGroupRow' in a && (a as any).isGroupRow) return -1;
+            if ('isGroupRow' in b && (b as any).isGroupRow) return 1;
+
             const aVal = a[sortColumn];
             const bVal = b[sortColumn];
 
@@ -147,7 +211,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
             if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
             return 0;
         });
-    }, [data, groupedData, groupBy, sortColumn, sortDirection]);
+    }, [data, groupedData, groupBy, sortColumn, sortDirection, isPreGrouped]);
 
     const paginatedData = React.useMemo(() => {
         if (onPageChange) return sortedData;
@@ -162,7 +226,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
 
     return (
         <div className={`bg-white rounded-lg border border-[#D5D7DA] overflow-hidden h-[600px] flex flex-col ${className}`}>
-            <div className="flex-1 overflow-y-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative">
+            <div className="flex-1 overflow-y-auto overflow-x-auto hide-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative">
                 <table className="w-full min-w-[1400px]">
                     <thead className="sticky top-0 z-10 bg-white">
                         <tr className="bg-[#FAFAFA] border-b border-[#D5D7DA]">
@@ -251,28 +315,33 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
                                 if (isGroupRow) {
                                     const groupRow = row as { groupKey: unknown; totalCount: number; totalValue: number; isGroupRow: boolean; id: string };
                                     return (
-                                        <tr key={`group-${groupRow.groupKey}`} className="bg-[#FAFAFA]">
+                                        <tr key={`group-${groupRow.id || groupRow.groupKey}`} className="bg-[#FAFAFA] border-b-2 border-[#D5D7DA]">
                                             <td colSpan={columns.length + (showCheckboxes ? 1 : 0) + (showFavorites ? 1 : 0)} className="px-4 py-3">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="text-sm font-medium text-[#181D27]">
-                                                            {String(groupRow.groupKey)}
+                                                        <div className="text-sm font-semibold text-[#181D27]">
+                                                            {String(groupRow.groupKey || '')}
                                                         </div>
                                                         <div className="text-sm text-[#535862]">
-                                                            {groupRow.totalCount} projects
+                                                            {groupRow.totalCount} {groupRow.totalCount === 1 ? 'project' : 'projects'}
                                                         </div>
                                                     </div>
-                                                    {valueColumn && (
-                                                        <div className="text-sm font-medium text-[#181D27]">
-                                                            {typeof groupRow.totalValue === 'number'
-                                                                ? groupRow.totalValue.toLocaleString()
-                                                                : groupRow.totalValue}
+                                                    {valueColumn && groupRow.totalValue > 0 && (
+                                                        <div className="text-sm font-semibold text-[#181D27]">
+                                                            ${typeof groupRow.totalValue === 'number'
+                                                                ? groupRow.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })
+                                                                : groupRow.totalValue}M
                                                         </div>
                                                     )}
                                                 </div>
                                             </td>
                                         </tr>
                                     );
+                                }
+
+                                // Skip rendering if this is a group row (shouldn't happen, but safety check)
+                                if ('isGroupRow' in row && (row as any).isGroupRow) {
+                                    return null;
                                 }
 
                                 return (

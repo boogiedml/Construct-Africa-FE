@@ -333,10 +333,10 @@ const RecentlyViewed = () => {
     // Helper function to format date
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit' 
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
         });
     };
 
@@ -356,7 +356,7 @@ const RecentlyViewed = () => {
     // Helper function to get navigation path
     const getNavigationPath = (view: any) => {
         const { collection, item } = view;
-        
+
         switch (collection) {
             case 'projects':
                 return `/admin/projects/${item}`;
@@ -379,7 +379,7 @@ const RecentlyViewed = () => {
     // Helper function to get title
     const getTitle = (item: any, collection: string) => {
         if (!item) return 'Untitled';
-        
+
         switch (collection) {
             case 'experts_analysts':
                 return item.name || 'Unknown Expert';
@@ -391,9 +391,9 @@ const RecentlyViewed = () => {
     // Helper function to get description
     const getDescription = (item: any, collection: string) => {
         if (!item) return '';
-        
+
         const stripHtml = (html: string) => html?.replace(/<[^>]*>/g, '').trim() || '';
-        
+
         switch (collection) {
             case 'experts_analysts':
                 return stripHtml(item.bio || item.opinion || '');
@@ -519,9 +519,21 @@ const RecentlyViewed = () => {
             <section className={showFilters ? 'flex gap-5 w-full' : 'w-full'}>
                 <div className={showFilters ? 'flex-1 min-w-0' : 'w-full'}>
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
-                        </div>
+                        <DataTable
+                            data={[]}
+                            columns={tableColumns}
+                            onRowSelect={(rows) => console.log('Selected rows:', rows)}
+                            onRowClick={(row: Record<string, unknown>) => {
+                                navigate(getNavigationPath(row));
+                            }}
+                            currentPage={currentPage}
+                            onPageChange={setCurrentPage}
+                            totalPages={totalPages}
+                            showCheckboxes={true}
+                            showFavorites={false}
+                            loading={true}
+                            pageSize={ITEMS_PER_PAGE}
+                        />
                     ) : recentViews.length > 0 ? (
                         <DataTable
                             data={recentViews as []}
@@ -539,12 +551,14 @@ const RecentlyViewed = () => {
                             pageSize={ITEMS_PER_PAGE}
                         />
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
-                            <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <p className="text-lg font-medium text-[#181D27] mb-2">No Recently Viewed Items</p>
+                        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg border border-[#E9EAEB]">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-base font-medium text-[#181D27] mb-1">No Recently Viewed Items</h3>
                             <p className="text-sm text-[#535862]">Items you view will appear here</p>
                         </div>
                     )}

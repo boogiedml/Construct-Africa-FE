@@ -17,7 +17,7 @@ const NsFooter = () => {
             links: [
                 { label: "Contact Us", href: "/contact" },
                 { label: "About ConstructAfrica", href: "/about" },
-                { label: "Advisory Board", href: "#" }
+                { label: "Advisory Board", href: "/advisory-board" }
             ]
         },
         {
