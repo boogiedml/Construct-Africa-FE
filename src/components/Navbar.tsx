@@ -5,7 +5,6 @@ import Input from './form-fields/Input';
 import { LuSearch } from 'react-icons/lu';
 import { useAppDispatch } from '../store/hooks';
 import { logout } from '../store/features/authSlice';
-import { useGeneralSearchQuery } from '../store/services/reference';
 import GlobalSearch from './GlobalSearch';
 
 const Navbar = () => {
@@ -16,10 +15,7 @@ const Navbar = () => {
     const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-
-    const {data, loading, error} = useGeneralSearchQuery(searchQuery);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     const handleLogout = () => {
