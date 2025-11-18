@@ -19,6 +19,7 @@ import ChartsSidebar from "./ChartsSidebar";
 import FiltersSidebar from "./FiltersSidebar";
 import ProjectCardSkeleton from "./ProjectCardSkeleton";
 import DetailPageSkeleton from "./DetailPageSkeleton";
+import HomeSkeleton from "./HomeSkeleton";
 
 export {
   Navbar,
@@ -42,4 +43,5 @@ export {
   FiltersSidebar,
   ProjectCardSkeleton,
   DetailPageSkeleton,
+  HomeSkeleton,
 };

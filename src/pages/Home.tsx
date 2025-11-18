@@ -138,7 +138,7 @@
 
 // src/pages/Home.tsx
 
-import { ActionButton, ActivityList, ExpertCard, ProjectCard, SectionHeader } from "../components";
+import { ActionButton, ActivityList, ExpertCard, ProjectCard, SectionHeader, HomeSkeleton } from "../components";
 import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "../store/services/projects";
 import { useGetNewsQuery } from "../store/services/news";
@@ -253,13 +253,8 @@ const Home = () => {
     }
   };
 
-  // Loading state for hero section
   if (featuredLoading || sidebarLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1]"></div>
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   return (
