@@ -90,32 +90,44 @@ const Favourites = () => {
     setCurrentPage(1);
   }, [activeCategory]);
 
+  // Map internal category to API response key for group (group uses 'news', not 'main_news')
+  const getGroupApiKey = (category: FavouriteCategory): 'projects' | 'companies' | 'news' | 'tenders' => {
+    // API group returns 'news' but we use 'main_news' internally
+    return category === 'main_news' ? 'news' : category;
+  };
+
   // Extract and flatten items - Filter by active category only
   const displayItems = useMemo(() => {
+    console.log(favouritesData?.group);
+    // Map the category to the API key for group
+    const apiCategoryKey = getGroupApiKey(activeCategory);
+
     // Ensure we have data and the active category exists
-    if (!favouritesData?.favorites || !favouritesData.favorites[activeCategory]) {
+    if (!favouritesData?.group || !favouritesData.group[apiCategoryKey]) {
       return [];
     }
 
     // Only process items for the current active category
-    const categoryData = favouritesData.favorites[activeCategory];
+    const categoryData = favouritesData.group[apiCategoryKey];
     if (!Array.isArray(categoryData) || categoryData.length === 0) {
       return [];
     }
 
     // Explicitly filter to ensure we only get items for the active category
     const data = categoryData
-      .filter((fav: any) => fav !== null && fav !== undefined)
-      .map((fav: any) => ({
+      .filter((fav) => fav !== null && fav !== undefined)
+      .map((fav) => ({
         ...fav, // Extract the actual item data
         favorite_id: fav.favorite_id,
         favorite_date: fav.favorite_date,
         isFavorite: true
-      }));
+      })) as typeof categoryData;
 
     return data;
   }, [favouritesData, activeCategory]);
 
+
+  // Counts uses 'main_news' key, so we can use activeCategory directly
   const itemCount = favouritesData?.counts?.[activeCategory] || 0;
   const totalPages = Math.ceil(itemCount / itemsPerPage);
 

@@ -148,7 +148,7 @@ const NsNavbar = () => {
                         }} />}
 
                         {location.pathname !== '/login' && < ActionButton buttonText="Book a Demo" paddingX="px-5" attributes={{
-                            onClick: () => navigate('/get-listed')
+                            onClick: () => navigate('/book-a-demo')
                         }} />}
 
                         {location.pathname === '/login' && <ActionButton buttonText="Contact us" paddingX="px-5" attributes={{

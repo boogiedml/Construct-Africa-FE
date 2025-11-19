@@ -37,6 +37,8 @@ import PublicExpertOpinion from "./PublicExpertOpinion";
 import PublicEventDetails from "./PublicEventDetails";
 import PublicExpertOpinionsDetails from "./PublicExpertOpinionsDetails";
 import ExpertOpinionDetails from "./ExpertOpinionDetails";
+import BookADemo from "./BookADemo";
+import BookADemoPayment from "./BookADemoPayment";
 
 export {
   Login,
@@ -78,4 +80,6 @@ export {
   PublicEventDetails,
   PublicExpertOpinionsDetails,
   ExpertOpinionDetails,
+  BookADemo,
+  BookADemoPayment,
 };
