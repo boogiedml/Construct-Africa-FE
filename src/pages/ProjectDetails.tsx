@@ -10,11 +10,17 @@ import { RxDashboard } from 'react-icons/rx';
 import { useGetProjectByIdQuery } from '../store/services/projects';
 import { DetailPageSkeleton } from '../components';
 import { countryMapImages } from '../data/countryMaps';
+import { BsShare } from 'react-icons/bs';
+import { BiBookmark, BiBookmarkAlt } from 'react-icons/bi';
+import { useToggleFavouriteMutation } from '../store/services/favourite';
+import { toast } from 'react-toastify';
 
 const ProjectDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { data: projectResponse, isLoading, error } = useGetProjectByIdQuery(id!);
+    const { data: projectResponse, isLoading, error, refetch } = useGetProjectByIdQuery(id!);
+
+    const [toggleFavourite] = useToggleFavouriteMutation();
 
     const project = projectResponse?.data;
 
@@ -177,12 +183,47 @@ const ProjectDetails = () => {
         return companies && companies.length > 0;
     });
 
+    const handleToggleFavorite = async () => {
+        try {
+            await toggleFavourite({
+                collection: "projects",
+                item_id: project.id
+            }).unwrap();
+
+            toast.success('Add to favourites');
+            refetch();
+        } catch (error) {
+            console.error('Failed to toggle favourite:', error);
+            toast.error('Failed to remove favourite');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             <section className='pt-14 px-0 md:px-10 lg:px-20'>
-                <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 leading-tight">
-                    {project.title}
-                </h2>
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 leading-tight">
+                        {project.title}
+                    </h2>
+
+                    <div className='flex gap-x-3'>
+                        {project.is_favorited ? (
+                            <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                <BiBookmarkAlt />
+                                Favourited
+                            </div>
+                        ) : (
+                            <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                <BiBookmark />
+                                Add to Favourite
+                            </div>
+                        )}
+                        <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2'>
+                            <BsShare />
+                            Share
+                        </div>
+                    </div>
+                </div>
                 <div className='flex flex-wrap items-center gap-1 md:gap-0'>
                     <p className='text-sm text-[#535862] mr-0 md:mr-3'>Go to:</p>
                     <a href="#overview" className='text-sm text-[#E0891E] underline px-2 md:px-3'>Overview</a>

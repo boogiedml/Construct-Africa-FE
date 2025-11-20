@@ -56,13 +56,13 @@ export const buildQueryString = (params: Record<string, any>): string => {
   const searchParams = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
+    if (value !== undefined && value !== null && value !== "") {
       searchParams.append(key, String(value));
     }
   });
 
   const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : '';
+  return queryString ? `?${queryString}` : "";
 };
 
 export const mergeQueryParams = <T extends Record<string, any>>(
@@ -74,3 +74,15 @@ export const mergeQueryParams = <T extends Record<string, any>>(
     ...customParams,
   } as T;
 };
+
+export function startAutoLogoutTimer() {
+  const expires = localStorage.getItem("expires");
+  if (expires) {
+    const expiresIn = parseInt(expires, 10);
+
+    setTimeout(() => {
+      localStorage.clear();
+      window.location.href = "/login";
+    }, expiresIn);
+  }
+}
