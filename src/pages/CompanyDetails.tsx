@@ -167,7 +167,7 @@ const CompanyDetails = () => {
         },
         {
             key: 'contract_value_usd',
-            label: 'Value ($mn)',
+            label: 'Value (USD $mn)',
             sortable: true,
             width: '20%',
             render: (value) => {
