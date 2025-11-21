@@ -15,11 +15,16 @@ import {
 } from '../store/services/reference';
 import { useMemo } from 'react';
 import { cleanHtmlContent } from '../utils';
+import { BiBookmark, BiBookmarkAlt } from 'react-icons/bi';
+import { BsShare } from 'react-icons/bs';
+import { toast } from 'react-toastify';
+import { useToggleFavouriteMutation } from '../store/services/favourite';
 
 const CompanyDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { data: companyResponse, isLoading, error } = useGetCompanyByIdQuery(id!);
+    const { data: companyResponse, isLoading, error, refetch } = useGetCompanyByIdQuery(id!);
+    const [toggleFavourite] = useToggleFavouriteMutation();
 
     const company = companyResponse?.data;
 
@@ -232,21 +237,57 @@ const CompanyDetails = () => {
         ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${company.logo.filename_disk}`
         : 'https://plus.unsplash.com/premium_photo-1681691912442-68c4179c530c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2071';
 
+
+    const handleToggleFavorite = async () => {
+        try {
+            await toggleFavourite({
+                collection: "companies",
+                item_id: company.id
+            }).unwrap();
+
+            toast.success('Add to favourites');
+            refetch();
+        } catch (error) {
+            console.error('Failed to toggle favourite:', error);
+            toast.error('Failed to remove favourite');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
-            <section className='pt-14 px-0 md:px-10 lg:px-20'>
+            <section className='pt-14 px-0 '>
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                        <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 leading-tight">
-                            {company.name}
-                        </h2>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 leading-tight">
+                                {company.name}
+                            </h2>
+
+                            <div className='flex gap-x-3'>
+                                {company.is_favorited ? (
+                                    <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                        <BiBookmarkAlt />
+                                        Favourited
+                                    </div>
+                                ) : (
+                                    <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                        <BiBookmark />
+                                        Add to Favourite
+                                    </div>
+                                )}
+                                <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2'>
+                                    <BsShare />
+                                    Share
+                                </div>
+                            </div>
+                        </div>
                         <div className='flex flex-wrap items-center gap-1 md:gap-0'>
                             <p className='text-sm text-[#535862] mr-0 md:mr-3'>Go to:</p>
                             <a href="#overview" className='text-sm text-[#E0891E] underline px-2 md:px-3'>Overview</a>
                             <a href="#projects" className='text-sm text-[#E0891E] underline px-2 md:px-3'>Projects</a>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                         <button className="flex items-center gap-2 px-4 py-2 border border-[#D5D7DA] rounded-lg hover:bg-gray-50 transition-colors">
                             <AiOutlineStar size={18} className="text-[#535862]" />
                             <span className="text-sm text-[#535862]">Add to favourites</span>
@@ -255,11 +296,11 @@ const CompanyDetails = () => {
                             <HiOutlineShare size={18} className="text-[#535862]" />
                             <span className="text-sm text-[#535862]">Share</span>
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </section>
 
-            <section className='py-10 px-0 md:px-10 lg:px-20'>
+            <section className='py-10 px-0 '>
                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-14'>
                     <div className='lg:col-span-2 flex flex-col gap-8 lg:gap-10'>
                         {/* Overview */}
@@ -290,7 +331,6 @@ const CompanyDetails = () => {
                                     const project = row as unknown as ProjectWithStage;
                                     navigate(`/admin/projects/${project.id}`);
                                 }}
-                                showCheckboxes={true}
                                 showFavorites={true}
                             />
                         </div>

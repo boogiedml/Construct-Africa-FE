@@ -747,7 +747,6 @@ const Companies = () => {
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
-              showCheckboxes={true}
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}

@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { startAutoLogoutTimer } from "../../utils";
 
 interface AuthState {
   token: string | null;
@@ -43,6 +44,7 @@ const authSlice = createSlice({
       localStorage.setItem("access_token", action.payload.access_token);
       localStorage.setItem("refresh_token", action.payload.refresh_token);
       localStorage.setItem("expires", action.payload.expires.toString());
+      startAutoLogoutTimer();
     },
     logout: (state) => {
       state.token = null;

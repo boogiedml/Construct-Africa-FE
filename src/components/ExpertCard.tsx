@@ -1,12 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ExpertCardSkeleton from "./ExpertCardSkeleton";
 
 interface ExpertCardProps {
     expertImage: string;
     expertName: string;
     title: string;
     opinion: string;
-    expertId?: number;
+    expertId: string | number;
+    isLoading?: boolean;
 }
 
 const ExpertCard: React.FC<ExpertCardProps> = ({
@@ -15,19 +17,26 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
     title,
     opinion,
     expertId,
+    isLoading = false,
 }) => {
     const navigate = useNavigate();
 
-    const handleClick = () => {
-        if (expertId) {
-            navigate(`/admin/expert-opinions/${expertId}`);
+    const handleClick = (id: number | string ) => {
+        if (id) {
+            navigate(`/admin/expert-opinions/${id}`);
         }
     };
+
+    if (isLoading) {
+        return (
+            <ExpertCardSkeleton />
+        );
+    }
 
     return (
         <div
             className="md:px-8 flex flex-col gap-4 md:gap-6 bg-white py-10 cursor-pointer hover:bg-transparent transition-colors duration-300"
-            onClick={handleClick}
+            onClick={() => handleClick(expertId)}
         >
             <div className="flex justify-center">
                 <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200">

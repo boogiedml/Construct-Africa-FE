@@ -349,6 +349,7 @@ export interface SingleProject {
   transport?: string | null;
   funding?: any[];
   specifications?: any[];
+  news: string[];
 }
 
 export interface ProjectResponse {
