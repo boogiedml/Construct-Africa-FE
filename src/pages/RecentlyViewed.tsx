@@ -529,7 +529,6 @@ const RecentlyViewed = () => {
                             currentPage={currentPage}
                             onPageChange={setCurrentPage}
                             totalPages={totalPages}
-                            showCheckboxes={true}
                             showFavorites={false}
                             loading={true}
                             pageSize={ITEMS_PER_PAGE}
@@ -545,7 +544,6 @@ const RecentlyViewed = () => {
                             currentPage={currentPage}
                             onPageChange={setCurrentPage}
                             totalPages={totalPages}
-                            showCheckboxes={true}
                             showFavorites={false}
                             loading={isFetching}
                             pageSize={ITEMS_PER_PAGE}

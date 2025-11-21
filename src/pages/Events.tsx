@@ -595,7 +595,6 @@ const Events = () => {
                             currentPage={currentPage}
                             onPageChange={setCurrentPage}
                             totalPages={totalPages}
-                            showCheckboxes={true}
                             showFavorites={false}
                             loading={isLoading || isFetching}
                             pageSize={ITEMS_PER_PAGE}

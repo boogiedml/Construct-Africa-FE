@@ -255,7 +255,7 @@ const CompanyDetails = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <section className='pt-14 px-0 md:px-10 lg:px-20'>
+            <section className='pt-14 px-0 '>
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                         <div className="flex justify-between items-center mb-6">
@@ -300,7 +300,7 @@ const CompanyDetails = () => {
                 </div>
             </section>
 
-            <section className='py-10 px-0 md:px-10 lg:px-20'>
+            <section className='py-10 px-0 '>
                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-14'>
                     <div className='lg:col-span-2 flex flex-col gap-8 lg:gap-10'>
                         {/* Overview */}
@@ -331,7 +331,6 @@ const CompanyDetails = () => {
                                     const project = row as unknown as ProjectWithStage;
                                     navigate(`/admin/projects/${project.id}`);
                                 }}
-                                showCheckboxes={true}
                                 showFavorites={true}
                             />
                         </div>

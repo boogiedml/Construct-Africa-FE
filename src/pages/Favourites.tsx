@@ -360,7 +360,6 @@ const Favourites = () => {
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             totalPages={totalPages}
-            showCheckboxes={true}
             showFavorites={true}
             loading={true}
           />
@@ -377,7 +376,6 @@ const Favourites = () => {
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             totalPages={totalPages}
-            showCheckboxes={true}
             showFavorites={true}
             loading={true}
           />
@@ -394,7 +392,6 @@ const Favourites = () => {
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             totalPages={totalPages}
-            showCheckboxes={true}
             showFavorites={true}
             loading={true}
           />
@@ -411,7 +408,6 @@ const Favourites = () => {
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             totalPages={totalPages}
-            showCheckboxes={true}
             showFavorites={true}
             loading={true}
           />
@@ -548,7 +544,6 @@ const Favourites = () => {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           totalPages={totalPages}
-          showCheckboxes={true}
           showFavorites={true}
           loading={false}
         />
@@ -566,7 +561,6 @@ const Favourites = () => {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           totalPages={totalPages}
-          showCheckboxes={true}
           showFavorites={true}
           loading={false}
         />
@@ -584,7 +578,6 @@ const Favourites = () => {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           totalPages={totalPages}
-          showCheckboxes={true}
           showFavorites={true}
           loading={false}
         />
@@ -602,7 +595,6 @@ const Favourites = () => {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           totalPages={totalPages}
-          showCheckboxes={true}
           showFavorites={true}
           loading={false}
         />

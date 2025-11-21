@@ -14,13 +14,32 @@ import { BsShare } from 'react-icons/bs';
 import { BiBookmark, BiBookmarkAlt } from 'react-icons/bi';
 import { useToggleFavouriteMutation } from '../store/services/favourite';
 import { toast } from 'react-toastify';
+import { useLazyGetNewsByIdQuery } from '../store/services/news';
+import { useEffect } from 'react';
 
 const ProjectDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: projectResponse, isLoading, error, refetch } = useGetProjectByIdQuery(id!);
+    const [triggerNews, { data: newsResponse, isLoading: newsLoading, isFetching }] = useLazyGetNewsByIdQuery();
 
     const [toggleFavourite] = useToggleFavouriteMutation();
+    const newsUpdate = [];
+
+    useEffect(() => {
+        if (projectResponse?.data?.news && projectResponse.data.news.length > 0) {
+            projectResponse.data.news.forEach((n: any) => {
+                triggerNews(String(n));
+
+            });
+        }
+    }, [projectResponse, triggerNews]);
+
+    useEffect(() => {
+        if (newsResponse && newsResponse.data) {
+            newsUpdate.push(newsResponse.data);
+        }
+    }, [newsResponse]);
 
     const project = projectResponse?.data;
 
@@ -200,7 +219,7 @@ const ProjectDetails = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <section className='pt-14 px-0 md:px-10 lg:px-20'>
+            <section className='pt-14 px-0 '>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 leading-tight">
                         {project.title}
@@ -230,11 +249,11 @@ const ProjectDetails = () => {
                     {hasAnyCompanies && (
                         <a href="#companies" className='text-sm text-[#E0891E] underline px-2 md:px-3 border-x border-[#E9EAEB]'>Companies and Contacts</a>
                     )}
-                    <a href="#milestones" className='text-sm text-[#E0891E] underline px-2 md:px-3'>Milestones</a>
+                    <a href="#news" className='text-sm text-[#E0891E] underline px-2 md:px-3'>News & Updates</a>
                 </div>
             </section>
 
-            <section className='py-10 px-0 md:px-10 lg:px-20'>
+            <section className='py-10 px-0 '>
                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-14'>
                     <div className='lg:col-span-2 flex flex-col gap-8 lg:gap-10'>
                         {/* Quick Info */}
@@ -248,7 +267,7 @@ const ProjectDetails = () => {
                                         <GrLocation size={18} className="text-[#535862]" />
                                         <span className="text-base text-[#535862]">Location</span>
                                     </div>
-                                    <span className="text-base text-[#181D27] ml-7">{fullLocation}</span>
+                                    <span className="text-base text-[#181D27] ml-7 font-semibold">{fullLocation}</span>
                                 </div>
 
                                 <div className="flex flex-col gap-3">
@@ -256,15 +275,31 @@ const ProjectDetails = () => {
                                         <IoBagOutline size={18} className="text-[#535862]" />
                                         <span className="text-base text-[#535862]">Sector</span>
                                     </div>
-                                    <span className="text-base text-[#181D27] ml-7">{sectors}</span>
+                                    <span className="text-base text-[#181D27] ml-7 font-semibold">{sectors}</span>
                                 </div>
+
+                                {/* <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <IoBagOutline size={18} className="text-[#535862]" />
+                                        <span className="text-base text-[#535862]">Type</span>
+                                    </div>
+                                    {projectTypes.length > 0 && (
+                                        <div className='flex flex-col gap-2 ml-7'>
+                                            {projectTypes.map((type, index) => (
+                                                <p key={index} className='text-base text-[#181D27] leading-relaxed font-semibold'>
+                                                    {type}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div> */}
 
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center gap-2">
                                         <PiCurrencyCircleDollar size={18} className="text-[#535862]" />
                                         <span className="text-base text-[#535862]">Value</span>
                                     </div>
-                                    <span className="text-base text-[#181D27] ml-7">{formatCurrency(project.contract_value_usd)}</span>
+                                    <span className="text-base text-[#181D27] ml-7 font-semibold">{formatCurrency(project.contract_value_usd)}</span>
                                 </div>
 
                                 <div className="flex flex-col gap-3">
@@ -273,16 +308,11 @@ const ProjectDetails = () => {
                                         <span className="text-base text-[#535862]">Stage</span>
                                     </div>
                                     {project.current_stage ? (
-                                        <div className="ml-7">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).bg}`}>
-                                                <div className={`w-2 h-2 rounded-full ${getStageStyles(mapStatusToGroup(project.current_stage)).dot}`}></div>
-                                                <span className={`text-base font-medium ${getStageStyles(mapStatusToGroup(project.current_stage)).text}`}>
-                                                    {mapStatusToStageName(project.current_stage)}
-                                                </span>
-                                            </div>
-                                        </div>
+                                        <span className={`text-base text-[#181D27] ml-7 font-semibold`}>
+                                            {mapStatusToStageName(project.current_stage || '')}
+                                        </span>
                                     ) : (
-                                        <span className="text-base text-[#181D27] ml-7">N/A</span>
+                                        <span className="text-base text-[#181D27] ml-7 font-semibold">N/A</span>
                                     )}
                                 </div>
                             </div>
@@ -431,8 +461,8 @@ const ProjectDetails = () => {
                             </div>
                         )}
 
-                        {/* Milestones */}
-                        <div id="milestones">
+                        {/* key dates */}
+                        <div id="key-dates">
                             <h3 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 md:mb-6 leading-tight">
                                 Key Dates
                             </h3>
@@ -473,6 +503,33 @@ const ProjectDetails = () => {
                                         <p className="text-base text-[#181D27]">{formatDate(project.construction_completion_date)}</p>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* News */}
+                        <div id="news">
+                            <h3 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-4 md:mb-6 leading-tight">
+                                News & Updates
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {newsLoading || isFetching ? (
+                                    <p className="text-base text-[#535862]">Loading news...</p>
+                                ) : newsUpdate && newsUpdate.length > 0 ? (
+                                    newsUpdate.map((newsItem: any) => (
+                                        <div key={newsItem.id} className='flex gap-x-7 gap-y-3 items-start'>
+                                            {formatDate(newsItem.published_at) && (
+                                                <span className='text-sm text-[#717680] min-w-[80px]'>
+                                                    {formatDate(newsItem.published_at)}
+                                                </span>
+                                            )}
+                                            <div>
+
+                                            </div>
+                                        </div>
+                                    )))
+                                    : (
+                                        <p className="text-base text-[#535862]">No news available for this project.</p>
+                                    )}
                             </div>
                         </div>
                     </div>
@@ -545,11 +602,8 @@ const ProjectDetails = () => {
                                     Value
                                 </h3>
                                 <p className='text-base text-[#535862] leading-relaxed'>
-                                    {formatCurrency(project.contract_value_usd)}
+                                    {formatCurrency(project.contract_value_usd)} (USD Million)
                                 </p>
-                                {project.value_range && (
-                                    <p className='text-sm text-[#717680] mt-1'>Range: ${project.value_range}M USD</p>
-                                )}
                             </div>
 
                             {/* Links */}

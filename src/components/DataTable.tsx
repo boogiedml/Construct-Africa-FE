@@ -40,7 +40,7 @@ const DataTable = <T extends Record<string, unknown> & { id: unknown }>({
     onRowClick,
     favoriteKey = 'is_favourited',
     className = '',
-    showCheckboxes = true,
+    showCheckboxes = false,
     showFavorites = true,
     pageSize = 10,
     currentPage = 1,

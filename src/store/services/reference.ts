@@ -1,7 +1,8 @@
-import { baseApi } from './index';
+import { baseApi, noAuthApi } from './index';
 import type { 
   CountriesResponse, 
   RegionsResponse, 
+  SearchResponse, 
   SectorsResponse, 
   TypesResponse 
 } from '../../types/reference.types';
@@ -31,10 +32,14 @@ export const referenceApi = baseApi.injectEndpoints({
         url: 'items/types?fields=id,name&sort=name',
       }),
     }),
+  }),
+});
 
-    generalSearch: builder.query<void, void>({
-      query: (params) => ({
-        url: `/search?q=${params}`,
+export const searchApi = noAuthApi.injectEndpoints({
+  endpoints: (builder) => ({
+    generalSearch: builder.query<SearchResponse, string>({
+      query: (searchQuery) => ({
+        url: `/search?q=${encodeURIComponent(searchQuery)}`,
       }),
     }),
   }),
@@ -45,5 +50,9 @@ export const {
   useGetRegionsQuery, 
   useGetSectorsQuery, 
   useGetTypesQuery,
-  useGeneralSearchQuery 
 } = referenceApi;
+
+export const {
+  useGeneralSearchQuery,
+  useLazyGeneralSearchQuery
+} = searchApi;
