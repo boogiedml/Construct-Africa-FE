@@ -240,7 +240,7 @@ const EventDetails = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Header Section */}
-            <section className='pt-10 px-5 sm:px-10 lg:px-20 mb-8'>
+            <section className='pt-10 px-5 mb-8'>
                 <h1 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">
                     {event.title}
                 </h1>
@@ -250,7 +250,7 @@ const EventDetails = () => {
             </section>
 
             {/* Main Content Section */}
-            <section className='py-10 px-5 sm:px-10 lg:px-20 sm:grid grid-cols-1 lg:grid-cols-3 gap-14'>
+            <section className='py-10 px-5 sm:grid grid-cols-1 lg:grid-cols-3 gap-14'>
                 <div className='col-span-2'>
                     {/* Quick Info Section */}
                     <div className='mb-10'>

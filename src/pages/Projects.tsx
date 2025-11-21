@@ -78,8 +78,6 @@ const Projects = () => {
 
   // Build query parameters based on state
   const queryParams = useMemo<ProjectQueryParams>(() => {
-    // Use gridPage for grid view, currentPage for table/stage views
-    // Always use 1 for offset when switching views to prevent infinite refetch
     const pageToUse = activeView === 'grid' ? gridPage : currentPage;
 
     const params: ProjectQueryParams = {
@@ -323,7 +321,6 @@ const Projects = () => {
     }
   ];
 
-  // Build sort options including presets
   const sortOptions = useMemo(() => {
     const baseOptions = [
       { value: 'recently-added', label: 'Recently added' },
@@ -825,23 +822,25 @@ const Projects = () => {
               style={{ height: 'calc(100vh - 280px)' }}
             >
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${!showCharts && !showFilters ? 'xl:grid-cols-4' : ''} gap-6`}>
-                {projectsWithStage.map((project: Project & { stage: string; status: string; stageName: string }) => (
-                  <ProjectCard
-                    key={project.id}
-                    image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
-                    status={project.status}
-                    stageName={project.stageName}
-                    stageGroup={project.stage}
-                    title={project.title}
-                    description={project.description || ''}
-                    location={project.countries.map((country: { name: string }) => country.name).join(', ') || '---'}
-                    category={project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---'}
-                    value={`$${project.contract_value_usd || 0} million`}
-                    isFavorite={false}
-                    onClick={() => navigate(`/admin/projects/${project.id}`)}
-                    toggleFavorite={() => handleToggleFavorite(project)}
-                  />
-                ))}
+                {projectsWithStage
+              .filter((item: TableRow): item is ProjectWithStage => !('isGroupRow' in item && item.isGroupRow))
+              .map((project: ProjectWithStage) => (
+              <ProjectCard
+                key={project.id}
+                image={project.featured_image?.filename_disk ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}` : "/images/null-image.svg"}
+                status={project.status}
+                stageName={project.stageName}
+                stageGroup={project.stage}
+                title={project.title}
+                description={project.description || ''}
+                location={project.countries.map((country: { name: string }) => country.name).join(', ') || '---'}
+                category={project.sectors.map((sector: { name: string }) => sector.name).join(', ') || '---'}
+                value={`$${project.contract_value_usd || 0} million`}
+                isFavorite={false}
+                onClick={() => navigate(`/admin/projects/${project.id}`)}
+                toggleFavorite={() => handleToggleFavorite(project)}
+              />
+            ))}
               </div>
 
               {/* Loading skeleton for infinite scroll */}
@@ -897,7 +896,6 @@ const Projects = () => {
               currentPage={currentPage}
               onPageChange={handlePageChange}
               totalPages={totalPages}
-              showCheckboxes={true}
               showFavorites={true}
               loading={isLoading || isFetching}
               pageSize={ITEMS_PER_PAGE}

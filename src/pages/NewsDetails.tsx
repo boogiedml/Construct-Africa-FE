@@ -8,11 +8,16 @@ import { DetailPageSkeleton, ProjectCard } from '../components';
 import { cleanHtmlContent } from '../utils';
 import { useMemo } from 'react';
 import type { News as NewsType } from '../types/news.types';
+import { BiBookmark, BiBookmarkAlt } from 'react-icons/bi';
+import { BsShare } from 'react-icons/bs';
+import { useToggleFavouriteMutation } from '../store/services/favourite';
+import { toast } from 'react-toastify';
 
 const NewsDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { data: newsResponse, isLoading, error } = useGetNewsByIdQuery(id!);
+    const { data: newsResponse, isLoading, error, refetch } = useGetNewsByIdQuery(id!);
+    const [toggleFavourite] = useToggleFavouriteMutation();
 
     const news = newsResponse?.data;
 
@@ -147,22 +152,59 @@ const NewsDetails = () => {
         news.content || news.summary,
         'https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev'
     );
+
+
+    const handleToggleFavorite = async () => {
+        try {
+            await toggleFavourite({
+                collection: "main_news",
+                item_id: news.id
+            }).unwrap();
+
+            toast.success('Add to favourites');
+            refetch();
+        } catch (error) {
+            console.error('Failed to toggle favourite:', error);
+            toast.error('Failed to remove favourite');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
             <section className='bg-white pt-14'>
                 <div className='py-6 flex justify-between items-start'>
                     <div className='flex-1'>
-                        <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">
-                            {news.title}
-                        </h2>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-base md:text-lg lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">
+                                {news.title}
+                            </h2>
+
+                            <div className='flex gap-x-3'>
+                                {news.is_favorited ? (
+                                    <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                        <BiBookmarkAlt />
+                                        Favourited
+                                    </div>
+                                ) : (
+                                    <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2' onClick={() => handleToggleFavorite()}>
+                                        <BiBookmark />
+                                        Add to Favourite
+                                    </div>
+                                )}
+                                <div className='w-fit border border-[#D5D7DA] transparent inline-flex justify-center items-center relative font-semibold py-2 md:py-2.5 text-xs md:text-sm rounded-md transition-all duration-200 px-3 cursor-pointer gap-2'>
+                                    <BsShare />
+                                    Share
+                                </div>
+                            </div>
+                        </div>
                         <div className='flex flex-wrap items-center gap-1 text-sm text-[#535862]'>
                             {location && <span>{location}</span>}
                             {location && sectors && <span>-</span>}
                             {sectors && <span>{sectors}</span>}
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 ml-4">
+                    {/* <div className="flex items-center gap-3 ml-4">
                         <button className="flex items-center gap-2 px-4 py-2 border border-[#D5D7DA] rounded-lg hover:bg-gray-50 transition-colors">
                             <AiOutlineStar size={18} className="text-[#535862]" />
                             <span className="text-sm text-[#535862] hidden md:inline">Add to favourites</span>
@@ -171,7 +213,7 @@ const NewsDetails = () => {
                             <HiOutlineShare size={18} className="text-[#535862]" />
                             <span className="text-sm text-[#535862] hidden md:inline">Share</span>
                         </button>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Quick Info */}

@@ -41,3 +41,19 @@ export interface SectorsResponse {
 export interface TypesResponse {
   data: Type[];
 }
+
+export interface SearchResult {
+  id: string;
+  title: string;
+  type: string;
+  summary: string | null;
+  collection: string;
+  collection_weight: number;
+}
+
+export interface SearchResponse {
+  success: boolean;
+  limit: number;
+  offset: number;
+  data: SearchResult[];
+}

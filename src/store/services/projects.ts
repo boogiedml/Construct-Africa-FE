@@ -18,7 +18,7 @@ export const projectsApi = baseApi.injectEndpoints({
       query: (id) => ({
         url: `projects/${id}`,
         params: {
-          fields: '*,countries.countries_id.*,regions.regions_id.*,sectors.sectors_id.*,types.types_id.*,featured_image.*,client_owner.companies_id.*,developer.companies_id.*,main_contractor.companies_id.*,architect.companies_id.*,civil_engineer.companies_id.*,structural_engineer.companies_id.*,mep_engineer.companies_id.*,design_consultant.companies_id.*,study_consultant.companies_id.*,quantity_surveyor.companies_id.*,project_manager.contacts_id.*',
+          fields: '*,countries.countries_id.*,regions.regions_id.*,sectors.sectors_id.*,types.types_id.*,featured_image.*,client_owner.companies_id.*,developer.companies_id.*,main_contractor.companies_id.*,architect.companies_id.*,civil_engineer.companies_id.*,structural_engineer.companies_id.*,mep_engineer.companies_id.*,design_consultant.companies_id.*,study_consultant.companies_id.*,quantity_surveyor.companies_id.*,project_manager.contacts_id.*,news.*',
         },
       }),
     }),

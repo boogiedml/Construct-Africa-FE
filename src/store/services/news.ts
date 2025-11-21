@@ -30,4 +30,4 @@ export const newsApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetNewsQuery, useGetNewsByIdQuery } = newsApi;
+export const { useGetNewsQuery, useGetNewsByIdQuery, useLazyGetNewsByIdQuery } = newsApi;

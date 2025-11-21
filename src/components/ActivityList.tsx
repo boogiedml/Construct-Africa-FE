@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import ActionButton from "./ActionButton";
+import ExpertCard from "./ExpertCard";
+import ExpertCardSkeleton from "./ExpertCardSkeleton";
 
 interface ListItemProps {
     type: string;
@@ -17,7 +20,7 @@ const ListItem: React.FC<ListItemProps> = ({
 }) => {
     return (
         <div
-            className="py-4 border-b border-[#E9EAEB] rounded-xl"
+            className="py-4 border-b border-[#E9EAEB] rounded-xl cursor-pointer"
             onClick={onClick}
         >
             <div className="flex justify-between items-start">
@@ -63,6 +66,7 @@ interface ActivityListProps {
     className?: string;
     maxHeight?: string | number;
     minHeight?: string | number;
+    isLoading?: boolean;
 }
 
 const ActivityList: React.FC<ActivityListProps> = ({
@@ -73,13 +77,26 @@ const ActivityList: React.FC<ActivityListProps> = ({
     onItemClick,
     className = "",
     maxHeight = "450px",
-    minHeight = "450px"
+    minHeight = "450px",
+    isLoading = false,
 }) => {
-    const handleItemClick = (item: ActivityItem, index: number) => {
-        if (onItemClick) {
-            onItemClick(item, index);
+
+    const navigate = useNavigate();
+    const handleItemClick = (type: string, id: string | number) => {
+        if( type === 'News' ) {
+            navigate(`/admin/news/${id}`);
+        } else if ( type === 'Company' ) {
+            navigate(`/admin/companies/${id}`);
+        } else if ( type === 'Project' ) {
+            navigate(`/admin/projects/${id}`);
+        } else if ( type === 'Tender' ) {
+            navigate(`/admin/tenders/${id}`);
         }
     };
+
+    if (isLoading) {
+        return( <ExpertCardSkeleton /> );
+    }
 
     return (
         <div
@@ -107,7 +124,7 @@ const ActivityList: React.FC<ActivityListProps> = ({
                                 title={item.title}
                                 date={item.date}
                                 isUpdated={item.isUpdated}
-                                onClick={() => handleItemClick(item, index)}
+                                onClick={() => handleItemClick(item.type, item.id)}
                             />
                         ))
                     ) : (
