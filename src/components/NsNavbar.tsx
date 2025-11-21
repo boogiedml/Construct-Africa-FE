@@ -69,13 +69,17 @@ const NsNavbar = () => {
         : 'bg-white h-[48px] md:h-[90px]'
         }`;
 
+    const logoContainerClassName = `w-[60px] md:w-[120px] !cursor-pointer ${isPublicHome && isScrolled
+        ? 'h-[48px] md:h-[90px] self-start'
+        : 'h-[48px] md:h-[90px]'
+    }`;
 
     return (
         <nav className={navClassName}>
             <div className="mx-auto px-4 sm:px-6 lg:px-8 h-full">
                 <div className="flex justify-between items-center h-full">
-                    <div onClick={() => navigate("/")} className="w-[60px] md:w-[120px] h-[48px] md:h-[90px]">
-                        <img className="w-full h-full object-cover" src="/images/logo.svg" alt="Logo" />
+                    <div onClick={() => navigate("/")} className={logoContainerClassName}>
+                        <img className="w-full h-full object-cover cursor-pointer" src="/images/logo.svg" alt="Logo" />
                     </div>
 
                     <div className="hidden md:flex items-center space-x-8">
@@ -147,7 +151,7 @@ const NsNavbar = () => {
                             onClick: () => navigate('/login')
                         }} />}
 
-                        {location.pathname !== '/login' && < ActionButton buttonText="Book a Demo" paddingX="px-5" attributes={{
+                        {location.pathname !== '/login' && location.pathname !== '/book-a-demo' && <ActionButton buttonText="Book a Demo" paddingX="px-5" attributes={{
                             onClick: () => navigate('/book-a-demo')
                         }} />}
 

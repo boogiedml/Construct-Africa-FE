@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
 import ProjectCard3 from '../components/ProjectCard3';
+import { Carousel } from '../components/Carousel';
 
 const PublicProjects = () => {
 
@@ -106,37 +107,17 @@ const PublicProjects = () => {
                     </div>
 
                     <div className="relative">
-                        <Swiper
-                            modules={[Navigation]}
-                            spaceBetween={20}
-                            slidesPerView={3}
-                            loop={true}
-                            centeredSlides={false}
-                            navigation={{
-                                nextEl: '.swiper-button-next-custom',
-                                prevEl: '.swiper-button-prev-custom',
-                            }}
-                            className="trending-projects-swiper"
-                        >
+                        <Carousel>
                             {trendingProjects.map((project) => (
-                                <SwiperSlide key={project.id}>
-                                    <ProjectCard3 project={{
-                                        image: project.image,
-                                        id: project.id.toString(),
-                                        title: project.title,
-                                        description: project.description,
-                                        location: project.location,
-                                    }} />
-                                </SwiperSlide>
+                                <ProjectCard3 project={{
+                                    image: project.image,
+                                    id: project.id.toString(),
+                                    title: project.title,
+                                    description: project.description,
+                                    location: project.location,
+                                }} />
                             ))}
-                        </Swiper>
-
-                        <button className="swiper-button-prev-custom absolute left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowBack size={20} className="text-gray-600" />
-                        </button>
-                        <button className="swiper-button-next-custom absolute right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowForward size={20} className="text-gray-600" />
-                        </button>
+                        </Carousel>
                     </div>
                 </div>
             </section>

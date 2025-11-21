@@ -9,6 +9,7 @@ import TeamMemberCard from "../components/TeamMemberCard";
 import { useLocation } from 'react-router-dom';
 import { useGetTrendingProjectsQuery } from "../store/services/projects";
 import { useGetExpertsQuery } from "../store/services/expert";
+import { Carousel } from "../components/Carousel";
 
 
 const PublicHome = () => {
@@ -17,9 +18,9 @@ const PublicHome = () => {
     const [imageOpacity, setImageOpacity] = useState(1);
     const [displayedImage, setDisplayedImage] = useState('/images/benefit-01.svg');
 
-    const {data: trendingProjectsData, isLoading: isTrendingProjectsLoading} = useGetTrendingProjectsQuery();
+    const { data: trendingProjectsData, isLoading: isTrendingProjectsLoading } = useGetTrendingProjectsQuery();
 
-    const {data: expertOpinionsData, isLoading: isExpertOpinionsLoading} = useGetExpertsQuery({
+    const { data: expertOpinionsData, isLoading: isExpertOpinionsLoading } = useGetExpertsQuery({
         limit: 3,
     });
 
@@ -171,6 +172,22 @@ const PublicHome = () => {
         }
     ];
 
+    const CARDS = 10;
+
+    const Card = ({ title, content }) => (
+        <div
+            className="w-full h-full p-8 rounded-xl text-gray-300 text-justify transition-all duration-300"
+            style={{
+                backgroundColor: "hsl(280deg, 40%, calc(100% - var(--abs-offset) * 50%))",
+            }}
+        >
+            <h2 className="text-center text-3xl font-bold mb-3 text-gray-900 transition-all duration-300">
+                {title}
+            </h2>
+            <p className="transition-all duration-300">{content}</p>
+        </div>
+    );
+
     return (
         <div>
             {/* Hero Section */}
@@ -221,7 +238,7 @@ const PublicHome = () => {
                     >
                         {brandLogos.map((brand) => (
                             <div key={brand.id} className="flex items-center justify-center mx-16">
-                                <img src={brand.logo} alt={brand.name} className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+                                <img src={brand.logo} alt={brand.name} className="w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         ))}
                     </Marquee>
@@ -241,48 +258,17 @@ const PublicHome = () => {
                     </div>
 
                     <div className="relative mb-10">
-                        <Swiper
-                            modules={[Navigation]}
-                            spaceBetween={20}
-                            slidesPerView={3}
-                            loop={true}
-                            centeredSlides={false}
-                            // breakpoints={{
-                            //     640: {
-                            //         slidesPerView: 2,
-                            //     },
-                            //     768: {
-                            //         slidesPerView: 2.5,
-                            //     },
-                            //     1024: {
-                            //         slidesPerView: 2.7,
-                            //     },
-                            // }}
-                            navigation={{
-                                nextEl: '.swiper-button-next-custom',
-                                prevEl: '.swiper-button-prev-custom',
-                            }}
-                            className="trending-projects-swiper"
-                        >
+                        <Carousel>
                             {trendingProjectsData?.data.map((project) => (
-                                <SwiperSlide key={project.id}>
-                                    <ProjectCard3 project={{
-                                        image: project.image,
-                                        id: project.id.toString(),
-                                        title: project.title,
-                                        description: project.description,
-                                        location: project.location,
-                                    }} />
-                                </SwiperSlide>
+                                <ProjectCard3 project={{
+                                    image: project.image,
+                                    id: project.id.toString(),
+                                    title: project.title,
+                                    description: project.description,
+                                    location: project.location,
+                                }} />
                             ))}
-                        </Swiper>
-
-                        <button className="swiper-button-prev-custom absolute left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowBack size={20} className="text-gray-600" />
-                        </button>
-                        <button className="swiper-button-next-custom absolute right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowForward size={20} className="text-gray-600" />
-                        </button>
+                        </Carousel>
                     </div>
                     <div className="flex justify-center">
                         <ActionButton
@@ -407,37 +393,17 @@ const PublicHome = () => {
                     </div>
 
                     <div className="relative mb-10">
-                        <Swiper
-                            modules={[Navigation]}
-                            spaceBetween={20}
-                            slidesPerView={3}
-                            loop={true}
-                            centeredSlides={false}
-                            navigation={{
-                                nextEl: '.swiper-button-next-custom',
-                                prevEl: '.swiper-button-prev-custom',
-                            }}
-                            className="trending-projects-swiper"
-                        >
+                        <Carousel>
                             {trendingProjects.map((project) => (
-                                <SwiperSlide key={project.id}>
-                                    <ProjectCard3 project={{
-                                        image: project.image,
-                                        id: project.id.toString(),
-                                        title: project.title,
-                                        description: project.description,
-                                        location: project.location,
-                                    }} />
-                                </SwiperSlide>
+                                <ProjectCard3 project={{
+                                    image: project.image,
+                                    id: project.id.toString(),
+                                    title: project.title,
+                                    description: project.description,
+                                    location: project.location,
+                                }} />
                             ))}
-                        </Swiper>
-
-                        <button className="swiper-button-prev-custom absolute left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowBack size={20} className="text-gray-600" />
-                        </button>
-                        <button className="swiper-button-next-custom absolute right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors hidden lg:block">
-                            <IoArrowForward size={20} className="text-gray-600" />
-                        </button>
+                        </Carousel>
                     </div>
                     <div className="flex justify-center">
                         <ActionButton
@@ -538,6 +504,7 @@ const PublicHome = () => {
                         textSize="text-base"
                         paddingX="px-8"
                         borderColor="#D5D7DA"
+                        outline
                         link="/advisory-board"
                     />
                 </div>

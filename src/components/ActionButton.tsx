@@ -36,7 +36,7 @@ const ActionButton = ({
   const sharedStyle = {
     width:
       width === "full" ? "100%" : width === "fit" ? "fit-content" : undefined,
-    backgroundColor: outline || borderless ? "transparent" : backgroundColor,
+    backgroundColor: outline || borderless ? backgroundColor ||"transparent" : backgroundColor,
     color: outline || borderless ? "#414651" : textColor,
     borderColor: borderColor || (outline && !borderless ? "#D5D7DA" : "transparent"),
   };

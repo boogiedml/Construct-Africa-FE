@@ -60,7 +60,7 @@ const Navbar = () => {
             <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-10 h-full">
                 <div className="flex justify-between items-center h-full gap-2 md:gap-4">
                     <div className='flex items-center gap-3 md:gap-6 lg:gap-10 h-full min-w-0 flex-1'>
-                        <div className="w-[50px] sm:w-[60px] md:w-[80px] h-full flex-shrink-0">
+                        <div className="w-[50px] sm:w-[60px] md:w-[80px] h-full flex-shrink-0 cursor-pointer" onClick={() => navigate('/admin')}>
                             <img className='w-full h-full object-contain' src="/images/logo.svg" alt="Construct Africa" />
                         </div>
                         <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 min-w-0">

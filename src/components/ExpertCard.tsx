@@ -47,7 +47,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
                 {title}
             </h4>
 
-            <p className="text-center text-[#535862] text-base leading-relaxed">
+            <p className="text-center text-[#535862] text-base leading-relaxed line-clamp-3">
                 {opinion}
             </p>
         </div>
