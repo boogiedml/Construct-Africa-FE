@@ -17,6 +17,7 @@ interface ActionButtonProps {
   backgroundColor?: string;
   outlineBgColor?: string;
   borderColor?: string;
+  target?: string;
 }
 
 const ActionButton = ({
@@ -34,6 +35,7 @@ const ActionButton = ({
   backgroundColor = "#F89822",
   outlineBgColor,
   borderColor,
+  target = "_self",
 }: ActionButtonProps) => {
   const sharedStyle = {
     width:
@@ -74,6 +76,7 @@ const ActionButton = ({
       to={link}
       style={sharedStyle}
       className={sharedClasses}
+      target={target}
     >
       {content}
     </Link>

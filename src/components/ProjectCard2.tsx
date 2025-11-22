@@ -2,6 +2,7 @@ import React from "react";
 import { FiCalendar } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 
 interface ProjectCard2Props {
     id: number;
@@ -41,11 +42,11 @@ const ProjectCard2: React.FC<ProjectCard2Props> = ({
         <div className="bg-transparent overflow-hidden cursor-pointer" onClick={handleCardClick}>
             {/* Image Container */}
             <div className="relative">
-                <div className="relative h-[240px] overflow-hidden rounded-2xl">
-                    <img
+                <div className="group-hover:scale-105 transition-transform duration-300">
+                    <ImageWithSkeleton
                         src={image}
                         alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="rounded-2xl h-[240px] w-full"
                     />
                 </div>
 

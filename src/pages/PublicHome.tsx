@@ -183,15 +183,13 @@ const PublicHome = () => {
     });
 
 
-    // Handle hash navigation to expert opinions section
     useEffect(() => {
         if (location.hash === '#expert-opinions') {
-            // Wait for page to fully render before scrolling
             const scrollToSection = () => {
                 const scrollableSection = document.getElementById('scrollable-section');
                 const element = document.getElementById('expert-opinions');
                 if (element && scrollableSection) {
-                    const offset = 100; // Account for fixed navbar
+                    const offset = 100;
                     const elementPosition = element.getBoundingClientRect().top;
                     const scrollableTop = scrollableSection.getBoundingClientRect().top;
                     const offsetPosition = elementPosition - scrollableTop + scrollableSection.scrollTop - offset;
@@ -203,7 +201,6 @@ const PublicHome = () => {
                 }
             };
 
-            // Try immediately, then with delays to ensure DOM is ready
             scrollToSection();
             setTimeout(scrollToSection, 100);
             setTimeout(scrollToSection, 300);
@@ -271,17 +268,14 @@ const PublicHome = () => {
         return () => clearTimeout(fadeTimeout);
     }, [activeFeatureIndex, features]);
 
-    // Automatic animation for desktop screens only
     useEffect(() => {
-        const isDesktop = window.innerWidth >= 768; // md breakpoint
+        const isDesktop = window.innerWidth >= 768;
 
         if (!isDesktop) {
-            // On mobile, set progress to 100 when feature is manually selected
             setProgress(100);
             return;
         }
 
-        // Desktop: automatic animation
         setProgress(0);
 
         const progressInterval = setInterval(() => {
@@ -298,7 +292,6 @@ const PublicHome = () => {
             setProgress(0);
         }, 4000);
 
-        // Handle window resize
         const handleResize = () => {
             const isDesktopNow = window.innerWidth >= 768;
             if (!isDesktopNow) {
@@ -378,11 +371,11 @@ const PublicHome = () => {
 
                 <div className="absolute inset-0 bg-black/50"></div>
 
-                <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-10 sm:bottom-16 md:bottom-20">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
+                <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-1/2 max-sm:transform max-sm:translate-y-1/2 sm:bottom-16 md:bottom-20">
+                    <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
                         Trusted Intelligence For Construction In Africa
                     </h1>
-                    <p className="text-sm sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
+                    <p className="text-base sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
                         Track projects, discover opportunities, and make smarter decisions.
                     </p>
                 </div>
@@ -528,7 +521,7 @@ const PublicHome = () => {
                                                         </span>
                                                     </div>
 
-                                                    <div className="flex-1 border-[#a2a6ac] border-4 rounded-t-2xl border-b-0 p-2 pb-0 min-h-[200px]">
+                                                    <div className="flex-1 border-[#a2a6ac] border-4 rounded-t-3xl border-b-0 p-2 pb-0 min-h-[200px]">
                                                         <img
                                                             src={feature.image}
                                                             alt={feature.title}
@@ -645,6 +638,7 @@ const PublicHome = () => {
                             width="fit"
                             paddingX="px-4 sm:px-6"
                             link="https://www.linkedin.com/newsletters/constructafrica-insights-7367564550356840448/"
+                            target="_blank"
                         />
                     </div>
                     <img className="hidden sm:block w-[200px] sm:w-[300px] md:w-[400px] h-auto object-cover absolute right-0 bottom-0 rounded-tl-2xl sm:rounded-tl-3xl" src="https://plus.unsplash.com/premium_photo-1681989486976-9ec9d2eac57a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29uc3RydWN0aW9ufGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900" alt="LinkedIn Newsletter" />

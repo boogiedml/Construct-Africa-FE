@@ -2,10 +2,12 @@ import { useMemo } from 'react'
 import { FaLinkedin } from 'react-icons/fa';
 import { FiArrowRight } from 'react-icons/fi';
 import type { AdvisoryBoardMember } from './AdvisoryBoard';
+import { ImageWithSkeleton } from '../components';
 
 const AdvisoryBoardDetails = () => {
     const members: AdvisoryBoardMember[] = useMemo(() => [
         {
+            id: "chris-campbell",
             name: "Chris Campbell",
             title: "Chief Executive Officer, Consulting Engineers South Africa (CESA)",
             biography: "Chris Campbell brings over four decades of experience in the engineering industry. At CESA, he promotes engineering excellence and professional development across South Africa.",
@@ -14,6 +16,7 @@ const AdvisoryBoardDetails = () => {
             readMoreLink: "#"
         },
         {
+            id: "derreck-omath",
             name: "Derreck Omath",
             title: "Director General, Seychelles Infrastructure Agency",
             biography: "Derreck Omath oversees the planning and execution of national infrastructure projects in Seychelles, bringing strategic vision to infrastructure development across the region.",
@@ -22,6 +25,7 @@ const AdvisoryBoardDetails = () => {
             readMoreLink: "#"
         },
         {
+            id: "dr-olubukola-tokede",
             name: "Dr. Olubukola (Bukky) O. Tokede",
             title: "Co-Founder and Convenor of the African LCA Initiative (ALIES)",
             biography: "Dr. Tokede is a Senior Lecturer and Associate Head of School at Deakin University, Australia, with over a decade of experience in sustainable construction and life cycle assessment.",
@@ -30,6 +34,7 @@ const AdvisoryBoardDetails = () => {
             readMoreLink: "#"
         },
         {
+            id: "dr-segun-faniran",
             name: "Dr. Segun Faniran",
             title: "Founder & Publisher, ConstructAfrica",
             biography: "Dr. Faniran is the Founder & Publisher of ConstructAfrica, a thought leader in the African construction industry, and a civil engineer with over 30 years of international experience.",
@@ -42,13 +47,11 @@ const AdvisoryBoardDetails = () => {
     const renderProfileCard = (member: AdvisoryBoardMember) => {
         return (
             <div className="flex flex-col gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                    <img
-                        src={member.image}
-                        alt={member.name}
-                        className="h-48 w-full sm:h-56 md:h-64 lg:h-72 rounded-lg object-cover"
-                    />
-                </div>
+                <ImageWithSkeleton
+                    src={member.image}
+                    alt={member.name}
+                    className="rounded-lg h-48 w-full sm:h-56 md:h-64 lg:h-72"
+                />
                 <div className="flex-1">
                     <h3 className="text-base sm:text-lg font-medium text-[#181D27] mb-1.5 sm:mb-2">
                         {member.name}
@@ -117,10 +120,10 @@ const AdvisoryBoardDetails = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-6 lg:gap-8">
                         <div className="flex-shrink-0 w-full sm:w-auto flex justify-center sm:justify-start">
-                            <img
+                            <ImageWithSkeleton
                                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.1.0"
                                 alt="Dr Nelson Ogunshakin FREng, OBE"
-                                className="w-full h-60 sm:w-40 sm:h-40 md:w-56 md:h-56 lg:w-72 lg:h-72 xl:w-[320px] xl:h-[320px] rounded-lg object-cover"
+                                className="rounded-lg h-60 w-full sm:h-40 sm:w-40 md:h-56 md:w-56 lg:h-72 lg:w-72 xl:h-[320px] xl:w-[320px]"
                             />
                         </div>
                         <div className="flex-1">

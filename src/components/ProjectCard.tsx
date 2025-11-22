@@ -3,6 +3,7 @@ import { FaStar } from "react-icons/fa";
 import { GrLocation } from "react-icons/gr";
 import { IoBagOutline } from "react-icons/io5";
 import { PiCurrencyCircleDollar } from "react-icons/pi";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 
 interface ProjectCardProps {
     image?: string;
@@ -67,11 +68,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             className="bg-white rounded-xl border border-[#E9EAEB] hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer"
         >
             <div className={`relative h-[160px] overflow-hidden ${isLogo ? 'flex items-center justify-center' : ''}`}>
-                <img
-                    src={image}
-                    alt={title}
-                    className={`${isLogo ? 'w-[150px] object-cover' : 'w-full h-full object-cover'} group-hover:scale-105 transition-transform duration-300`}
-                />
+                {isLogo ? (
+                    <ImageWithSkeleton
+                        src={image || ''}
+                        alt={title}
+                        className="w-[150px] h-[150px] rounded-lg"
+                    />
+                ) : (
+                    <div className="group-hover:scale-105 transition-transform duration-300">
+                        <ImageWithSkeleton
+                            src={image || ''}
+                            alt={title}
+                            className="h-[160px] w-full rounded-t-xl"
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="p-3 md:p-4">

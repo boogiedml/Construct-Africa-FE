@@ -176,6 +176,7 @@ const PublicFAQ = () => {
                             paddingX="px-8"
                             backgroundColor='#E0891E'
                             link="https://www.linkedin.com/newsletters/constructafrica-insights-7367564550356840448/"
+                            target="_blank"
                         />
                     </div>
                 </div>

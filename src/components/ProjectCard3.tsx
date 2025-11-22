@@ -1,10 +1,16 @@
+import ImageWithSkeleton from "./ImageWithSkeleton";
+
 const ProjectCard3 = ({ project }: { project: { image: string, id: string, title: string, description: string, location: string,  } }) => {
     return (
         <div style={{
             boxShadow: '0px 24px 48px -12px #0A0D122E',
         }} className='bg-white rounded-2xl duration-300 overflow-hidden group cursor-pointer'>
-            <div className='relative h-[200px] overflow-hidden'>
-                <img src={project.image} alt={project.title} className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300' />
+            <div className='group-hover:scale-105 transition-transform duration-300'>
+                <ImageWithSkeleton
+                    src={project.image}
+                    alt={project.title}
+                    className="rounded-t-2xl h-[200px] w-full"
+                />
             </div>
             <div className='p-3 md:p-4'>
                 <span className='text-sm font-medium text-[#E0891E] whitespace-nowrap mb-2 inline-block'>{project.location}</span>

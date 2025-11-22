@@ -22,6 +22,7 @@ import DetailPageSkeleton from "./DetailPageSkeleton";
 import HomeSkeleton from "./HomeSkeleton";
 import ExpertCardSkeleton from "./ExpertCardSkeleton";
 import ExpertOpinionDetailsSkeleton from "./ExpertOpinionDetailsSkeleton";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 
 export {
   Navbar,
@@ -48,4 +49,5 @@ export {
   HomeSkeleton,
   ExpertCardSkeleton,
   ExpertOpinionDetailsSkeleton,
+  ImageWithSkeleton,
 };

@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { ImageWithSkeleton } from '../components';
 
 const PublicBlogDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -8,7 +9,7 @@ const PublicBlogDetails = () => {
         title: 'Digital Construction in Africa: Building Smarter, Faster, and More Sustainably',
         subtitle: 'While sectors like finance and manufacturing have gone digital, construction still leans heavily on manual methods and traditional systems.',
         publishedDate: '19 Jan 2025',
-        heroImage: 'https://plus.unsplash.com/premium_photo-1673795754005-214e3e1fccba?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        heroImage: 'https://images.unsplash.com/photo-1761839258657-457dda39b5cc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         content: `
             <h2>Introduction</h2>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
@@ -31,11 +32,11 @@ const PublicBlogDetails = () => {
                             {blogPost.subtitle}
                         </p>
                     </div>
-                    <div className="relative w-full h-[400px] md:h-[600px] overflow-hidden mb-8">
-                        <img
+                    <div className="relative w-full mb-8">
+                        <ImageWithSkeleton
                             src={blogPost.heroImage}
                             alt={blogPost.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-[400px] md:h-[600px] rounded-lg"
                         />
                     </div>
                 </div>
@@ -49,11 +50,11 @@ const PublicBlogDetails = () => {
                         />
 
                         <div className="my-8">
-                            <div className="relative w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden mb-3">
-                                <img
+                            <div className="relative w-full mb-3">
+                                <ImageWithSkeleton
                                     src={blogPost.imageUrl}
                                     alt="Business meeting"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-[300px] md:h-[400px] rounded-lg"
                                 />
                             </div>
                             <p className="text-sm text-[#717680] italic">
