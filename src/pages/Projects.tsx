@@ -398,7 +398,7 @@ const Projects = () => {
     },
     {
       key: 'contract_value_usd',
-      label: 'Value ($mn)',
+      label: 'Value (USD $mn)',
       sortable: true,
       width: '12%',
       render: (value) => {
@@ -967,7 +967,7 @@ const Projects = () => {
         </div>
 
         {showCharts && (
-          <ChartsSidebar isOpen={showCharts} />
+          <ChartsSidebar isOpen={showCharts} onGroupBy={(value) => setGrouping(value)} />
         )}
 
         {showFilters && (

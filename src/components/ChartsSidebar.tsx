@@ -4,9 +4,10 @@ import CustomSelect from './CustomSelect';
 
 interface ChartsSidebarProps {
     isOpen: boolean;
+    onGroupBy?: (value: string) => void;
 }
 
-const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen }) => {
+const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen, onGroupBy }) => {
     const chartOptions = {
         series: [44, 28, 18, 15, 10],
         chart: {
@@ -53,7 +54,7 @@ const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen }) => {
 
     const groupByOptions = [
         { value: 'sector', label: 'By sector' },
-        { value: 'subsector', label: 'By subsector' },
+        { value: 'region', label: 'By region' },
         { value: 'type', label: 'By type' }
     ];
 
@@ -66,12 +67,12 @@ const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen }) => {
                     <CustomSelect
                         options={groupByOptions}
                         value="sector"
-                        onChange={() => { }}
+                        onChange={(value) => onGroupBy && onGroupBy(value)}
                         placeholder="By sector"
                     />
                 </div>
 
-                <div className='flex items-center gap-3 mb-3'>
+                {/* <div className='flex items-center gap-3 mb-3'>
                     <div className="text-sm text-[#717680]">Group by:</div>
                     <div className="flex items-center gap-4">
                         <label className="flex items-center gap-2 cursor-pointer">
@@ -83,7 +84,7 @@ const ChartsSidebar: React.FC<ChartsSidebarProps> = ({ isOpen }) => {
                             <span className="text-sm text-[#535862]">Type</span>
                         </label>
                     </div>
-                </div>
+                </div> */}
 
                 <div>
                     <div id="chart">

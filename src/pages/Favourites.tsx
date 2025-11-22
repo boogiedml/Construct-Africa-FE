@@ -11,6 +11,10 @@ import {
 } from "../store/services/favourite";
 import { cleanHtmlContent } from "../utils";
 import { useNavigate } from "react-router-dom";
+import type { Project } from "../types/project.types";
+import type { Company } from "../types/company.types";
+import type { News } from "../types/news.types";
+import type { Tender } from "../types/tenders.types";
 
 type FavouriteCategory = 'projects' | 'companies' | 'main_news' | 'tenders';
 
@@ -177,7 +181,18 @@ const Favourites = () => {
       key: 'title',
       label: 'Name',
       sortable: true,
-      width: '35%'
+      width: '35%',
+      render: (value: unknown, row: Project) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/projects/${row.id}`);
+          }}
+          className="text-left text-[#181D27] hover:text-[#F89822] transition-colors font-semibold"
+        >
+          {value as string}
+        </button>
+      )
     },
     {
       key: 'current_stage',
@@ -206,7 +221,18 @@ const Favourites = () => {
       key: 'name',
       label: 'Company Name',
       sortable: true,
-      width: '30%'
+      width: '30%',
+      render: (value: unknown, row: Company) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/companies/${row.id}`);
+          }}
+          className="text-left text-[#181D27] hover:text-[#F89822] transition-colors font-semibold"
+        >
+          {value as string}
+        </button>
+      )
     },
     {
       key: 'company_role',
@@ -244,7 +270,18 @@ const Favourites = () => {
       key: 'title',
       label: 'Title',
       sortable: true,
-      width: '40%'
+      width: '40%',
+      render: (value: unknown, row: News) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/news/${row.id}`);
+          }}
+          className="text-left text-[#181D27] hover:text-[#F89822] transition-colors font-semibold"
+        >
+          {value as string}
+        </button>
+      )
     },
     {
       key: 'category',
@@ -273,7 +310,18 @@ const Favourites = () => {
       key: 'title',
       label: 'Title',
       sortable: true,
-      width: '35%'
+      width: '35%',
+      render: (value: unknown, row: Tender) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/tenders/${row.id}`);
+          }}
+          className="text-left text-[#181D27] hover:text-[#F89822] transition-colors font-semibold"
+        >
+          {value as string}
+        </button>
+      )
     },
     {
       key: 'tender_date',
