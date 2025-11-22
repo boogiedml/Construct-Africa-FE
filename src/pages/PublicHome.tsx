@@ -506,10 +506,16 @@ const PublicHome = () => {
                 <div className="absolute inset-0 bg-black/50"></div>
 
                 <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-1/2 max-sm:transform max-sm:translate-y-1/2 sm:bottom-16 md:bottom-20">
-                    <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
+                    <h1 className="sm:hidden text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
+                        Trusted Intelligence <br /> For Construction <br /> In Africa
+                    </h1>
+                    <h1 className="max-sm:hidden text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
                         Trusted Intelligence For Construction In Africa
                     </h1>
-                    <p className="text-base sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
+                    <p className="sm:hidden text-base sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
+                        Track projects, discover opportunities, <br /> and make smarter decisions.
+                    </p>
+                    <p className="max-sm:hidden text-base sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
                         Track projects, discover opportunities, and make smarter decisions.
                     </p>
                 </div>

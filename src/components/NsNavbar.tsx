@@ -124,8 +124,8 @@ const NsNavbar = () => {
     ];
 
     const navClassName = `top-0 left-0 right-0 z-50 transition-all duration-300 fixed border-b ${isPublicHome
-        ? isScrolled
-            ? 'bg-white border-[#E9EAEB] shadow-sm pb-2 h-[60px] md:h-[106px]'
+        ? isScrolled || isMobileMenuOpen
+            ? `bg-white border-[#E9EAEB] shadow-sm h-[60px] md:h-[106px] ${isMobileMenuOpen ? 'pb-0' : 'pb-2'}`
             : 'bg-transparent border-transparent h-[60px] md:h-[90px]'
         : isScrolled
             ? 'bg-white border-[#E9EAEB] h-[60px] md:h-[90px]'
@@ -236,7 +236,7 @@ const NsNavbar = () => {
                             aria-label="Toggle menu"
                         >
                             {isMobileMenuOpen ? (
-                                <FiX size={24} className={isPublicHome && !isScrolled ? 'text-white' : 'text-[#181D27]'} />
+                                <FiX size={24} className={isPublicHome && !isMobileMenuOpen ? 'text-white' : 'text-[#181D27]'} />
                             ) : (
                                 <FiMenu size={24} className={isPublicHome && !isScrolled ? 'text-white' : 'text-[#181D27]'} />
                             )}
@@ -264,19 +264,19 @@ const NsNavbar = () => {
                                                     <div className="w-full overflow-hidden mb-5">
                                                         <button
                                                             onClick={() => setShowMobileInsightsDropdown(!showMobileInsightsDropdown)}
-                                                            className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors rounded-md mx-2 ${isActive
-                                                                ? 'bg-[#E0891E] text-white font-medium'
-                                                                : 'text-[#181D27] font-normal hover:bg-gray-50'
+                                                            className={`w-full flex items-center justify-between py-3 text-left transition-colors ${isActive
+                                                                ? 'text-[#E0891E] font-medium'
+                                                                : 'text-[#181D27] font-normal'
                                                                 }`}
                                                         >
                                                             <span className="text-xl">{item.name}</span>
                                                             <FiChevronDown
                                                                 size={18}
                                                                 className={`transition-transform ${showMobileInsightsDropdown ? 'rotate-180' : ''
-                                                                    } ${isActive ? 'text-white' : 'text-[#717680]'}`}
+                                                                    } ${isActive ? 'text-[#E0891E]' : 'text-[#717680]'}`}
                                                             />
                                                         </button>
-                                                        <div className={`px-2 pr-4 overflow-hidden transition-all duration-300 space-y-1 ease-in-out mt-1 ${showMobileInsightsDropdown
+                                                        <div className={`px-2 pr-4 overflow-hidden transition-all duration-300 space-y-2 ml-5 ease-in-out mt-1 ${showMobileInsightsDropdown
                                                             ? 'max-h-96 opacity-100'
                                                             : 'max-h-0 opacity-0'
                                                             }`}>
@@ -292,7 +292,6 @@ const NsNavbar = () => {
                                                                             e.preventDefault();
                                                                             setIsMobileMenuOpen(false);
                                                                             setShowMobileInsightsDropdown(false);
-                                                                            // Small delay to allow animation to start before navigation
                                                                             setTimeout(() => {
                                                                                 navigate(dropdownItem.href);
                                                                             }, 150);
@@ -303,12 +302,12 @@ const NsNavbar = () => {
                                                                             }`}
                                                                     >
                                                                         <Icon
-                                                                            size={18}
+                                                                            size={25}
                                                                             className={`mt-0.5 flex-shrink-0 ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#717680]'
                                                                                 }`}
                                                                         />
                                                                         <div className="flex-1">
-                                                                            <div className={`font-medium text-sm ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#181D27]'
+                                                                            <div className={`font-medium text-lg ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#181D27]'
                                                                                 }`}>
                                                                                 {dropdownItem.name}
                                                                             </div>
@@ -324,13 +323,12 @@ const NsNavbar = () => {
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             setIsMobileMenuOpen(false);
-                                                            // Small delay to allow animation to start before navigation
                                                             setTimeout(() => {
                                                                 navigate(item.href);
                                                             }, 150);
                                                         }}
-                                                        className={`px-4 py-3 mx-2 rounded-lg text-xl transition-colors block mb-5 ${isActive
-                                                            ? 'bg-[#E0891E] text-white font-medium'
+                                                        className={`py-3 text-xl transition-colors block mb-5 ${isActive
+                                                            ? 'text-[#E0891E] font-medium'
                                                             : 'text-[#181D27] font-normal hover:bg-gray-50'
                                                             }`}
                                                     >
