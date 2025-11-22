@@ -1,7 +1,8 @@
 import React from "react";
-// import { BsDribbble, BsLinkedin, BsTwitterX } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 interface TeamMember {
+    id: string;
     name: string;
     role: string;
     description: string;
@@ -16,8 +17,16 @@ interface TeamMemberCardProps {
 }
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        if (member.id) {
+            navigate(`/advisory-board/${member.id}`);
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center bg-[#FAFAFA] p-8">
+        <div onClick={handleClick} className="flex flex-col items-center bg-[#FAFAFA] p-8 cursor-pointer">
             <img
                 src={member.image}
                 alt={member.name}

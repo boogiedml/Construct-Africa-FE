@@ -1,18 +1,176 @@
 import { ActionButton, ExpertCard, Input, ProjectCard3, Select } from "../components";
 import Marquee from "react-fast-marquee";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import { IoArrowBack, IoArrowForward } from 'react-icons/io5';
 import { useState, useEffect, useMemo } from 'react';
-import { featuredOpinions, teamMembers } from "../data/home.data";
+import { teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
 import { useLocation } from 'react-router-dom';
 import { useGetTrendingProjectsQuery } from "../store/services/projects";
 import { useGetExpertsQuery } from "../store/services/expert";
 import { Carousel } from "../components/Carousel";
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { africanCountries } from "../data/countryMaps";
 
+const contactFormSchema = yup.object({
+    firstName: yup.string().required('First name is required'),
+    lastName: yup.string().required('Last name is required'),
+    company: yup.string().required('Company is required'),
+    jobTitle: yup.string().required('Job title is required'),
+    country: yup.string().required('Country is required'),
+    phoneNumber: yup.string(),
+    email: yup.string().email('Invalid email address').required('Work email is required'),
+});
+
+const ContactForm = () => {
+    const formik = useFormik({
+        initialValues: {
+            firstName: '',
+            lastName: '',
+            company: '',
+            jobTitle: '',
+            country: '',
+            phoneNumber: '',
+            email: '',
+        },
+        validationSchema: contactFormSchema,
+        onSubmit: (values) => {
+            console.log('Form values:', values);
+        },
+    });
+
+    return (
+        <form onSubmit={formik.handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                    label="First Name"
+                    isRequired
+                    labelFor="firstName"
+                    error={formik.touched.firstName && formik.errors.firstName ? formik.errors.firstName : undefined}
+                    attributes={{
+                        type: "text",
+                        name: "firstName",
+                        id: "firstName",
+                        placeholder: "First name",
+                        value: formik.values.firstName,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+
+                <Input
+                    label="Last Name"
+                    isRequired
+                    labelFor="lastName"
+                    error={formik.touched.lastName && formik.errors.lastName ? formik.errors.lastName : undefined}
+                    attributes={{
+                        type: "text",
+                        name: "lastName",
+                        id: "lastName",
+                        placeholder: "Last name",
+                        value: formik.values.lastName,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                    label="Company"
+                    isRequired
+                    labelFor="company"
+                    error={formik.touched.company && formik.errors.company ? formik.errors.company : undefined}
+                    attributes={{
+                        type: "text",
+                        name: "company",
+                        id: "company",
+                        placeholder: "Company name",
+                        value: formik.values.company,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+
+                <Input
+                    label="Job Title"
+                    isRequired
+                    labelFor="jobTitle"
+                    error={formik.touched.jobTitle && formik.errors.jobTitle ? formik.errors.jobTitle : undefined}
+                    attributes={{
+                        type: "text",
+                        name: "jobTitle",
+                        id: "jobTitle",
+                        placeholder: "Role in company",
+                        value: formik.values.jobTitle,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Select
+                    options={africanCountries}
+                    label="Country"
+                    isRequired
+                    labelFor="country"
+                    error={formik.touched.country && formik.errors.country ? formik.errors.country : undefined}
+                    attributes={{
+                        name: "country",
+                        id: "country",
+                        value: formik.values.country,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+
+                <Input
+                    label="Phone number"
+                    labelFor="phoneNumber"
+                    error={formik.touched.phoneNumber && formik.errors.phoneNumber ? formik.errors.phoneNumber : undefined}
+                    attributes={{
+                        type: "tel",
+                        name: "phoneNumber",
+                        id: "phoneNumber",
+                        placeholder: "+1 (555) 000-0000",
+                        value: formik.values.phoneNumber,
+                        onChange: formik.handleChange,
+                        onBlur: formik.handleBlur,
+                    }}
+                />
+            </div>
+
+            <Input
+                label="Work Email"
+                isRequired
+                labelFor="email"
+                error={formik.touched.email && formik.errors.email ? formik.errors.email : undefined}
+                attributes={{
+                    type: "email",
+                    name: "email",
+                    id: "email",
+                    placeholder: "you@company.com",
+                    value: formik.values.email,
+                    onChange: formik.handleChange,
+                    onBlur: formik.handleBlur,
+                }}
+            />
+
+            <ActionButton
+                buttonText="Book a Demo"
+                backgroundColor="#E0891E"
+                textSize="text-sm sm:text-base"
+                width="full"
+                attributes={{
+                    type: "submit",
+                }}
+            />
+        </form>
+    );
+};
 
 const PublicHome = () => {
+    const location = useLocation();
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [imageOpacity, setImageOpacity] = useState(1);
@@ -30,13 +188,15 @@ const PublicHome = () => {
         if (location.hash === '#expert-opinions') {
             // Wait for page to fully render before scrolling
             const scrollToSection = () => {
+                const scrollableSection = document.getElementById('scrollable-section');
                 const element = document.getElementById('expert-opinions');
-                if (element) {
+                if (element && scrollableSection) {
                     const offset = 100; // Account for fixed navbar
                     const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+                    const scrollableTop = scrollableSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition - scrollableTop + scrollableSection.scrollTop - offset;
 
-                    window.scrollTo({
+                    scrollableSection.scrollTo({
                         top: offsetPosition,
                         behavior: 'smooth'
                     });
@@ -111,7 +271,17 @@ const PublicHome = () => {
         return () => clearTimeout(fadeTimeout);
     }, [activeFeatureIndex, features]);
 
+    // Automatic animation for desktop screens only
     useEffect(() => {
+        const isDesktop = window.innerWidth >= 768; // md breakpoint
+
+        if (!isDesktop) {
+            // On mobile, set progress to 100 when feature is manually selected
+            setProgress(100);
+            return;
+        }
+
+        // Desktop: automatic animation
         setProgress(0);
 
         const progressInterval = setInterval(() => {
@@ -128,9 +298,22 @@ const PublicHome = () => {
             setProgress(0);
         }, 4000);
 
+        // Handle window resize
+        const handleResize = () => {
+            const isDesktopNow = window.innerWidth >= 768;
+            if (!isDesktopNow) {
+                clearInterval(progressInterval);
+                clearInterval(featureInterval);
+                setProgress(100);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
         return () => {
             clearInterval(progressInterval);
             clearInterval(featureInterval);
+            window.removeEventListener('resize', handleResize);
         };
     }, [activeFeatureIndex, features.length]);
 
@@ -172,26 +355,12 @@ const PublicHome = () => {
         }
     ];
 
-    const CARDS = 10;
 
-    const Card = ({ title, content }) => (
-        <div
-            className="w-full h-full p-8 rounded-xl text-gray-300 text-justify transition-all duration-300"
-            style={{
-                backgroundColor: "hsl(280deg, 40%, calc(100% - var(--abs-offset) * 50%))",
-            }}
-        >
-            <h2 className="text-center text-3xl font-bold mb-3 text-gray-900 transition-all duration-300">
-                {title}
-            </h2>
-            <p className="transition-all duration-300">{content}</p>
-        </div>
-    );
 
     return (
         <div>
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+            <section className="relative min-h-[95vh] md:min-h-screen flex items-center justify-center overflow-hidden">
                 <video
                     className="absolute inset-0 w-full h-full object-cover"
                     autoPlay
@@ -209,20 +378,20 @@ const PublicHome = () => {
 
                 <div className="absolute inset-0 bg-black/50"></div>
 
-                <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-20">
-                    <h1 className="text-4xl sm:text-5xl lg:text-[60px] font-bitter font-semibold mb-3 leading-tight">
+                <div className="z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto absolute bottom-10 sm:bottom-16 md:bottom-20">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bitter font-semibold mb-2 sm:mb-3 leading-tight px-2">
                         Trusted Intelligence For Construction In Africa
                     </h1>
-                    <p className="text-lg sm:text-xl lg:text-lg text-[#FDFDFD] max-w-2xl mx-auto">
+                    <p className="text-sm sm:text-base md:text-lg text-[#FDFDFD] max-w-2xl mx-auto px-2">
                         Track projects, discover opportunities, and make smarter decisions.
                     </p>
                 </div>
             </section>
 
             {/* Trusted by Section */}
-            <section className="py-16">
-                <div className="text-center mb-12">
-                    <h2 className="text-lg text-[#414651] mb-2">
+            <section className="py-10 sm:py-12 md:py-16 px-4 sm:px-6">
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-sm sm:text-base md:text-lg text-[#414651] mb-2 px-2">
                         Trusted by over <span className="font-semibold">1,000</span> of the world's leading contractors, consultants, and investors
                     </h2>
                 </div>
@@ -232,13 +401,12 @@ const PublicHome = () => {
                         play={true}
                         pauseOnHover={true}
                         pauseOnClick={true}
-                        // speed={50}
                         gradient={false}
                         autoFill={true}
                     >
                         {brandLogos.map((brand) => (
-                            <div key={brand.id} className="flex items-center justify-center mx-16">
-                                <img src={brand.logo} alt={brand.name} className="w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+                            <div key={brand.id} className="flex items-center justify-center mx-8 sm:mx-12 md:mx-16">
+                                <img src={brand.logo} alt={brand.name} className="w-auto h-8 sm:h-10 md:h-12 object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         ))}
                     </Marquee>
@@ -246,27 +414,30 @@ const PublicHome = () => {
             </section>
 
             {/* Trending Projects Section */}
-            <section className="py-20">
+            <section className="py-12 sm:py-16 md:py-20">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-base font-bold text-[#414651] mb-4 uppercase tracking-wide">
+                    <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                        <h2 className="text-sm sm:text-base text-[#414651] mb-3 sm:mb-4 uppercase tracking-wide">
                             Trending Projects
                         </h2>
-                        <h3 className="text-3xl text-[#414651] font-bitter">
+                        <h3 className="text-xl sm:text-2xl md:text-3xl text-[#181D27] font-bitter font-semibold px-2">
                             Get Insights and Updates on Projects Across Africa
                         </h3>
                     </div>
 
-                    <div className="relative mb-10">
+                    <div className="relative mb-6 sm:mb-8 md:mb-10">
                         <Carousel>
                             {trendingProjectsData?.data.map((project) => (
-                                <ProjectCard3 project={{
-                                    image: project.image,
-                                    id: project.id.toString(),
-                                    title: project.title,
-                                    description: project.description,
-                                    location: project.location,
-                                }} />
+                                <ProjectCard3
+                                    key={project.id}
+                                    project={{
+                                        image: project.image,
+                                        id: project.id.toString(),
+                                        title: project.title,
+                                        description: project.description,
+                                        location: project.location,
+                                    }}
+                                />
                             ))}
                         </Carousel>
                     </div>
@@ -275,27 +446,27 @@ const PublicHome = () => {
                             buttonText="Learn More"
                             link="/projects"
                             width="fit"
-                            paddingX="px-8"
+                            paddingX="px-6 sm:px-8"
                         />
                     </div>
                 </div>
             </section>
 
             {/* Features Section */}
-            <section className="py-20 px-5 sm:px-10 lg:px-20">
-                <div className="flex flex-col items-start lg:flex-row gap-20">
-                    <div className="basis-[40%]">
-                        <p className="text-base text-[#414651] uppercase tracking-wide mb-4">
+            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20">
+                <div className="flex flex-col items-start lg:flex-row gap-8 sm:gap-12 md:gap-16 lg:gap-20">
+                    <div className="w-full lg:basis-[40%]">
+                        <p className="text-sm sm:text-base text-[#414651] uppercase tracking-wide mb-3 sm:mb-4">
                             BUILT FOR RESULTS. POWERED BY INSIGHTS.
                         </p>
-                        <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 sm:mb-3 leading-tight">
                             Uncover Real Opportunities, Win Businesses
                         </h2>
-                        <p className="text-lg text-[#414651] mb-4.5 leading-relaxed">
+                        <p className="text-sm sm:text-base md:text-lg text-[#414651] mb-4 sm:mb-6 leading-relaxed">
                             We deliver trusted, on-the-ground project intelligence, giving you clarity to act fast, plan smarter, and lead in Africa's evolving construction markets.
                         </p>
 
-                        <div className="space-y-0 max-w-md">
+                        <div className="space-y-0 max-w-md w-full">
                             {features.map((feature, index) => {
                                 const isActive = index === activeFeatureIndex;
                                 return (
@@ -304,18 +475,32 @@ const PublicHome = () => {
                                         className="mb-3 relative"
                                     >
                                         <div className="border-b-2 border-[#D5D7DA]">
-                                            <div className="w-full text-left py-4">
-                                                <h3 className={`text-[20px] font-semibold transition-colors duration-500 ${isActive ? "text-[#181D27]" : "text-[#A4A7AE]"
+                                            <div
+                                                className="w-full text-left py-3 sm:py-4 cursor-pointer select-none"
+                                                onClick={() => {
+                                                    const isMobile = window.innerWidth < 768;
+                                                    setActiveFeatureIndex(index);
+
+                                                    if (isMobile) {
+                                                        // On mobile, set progress to 100 immediately
+                                                        setProgress(100);
+                                                    } else {
+                                                        // On desktop, reset progress to restart animation
+                                                        setProgress(0);
+                                                    }
+                                                }}
+                                            >
+                                                <h3 className={`text-base sm:text-lg md:text-[20px] font-semibold transition-colors duration-500 ${isActive ? "text-[#181D27]" : "text-[#A4A7AE]"
                                                     }`}>
                                                     {feature.title}
                                                 </h3>
                                             </div>
 
                                             <div
-                                                className={`pb-4 transition-all duration-500 overflow-hidden ${isActive ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                                className={`pb-3 sm:pb-4 transition-all duration-500 overflow-hidden ${isActive ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                                                     }`}
                                             >
-                                                <p className="text-[#414651] text-base leading-relaxed">
+                                                <p className="text-sm sm:text-base text-[#414651] leading-relaxed">
                                                     {feature.description}
                                                 </p>
                                             </div>
@@ -323,9 +508,36 @@ const PublicHome = () => {
 
                                         {isActive && (
                                             <div
-                                                className="absolute bottom-0 left-0 h-[2px] bg-[#E0891E] transition-all duration-75 ease-linear"
+                                                className="hidden md:block absolute bottom-0 left-0 h-[2px] bg-[#E0891E] transition-all duration-75 ease-linear"
                                                 style={{ width: `${progress}%` }}
                                             />
+                                        )}
+
+                                        {/* Mobile Image Section - Show below description when active */}
+                                        {isActive && (
+                                            <div className="md:hidden mt-4 mb-8">
+                                                <div style={{
+                                                    background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
+                                                }} className="rounded-2xl pt-6 px-6 min-h-[300px] flex flex-col">
+                                                    <div className="flex flex-col items-center gap-3 justify-center mb-4">
+                                                        <div className="bg-white text-[#181D27] px-3 py-1 rounded-full text-sm font-medium">
+                                                            {feature.headerBadge || 'Email inbox'}
+                                                        </div>
+                                                        <span className="text-white text-sm text-center">
+                                                            {feature.headerText || 'Email notifications for all projects'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex-1 border-[#a2a6ac] border-4 rounded-t-2xl border-b-0 p-2 pb-0 min-h-[200px]">
+                                                        <img
+                                                            src={feature.image}
+                                                            alt={feature.title}
+                                                            className="w-full h-full object-cover transition-opacity duration-500 rounded-t-xl"
+                                                            style={{ opacity: 1 }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 );
@@ -333,7 +545,8 @@ const PublicHome = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1">
+                    {/* Desktop Image Section - Hidden on mobile (below md) */}
+                    <div className="hidden md:flex flex-1">
                         <div style={{
                             background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
                         }} className="rounded-4xl pt-10 px-16 h-full flex flex-col">
@@ -359,56 +572,19 @@ const PublicHome = () => {
                 </div>
             </section>
 
-            <section className="py-20">
-                <div className="max-w-7xl p-14 bg-[url('/images/cta-bg.png')] bg-cover bg-center mx-auto rounded-2xl relative overflow-hidden flex items-center justify-between">
-                    <div className="absolute inset-0 bg-black/70" />
-                    <div className="z-10 relative">
-                        <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-white mb-4">
+            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-[#FEF9F4]">
+                <div className="max-w-7xl p-6 sm:p-8 md:p-10 lg:p-14 bg-[url('/images/cta-bg.svg')] bg-cover bg-center mx-auto rounded-xl sm:rounded-2xl relative overflow-hidden flex flex-col items-start justify-between gap-4 sm:gap-6">
+                    <div className="z-10 relative max-w-lg">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[36px] font-bitter font-semibold text-[#474747] mb-2 sm:mb-3 md:mb-4">
                             Make Smarter Decisions
                         </h2>
-                        <p className="text-base text-white leading-relaxed">
+                        <p className="text-sm sm:text-base md:text-lg text-[#474747] leading-relaxed">
                             Get real-time insights to make quick decisions and stay ahead in Africa's construction industry.
                         </p>
                     </div>
-                    <ActionButton
-                        buttonText="Book a Demo"
-                        width="fit"
-                        textColor="#181D27"
-                        backgroundColor="#ffffff"
-                        textSize="text-base"
-                    />
-                </div>
-            </section>
-
-            {/* News and Insights Section */}
-            <section className="py-20">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-base font-bold text-[#414651] mb-4 uppercase tracking-wide">
-                            NEWS AND INSIGHTS
-                        </h2>
-                        <h3 className="text-3xl text-[#414651] font-bitter">
-                            Keep up-to-date with the Construction Landscape in Africa
-                        </h3>
-                    </div>
-
-                    <div className="relative mb-10">
-                        <Carousel>
-                            {trendingProjects.map((project) => (
-                                <ProjectCard3 project={{
-                                    image: project.image,
-                                    id: project.id.toString(),
-                                    title: project.title,
-                                    description: project.description,
-                                    location: project.location,
-                                }} />
-                            ))}
-                        </Carousel>
-                    </div>
-                    <div className="flex justify-center">
+                    <div className="z-10 relative flex-shrink-0">
                         <ActionButton
-                            buttonText="View More News"
-                            link="/news"
+                            buttonText="Book a Demo"
                             width="fit"
                             paddingX="px-8"
                         />
@@ -416,31 +592,75 @@ const PublicHome = () => {
                 </div>
             </section>
 
-            <section className="pb-20">
-                <div className="max-w-7xl p-14 bg-[#FAFAFA] mx-auto rounded-2xl relative overflow-hidden">
-                    <h2 className="text-3xl lg:text-[24px] font-bitter font-semibold text-[#181D27] mb-5">
-                        Stay Ahead with Insights on LinkedIn
-                    </h2>
-                    <p className="text-base text-[#535862] mb-8 leading-relaxed max-w-xl">
-                        Get the latest project updates, trends, and expert analysis delivered directly through our LinkedIn Newsletter.
-                    </p>
-                    <ActionButton
-                        buttonText="Subscribe Now"
-                        width="fit"
-                        paddingX="px-3"
-                    />
-                    <img className="w-[400px] object-cover absolute right-0 bottom-0 rounded-tl-3xl" src="https://plus.unsplash.com/premium_photo-1681989486976-9ec9d2eac57a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29uc3RydWN0aW9ufGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900" alt="" />
+            {/* News and Insights Section */}
+            <section className="py-12 sm:py-16 md:py-20">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16 sm:mb-10 md:mb-12">
+                        <h2 className="text-sm sm:text-base mb-3 text-[#414651] sm:mb-4 uppercase tracking-wide">
+                            NEWS AND INSIGHTS
+                        </h2>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl text-[#181D27] font-semibold font-bitter px-2">
+                            Keep up-to-date with the Construction Landscape in Africa
+                        </h3>
+                    </div>
+
+                    <div className="relative mb-6 sm:mb-8 md:mb-10">
+                        <Carousel>
+                            {trendingProjects.map((project) => (
+                                <ProjectCard3
+                                    key={project.id}
+                                    project={{
+                                        image: project.image,
+                                        id: project.id.toString(),
+                                        title: project.title,
+                                        description: project.description,
+                                        location: project.location,
+                                    }}
+                                />
+                            ))}
+                        </Carousel>
+                    </div>
+                    <div className="flex justify-center max-sm:mt-16">
+                        <ActionButton
+                            buttonText="View More News"
+                            link="/news"
+                            width="fit"
+                            paddingX="px-6 sm:px-8"
+                        />
+                    </div>
                 </div>
             </section>
 
-            <section id="expert-opinions" className="py-20 px-5 sm:px-10 lg:px-20 bg-[#FEFBF8]">
-                <div className="text-center mb-12 max-w-3xl mx-auto">
-                    <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">Expert Opinions</h2>
-                    <p className="text-lg text-[#535862] mb-6 leading-relaxed">
-                        Hear from experts across different industries
-                    </p>
+            <section className="pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-10 xl:px-20">
+                <div className="max-w-7xl p-6 sm:p-8 md:p-10 lg:p-14 bg-[#FAFAFA] mx-auto rounded-xl sm:rounded-2xl relative overflow-hidden">
+                    <div className="relative z-10 pr-0 sm:pr-[200px] md:pr-[300px] lg:pr-[400px]">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[30px] max-w-xl font-bitter font-semibold text-[#181D27] mb-3 sm:mb-4 md:mb-5">
+                            Connect with Construct Africa for Key Industry Updates on LinkedIn
+                        </h2>
+                        <p className="text-sm sm:text-base md:text-lg text-[#535862] max-w-xl mb-4 sm:mb-6 md:mb-8 leading-relaxed">
+                            Get the latest project updates, trends, and expert analysis delivered directly through our LinkedIn Newsletter.
+                        </p>
+                        <ActionButton
+                            buttonText="Subscribe Now"
+                            width="fit"
+                            paddingX="px-4 sm:px-6"
+                            link="https://www.linkedin.com/newsletters/constructafrica-insights-7367564550356840448/"
+                        />
+                    </div>
+                    <img className="hidden sm:block w-[200px] sm:w-[300px] md:w-[400px] h-auto object-cover absolute right-0 bottom-0 rounded-tl-2xl sm:rounded-tl-3xl" src="https://plus.unsplash.com/premium_photo-1681989486976-9ec9d2eac57a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29uc3RydWN0aW9ufGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900" alt="LinkedIn Newsletter" />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-4 mt-5 lg:mt-10">
+            </section>
+
+            <section id="expert-opinions" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-[#FEFBF8]">
+                <div className="text-center mb-16 sm:mb-10 md:mb-12">
+                    <h2 className="text-sm sm:text-base text-[#414651] mb-3 sm:mb-4 uppercase tracking-wide">
+                        EXPERT OPINION
+                    </h2>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl text-[#181D27] font-semibold font-bitter px-2">
+                        Hear from experts across different industries
+                    </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-4 lg:gap-8 mt-5 lg:mt-10">
                     {expertOpinionsData?.data.map((expert, index) => (
                         <ExpertCard
                             key={expert.id || index}
@@ -449,44 +669,56 @@ const PublicHome = () => {
                             title={expert.title}
                             opinion={expert.opinion}
                             expertId={expert.id}
+                            link={`/insights/expert-opinions/${expert.id}`}
                         />
                     ))}
                 </div>
-            </section>
 
-            <section className="py-20">
-                <div style={{
-                    // background: "linear-gradient(26.57deg, #252B37 8.33%, #414651 91.67%)",
-                }} className="max-w-7xl p-14 bg-[url('/images/cta-bg.png')] bg-cover bg-center mx-auto rounded-2xl flex items-center justify-between relative overflow-hidden">
-                    <div className="absolute inset-0 bg-black/70" />
-                    <div className="z-10 relative">
-                        <h2 className="text-3xl lg:text-[30px] font-bitter font-semibold text-white mb-4">
-                            Get listed
-                        </h2>
-                        <p className="text-base text-white leading-relaxed">
-                            Get a competitive edge with Construct Africa. Join thousands of companies making data-driven decisions.
-                        </p>
-                    </div>
+                <div className="flex justify-center mt-8 sm:mt-10 lg:mt-20">
                     <ActionButton
-                        buttonText="Request Listing"
+                        buttonText="View More Opinions"
                         width="fit"
-                        textColor="#181D27"
-                        backgroundColor="#ffffff"
-                        textSize="text-base"
-                        paddingX="px-8"
-                        link="/get-listed"
+                        paddingX="px-6 sm:px-8"
+                        link="/insights/expert-opinions"
                     />
                 </div>
             </section>
 
-            <section className="py-20 px-5 sm:px-10 lg:px-20 bg-[#FEFBF8]">
-                <div className="text-center mb-12 max-w-3xl mx-auto">
-                    <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">Meet Our Advisory Board</h2>
-                    <p className="text-lg text-[#535862] mb-6 leading-relaxed">
-                        Our philosophy is simple—hire a team of diverse, passionate people and foster a culture that empowers you to do you best work.
-                    </p>
+            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-[#D1C5B8]">
+                <div className="max-w-7xl p-6 sm:p-8 md:p-10 lg:p-14 bg-[url('/images/cta-bg-2.svg')] bg-cover bg-center mx-auto rounded-xl sm:rounded-2xl flex justify-end relative overflow-hidden">
+                    <div className="max-w-md">
+                        <div className="z-10 relative flex-1">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[36px] font-bitter font-semibold text-[#474747] mb-2 sm:mb-3 md:mb-4">
+                                Get listed
+                            </h2>
+                            <p className="text-sm sm:text-base md:text-lg text-[#474747] leading-relaxed">
+                                Get a competitive edge with ConstructAfrica. Join thousands of companies making data-driven decisions.
+                            </p>
+                        </div>
+                        <div className="z-10 relative flex-shrink-0 mt-4 md:mt-6">
+                            <ActionButton
+                                buttonText="Request Listing"
+                                width="fit"
+                                textSize="text-sm sm:text-base"
+                                paddingX="px-4 sm:px-6 md:px-8"
+                                link="/get-listed"
+                            />
+                        </div>
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 sm:gap-6 mt-5 lg:mt-10">
+            </section>
+
+            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-[#FEFBF8]">
+                <div className="text-center mb-16 sm:mb-10 md:mb-12">
+                    <h2 className="text-sm sm:text-base mb-3 text-[#414651] sm:mb-4 uppercase tracking-wide">
+                        ADVISORY BOARD
+                    </h2>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl text-[#181D27] font-semibold font-bitter px-2">
+                        Meet the ConstructAfrica Industry Advisory Board
+                    </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-6 lg:gap-8 mt-5 lg:mt-10">
                     {teamMembers.slice(0, 4).map((member, index: number) => (
                         <TeamMemberCard
                             key={index}
@@ -495,93 +727,37 @@ const PublicHome = () => {
                     ))}
                 </div>
 
-                <div className="flex justify-center mt-12">
+                <div className="flex justify-center mt-8 sm:mt-10 md:mt-12">
                     <ActionButton
                         buttonText="View all members"
                         width="fit"
                         textColor="#414651"
                         backgroundColor="#ffffff"
-                        textSize="text-base"
-                        paddingX="px-8"
+                        textSize="text-sm sm:text-base"
+                        paddingX="px-6 sm:px-8"
                         borderColor="#D5D7DA"
+                        outlineBgColor="#ffffff"
                         outline
                         link="/advisory-board"
                     />
                 </div>
             </section >
 
-            <section className="py-20 px-5 sm:px-10 lg:px-20">
-                <div className="flex gap-20 items-center">
-                    <div className="relative flex-1">
-                        <div className="absolute inset-0"></div>
-                        <img src="/images/map-illustration.svg" alt="Let's Construct Africa Together" className="w-full h-full object-cover" />
+            <section className="py-8 sm:py-10 md:py-12 lg:py-16 xl:py-0 px-4 sm:px-6 lg:px-10 xl:px-20">
+                <div className="flex flex-col lg:flex-row gap-8 sm:gap-12 md:gap-16 lg:gap-20 items-center">
+                    <div className="hidden lg:block relative w-full lg:flex-1 order-2 lg:order-1">
+                        <img src="/images/map-illustration.svg" alt="Let's Construct Africa Together" className="w-full h-auto object-cover" />
                     </div>
 
-                    <div className="flex-1">
-                        <div className="max-w-lg">
-
-                            <div className="mb-12 max-w-3xl mx-auto">
-                                <h2 className="text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 leading-tight">Let's ConstructAfrica Together</h2>
-                                <p className="text-lg text-[#535862] mb-6 leading-relaxed">
+                    <div className="w-full lg:flex-1 order-1 lg:order-2">
+                        <div className="max-w-lg mx-auto lg:mx-0">
+                            <div className="mb-8 sm:mb-10 md:mb-12 text-center lg:text-left">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[36px] font-bitter font-semibold text-[#181D27] mb-2 sm:mb-3 leading-tight">Let's ConstructAfrica Together</h2>
+                                <p className="text-sm sm:text-base md:text-lg text-[#535862] mb-4 sm:mb-6 leading-relaxed">
                                     The trusted intelligence for construction in Africa.
                                 </p>
                             </div>
-
-                            <form className="space-y-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Input label="First name" attributes={{
-                                        type: "text",
-                                        placeholder: "First name",
-                                    }} />
-
-                                    <Input label="Last name" attributes={{
-                                        type: "text",
-                                        placeholder: "Last name",
-                                    }} />
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Input label="Company" attributes={{
-                                        type: "text",
-                                        placeholder: "Company name",
-                                    }} />
-
-                                    <Input label="Job title" attributes={{
-                                        type: "text",
-                                        placeholder: "Role in company",
-                                    }} />
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Select options={[
-                                        { value: "NG", label: "Nigeria" },
-                                        { value: "ZA", label: "South Africa" },
-                                        { value: "KE", label: "Kenya" },
-                                        { value: "GH", label: "Ghana" },
-                                        { value: "EG", label: "Egypt" },
-                                    ]}
-                                        label="Country"
-                                    />
-
-                                    <Input label="Phone number" attributes={{
-                                        type: "tel",
-                                        placeholder: "+1 (555) 000-0000",
-                                    }} />
-                                </div>
-
-                                <Input label="Work email"
-                                    attributes={{
-                                        type: "email",
-                                        placeholder: "you@company.com",
-                                    }} />
-
-                                <ActionButton
-                                    buttonText="Submit"
-                                    backgroundColor="#E0891E"
-                                    textSize="text-base"
-                                    width="full"
-                                />
-                            </form>
+                            <ContactForm />
                         </div>
                     </div>
                 </div>

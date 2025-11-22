@@ -14,6 +14,7 @@ import PublicInsights from "./PublicInsights";
 import InsightDetails from "./InsightDetails";
 import EventDetails from "./EventDetails";
 import AdvisoryBoard from "./AdvisoryBoard";
+import AdvisoryBoardDetails from "./AdvisoryBoardDetails";
 import ProjectDetails from "./ProjectDetails";
 import CompanyDetails from "./CompanyDetails";
 import NewsDetails from "./NewsDetails";
@@ -57,6 +58,7 @@ export {
   InsightDetails,
   EventDetails,
   AdvisoryBoard,
+  AdvisoryBoardDetails,
   ProjectDetails,
   CompanyDetails,
   NewsDetails,

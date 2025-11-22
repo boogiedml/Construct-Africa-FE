@@ -15,6 +15,7 @@ interface ActionButtonProps {
   borderless?: boolean;
   textColor?: string;
   backgroundColor?: string;
+  outlineBgColor?: string;
   borderColor?: string;
 }
 
@@ -31,12 +32,13 @@ const ActionButton = ({
   borderless = false,
   textColor = "#ffffff",
   backgroundColor = "#F89822",
+  outlineBgColor,
   borderColor,
 }: ActionButtonProps) => {
   const sharedStyle = {
     width:
       width === "full" ? "100%" : width === "fit" ? "fit-content" : undefined,
-    backgroundColor: outline || borderless ? backgroundColor ||"transparent" : backgroundColor,
+    backgroundColor: outline || borderless ? outlineBgColor || "transparent" : backgroundColor,
     color: outline || borderless ? "#414651" : textColor,
     borderColor: borderColor || (outline && !borderless ? "#D5D7DA" : "transparent"),
   };
@@ -44,7 +46,7 @@ const ActionButton = ({
   const sharedClasses = `
     inline-flex justify-center items-center relative font-semibold
     ${paddingX}
-    ${textSize ? "py-2.5 text-" + textSize : "py-2 md:py-2.5 text-xs md:text-sm"}
+    ${textSize ? "py-2.5 text-" + textSize : "py-3 md:py-2.5 text-xs md:text-sm"}
     ${fullyRounded ? "rounded-full" : "rounded-md"}
     ${outline && !borderless ? "border border-[#D5D7DA]" : ""}
     ${borderless ? "border-0" : ""}

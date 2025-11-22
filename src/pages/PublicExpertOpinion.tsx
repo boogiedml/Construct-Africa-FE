@@ -109,57 +109,44 @@ const PublicExpertOpinion = () => {
     ).length;
 
     return (
-        <div className="min-h-screen mx-auto py-5 md:py-8 px-5 sm:px-10 lg:px-20">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-semibold text-[#181D27] mb-1">Expert Opinion</h1>
-                    <p className="text-[#535862]">
-                        Showing expert opinions
-                        {activeFiltersCount > 0 && ` (${activeFiltersCount} filter${activeFiltersCount > 1 ? 's' : ''} active)`}
-                    </p>
+        <div className="min-h-screen mx-auto py-4 sm:py-6 md:py-8 px-4 sm:px-6 lg:px-10 xl:px-20">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+                <div className='text-base sm:text-lg md:text-xl font-semibold text-[#181D27] border-b-2 sm:border-b-4 border-[#F89822] py-1 pr-2 sm:pr-4 w-fit'>
+                    All Expert Opinions
                 </div>
-
-                <div className="flex items-center gap-3">
-                    <CustomSelect
-                        options={sortOptions}
-                        value={sortBy}
-                        onChange={handleSortChange}
-                        placeholder="Recently added"
-                    />
-                </div>
+                <ActionButton
+                    buttonText={
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                            <CgSortAz size={18} className="sm:w-5 sm:h-5" />
+                            <span className="text-sm sm:text-base">Filters</span>
+                            {activeFiltersCount > 0 && (
+                                <span className="ml-0.5 sm:ml-1 px-1.5 sm:px-2 py-0.5 bg-[#F89822] text-white text-xs rounded-full">
+                                    {activeFiltersCount}
+                                </span>
+                            )}
+                        </div>
+                    }
+                    outline={true}
+                    width="fit"
+                    paddingX="px-3 sm:px-4"
+                    textSize="text-sm sm:text-base"
+                    attributes={{
+                        onClick: () => setShowFilters(!showFilters)
+                    }}
+                />
             </div>
 
-            <div className="flex justify-end items-center mb-6">
-                <div className="flex items-center gap-3">
-                    <ActionButton
-                        buttonText={
-                            <div className="flex items-center gap-2">
-                                <CgSortAz size={20} />
-                                Filters
-                                {activeFiltersCount > 0 && (
-                                    <span className="ml-1 px-2 py-0.5 bg-[#F89822] text-white text-xs rounded-full">
-                                        {activeFiltersCount}
-                                    </span>
-                                )}
-                            </div>
-                        }
-                        outline={true}
-                        width="fit"
-                        attributes={{
-                            onClick: () => setShowFilters(!showFilters)
-                        }}
-                    />
-                </div>
-            </div>
-
-            <section className={showFilters ? 'flex gap-5 w-full' : 'w-full'}>
-                <div className={showFilters ? 'flex-1 min-w-0' : 'w-full'}>
+            <section className={`relative ${showFilters ? 'flex flex-col-reverse lg:flex-row gap-4 sm:gap-5 lg:gap-6 w-full' : 'w-full'}`}>
+                <div className={`${showFilters ? 'flex-1 min-w-0 lg:order-2' : 'w-full'}`}>
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
                         </div>
                     ) : (
-                        <div className={`grid grid-cols-1 ${!showFilters ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'} gap-8 sm:gap-4`}>
+                        <div className={`grid grid-cols-1 ${!showFilters
+                                ? 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                                : 'sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3'
+                            } gap-4 sm:gap-5 md:gap-6`}>
                             {filteredOpinions.map((expert) => (
                                 <ExpertCard
                                     key={expert.id}
@@ -168,6 +155,7 @@ const PublicExpertOpinion = () => {
                                     title={expert.title}
                                     opinion={expert.opinion}
                                     expertId={expert.id}
+                                    link={`/insights/expert-opinions/${expert.id}`}
                                 />
                             ))}
                         </div>
@@ -175,13 +163,15 @@ const PublicExpertOpinion = () => {
                 </div>
 
                 {showFilters && (
-                    <FiltersSidebar
-                        isOpen={showFilters}
-                        onClose={() => setShowFilters(false)}
-                        onApplyFilters={handleApplyFilters}
-                        initialFilters={appliedFilters}
-                        type="projects"
-                    />
+                    <div className={`${showFilters ? 'lg:w-[320px] xl:w-[360px] lg:flex-shrink-0 lg:order-1' : 'hidden'}`}>
+                        <FiltersSidebar
+                            isOpen={showFilters}
+                            onClose={() => setShowFilters(false)}
+                            onApplyFilters={handleApplyFilters}
+                            initialFilters={appliedFilters}
+                            type="projects"
+                        />
+                    </div>
                 )}
             </section>
         </div>

@@ -1,7 +1,10 @@
+import { useState } from 'react';
+import { CgSortAz } from 'react-icons/cg';
 import { ActionButton, Select } from '../components'
 import ProjectCard2 from '../components/ProjectCard2'
 
 const PublicEvents = () => {
+    const [showFilters, setShowFilters] = useState(false);
     // const [selectedRegion, setSelectedRegion] = useState("All");
     // const [selectedCountry, setSelectedCountry] = useState("All");
     // const [selectedSector, setSelectedSector] = useState("All");
@@ -15,6 +18,7 @@ const PublicEvents = () => {
             description: "Join industry leaders, government officials, and construction professionals for the largest construction conference in West Africa...",
             author: "Conference Organizers",
             date: "15-17 Feb 2025",
+            location: "Nigeria",
             isPaid: true
         },
         {
@@ -25,6 +29,7 @@ const PublicEvents = () => {
             description: "A comprehensive workshop on modern infrastructure development techniques and sustainable construction practices...",
             author: "Engineering Institute",
             date: "22 Feb 2025",
+            location: "Kenya",
             isPaid: false
         },
         {
@@ -35,6 +40,7 @@ const PublicEvents = () => {
             description: "Explore the latest innovations in smart city development, IoT solutions, and urban planning technologies...",
             author: "Smart Cities Council",
             date: "8-10 Mar 2025",
+            location: "South Africa",
             isPaid: true
         },
         {
@@ -45,6 +51,7 @@ const PublicEvents = () => {
             description: "Focus on solar, wind, and hydroelectric power solutions for sustainable development across Central Africa...",
             author: "Energy Association",
             date: "5 Mar 2025",
+            location: "Central Africa",
             isPaid: false
         },
         {
@@ -55,6 +62,7 @@ const PublicEvents = () => {
             description: "Comprehensive summit covering port modernization, logistics optimization, and maritime infrastructure...",
             author: "Maritime Authority",
             date: "12-14 Mar 2025",
+            location: "North Africa",
             isPaid: true
         },
         {
@@ -65,6 +73,7 @@ const PublicEvents = () => {
             description: "Strategic urban planning and development symposium aimed at improving city infrastructure and living conditions...",
             author: "Urban Development Institute",
             date: "19 Mar 2025",
+            location: "West Africa",
             isPaid: false
         },
         {
@@ -75,6 +84,7 @@ const PublicEvents = () => {
             description: "Major railway infrastructure forum connecting regional cities and discussing cross-border connectivity...",
             author: "Railway Authority",
             date: "26 Mar 2025",
+            location: "East Africa",
             isPaid: true
         },
         {
@@ -85,6 +95,7 @@ const PublicEvents = () => {
             description: "Comprehensive expo showcasing metro rail system upgrades and connectivity improvements...",
             author: "Transport Authority",
             date: "2 Apr 2025",
+            location: "South Africa",
             isPaid: false
         },
         {
@@ -95,6 +106,7 @@ const PublicEvents = () => {
             description: "Workshop on major bridge construction techniques and regional connectivity improvements...",
             author: "Civil Engineering Society",
             date: "9 Apr 2025",
+            location: "Central Africa",
             isPaid: true
         },
         {
@@ -105,6 +117,7 @@ const PublicEvents = () => {
             description: "Large-scale solar energy innovation summit focusing on renewable energy capacity expansion...",
             author: "Solar Energy Association",
             date: "16 Apr 2025",
+            location: "North Africa",
             isPaid: false
         },
         {
@@ -115,6 +128,7 @@ const PublicEvents = () => {
             description: "Major airport development conference focusing on terminal expansion and passenger traffic management...",
             author: "Aviation Authority",
             date: "23 Apr 2025",
+            location: "West Africa",
             isPaid: true
         },
         {
@@ -125,6 +139,7 @@ const PublicEvents = () => {
             description: "Comprehensive seminar on port facility upgrades and cargo volume handling optimization...",
             author: "Port Authority",
             date: "30 Apr 2025",
+            location: "East Africa",
             isPaid: false
         },
         {
@@ -135,6 +150,7 @@ const PublicEvents = () => {
             description: "Expo showcasing new water treatment technologies and solutions for water scarcity challenges...",
             author: "Water Authority",
             date: "7 May 2025",
+            location: "South Africa",
             isPaid: true
         },
         {
@@ -145,6 +161,7 @@ const PublicEvents = () => {
             description: "Summit on hydroelectric dam construction and power generation capacity enhancement...",
             author: "Power Authority",
             date: "14 May 2025",
+            location: "Central Africa",
             isPaid: false
         },
         {
@@ -155,6 +172,7 @@ const PublicEvents = () => {
             description: "Forum on natural gas pipeline network extension and energy distribution optimization...",
             author: "Energy Corporation",
             date: "21 May 2025",
+            location: "North Africa",
             isPaid: true
         },
         {
@@ -165,6 +183,7 @@ const PublicEvents = () => {
             description: "Workshop on digital infrastructure development and digital transformation strategies...",
             author: "ICT Ministry",
             date: "28 May 2025",
+            location: "West Africa",
             isPaid: false
         },
         {
@@ -175,6 +194,7 @@ const PublicEvents = () => {
             description: "Summit on comprehensive road network modernization and connectivity improvements...",
             author: "Transport Ministry",
             date: "4 Jun 2025",
+            location: "East Africa",
             isPaid: true
         },
         {
@@ -185,6 +205,7 @@ const PublicEvents = () => {
             description: "Conference on major port expansion technologies and container traffic management...",
             author: "Port Authority",
             date: "11 Jun 2025",
+            location: "South Africa",
             isPaid: false
         },
         {
@@ -195,6 +216,7 @@ const PublicEvents = () => {
             description: "Symposium on sustainable forest management and biodiversity protection strategies...",
             author: "Environmental Agency",
             date: "18 Jun 2025",
+            location: "Central Africa",
             isPaid: true
         },
         {
@@ -205,6 +227,7 @@ const PublicEvents = () => {
             description: "Expo on wind energy farm development and renewable energy capacity expansion...",
             author: "Renewable Energy Council",
             date: "25 Jun 2025",
+            location: "North Africa",
             isPaid: false
         },
         {
@@ -215,6 +238,7 @@ const PublicEvents = () => {
             description: "Summit on modern urban transport system development for metropolitan areas...",
             author: "Transport Authority",
             date: "2 Jul 2025",
+            location: "West Africa",
             isPaid: true
         },
         {
@@ -265,58 +289,68 @@ const PublicEvents = () => {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
                     <div className='text-lg font-semibold text-[#181D27] border-b-4 border-[#F89822] py-1 pr-4 w-fit'>All Events</div>
                     <ActionButton
-                        buttonText="Filters"
+                        buttonText={
+                            <div className="flex items-center gap-2">
+                                <CgSortAz size={22} />
+                                Filters
+                            </div>
+                        }
                         outline
                         width="fit"
-                        link='/filters'
-                        paddingX='px-6'
+                        paddingX='px-4'
+                        attributes={{
+                            type: "button",
+                            onClick: () => setShowFilters(!showFilters)
+                        }}
                     />
                 </div>
 
-                <div className="mb-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                            <div className='w-[300px]'>
-                                <Select
-                                    label="Region"
-                                    labelFor="region"
-                                    labelColor="text-[#181D27]"
-                                    placeholder="Select Region"
-                                    options={regions.map((region) => ({ value: region, label: region }))}
-                                />
+                {showFilters && (
+                    <div className="mb-8 px-0 lg:px-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                                <div className='w-[300px]'>
+                                    <Select
+                                        label="Region"
+                                        labelFor="region"
+                                        labelColor="text-[#181D27]"
+                                        placeholder="Select Region"
+                                        options={regions.map((region) => ({ value: region, label: region }))}
+                                    />
+                                </div>
+
+                                <div className='w-[300px]'>
+                                    <Select
+                                        label="Country"
+                                        labelFor="country"
+                                        labelColor="text-[#181D27]"
+                                        placeholder="Select Country"
+                                        options={countries.map((country) => ({ value: country, label: country }))}
+                                    />
+                                </div>
+
+                                <div className='w-[300px]'>
+                                    <Select
+                                        label="Sector"
+                                        labelFor="sector"
+                                        labelColor="text-[#181D27]"
+                                        placeholder="Select Sector"
+                                        options={sectors.map((sector) => ({ value: sector, label: sector }))}
+                                    />
+                                </div>
                             </div>
 
-                            <div className='w-[300px]'>
-                                <Select
-                                    label="Country"
-                                    labelFor="country"
-                                    labelColor="text-[#181D27]"
-                                    placeholder="Select Country"
-                                    options={countries.map((country) => ({ value: country, label: country }))}
-                                />
-                            </div>
-
-                            <div className='w-[300px]'>
-                                <Select
-                                    label="Sector"
-                                    labelFor="sector"
-                                    labelColor="text-[#181D27]"
-                                    placeholder="Select Sector"
-                                    options={sectors.map((sector) => ({ value: sector, label: sector }))}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-end">
-                            <ActionButton
-                                buttonText="Clear All"
-                                outline
-                                width="fit"
+                            <div className="flex items-end">
+                                <ActionButton
+                                    buttonText="Clear All"
+                                    outline
+                                    width="fit"
                                 // attributes={{ type: "button", onClick: clearAllFilters }}
-                            />
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
                     {eventsData.map((event) => (
@@ -331,6 +365,8 @@ const PublicEvents = () => {
                             date={event.date}
                             isPaid={event.isPaid}
                             linkPath={`/events/${event.id}`}
+                            isEvent={true}
+                            location={event.location}
                         />
                     ))}
                 </div>

@@ -22,7 +22,7 @@ const PublicBlogDetails = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <section className="py-10 max-md:pt-20 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20">
+            <section className="py-10  max-md:pt-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20">
                 <div className=''>
                     <div className="mb-8 text-center max-w-4xl mx-auto">
                         <p className='mb-3 text-[#AE6A19] font-semibold'>Published {blogPost.publishedDate}</p>

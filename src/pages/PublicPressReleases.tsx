@@ -108,9 +108,9 @@ const PublicPressReleases = () => {
 
     return (
         <div className="min-h-screen bg-[#FAFAFA]">
-            <section className="py-10 max-md:pt-20 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
+            <section className="py-10  max-md:pt-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
                 <div className="max-w-5xl mx-auto text-center">
-                    <p className="text-sm text-[#717680] font-medium mb-2 uppercase tracking-wide">
+                    <p className="text-sm sm:text-base text-[#717680] font-medium mb-2 uppercase tracking-wide">
                         Press Releases
                     </p>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[48px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">

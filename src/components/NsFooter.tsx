@@ -73,14 +73,14 @@ const NsFooter = () => {
                                         {section.title}
                                     </h3>
                                     <ul className={`space-y-2 lg:space-y-3 ${section.links.length > 3
-                                        ? "grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3"
+                                        ? "grid grid-cols-1 sm:grid-cols-2 gap- lg:gap-"
                                         : ""
                                         }`}>
                                         {section.links.map((link, linkIndex) => (
                                             <li key={linkIndex}>
                                                 <a
                                                     href={link.href}
-                                                    className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base"
+                                                    className="text-white hover:text-[#F89822] transition-colors duration-300 text-sm lg:text-base"
                                                 >
                                                     {link.label}
                                                 </a>
@@ -102,10 +102,10 @@ const NsFooter = () => {
                                             <a
                                                 key={index}
                                                 href={social.href}
-                                                className="text-gray-300 hover:text-white transition-colors"
+                                                className="text-white hover:text-[#F89822] transition-colors duration-300"
                                                 aria-label={social.label}
                                             >
-                                                <IconComponent size={18} className="lg:w-5 lg:h-5" />
+                                                <IconComponent size={24} />
                                             </a>
                                         );
                                     })}

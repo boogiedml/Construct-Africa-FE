@@ -169,6 +169,7 @@ const ProjectDetails = () => {
     // Extract data from project
     const country = project.countries?.[0]?.name || 'N/A';
     const countrySlug = project.countries?.[0]?.drupal_key || '';
+    console.log(project.countries);
     const region = project.regions?.[0]?.name || '';
     const fullLocation = region ? `${country}, ${region}` : country;
     const sectors = project.sectors?.map(s => s.name).join(', ') || 'N/A';
@@ -178,6 +179,8 @@ const ProjectDetails = () => {
     const countryMapImage = countrySlug
         ? countryMapImages[countrySlug.toLowerCase()] || ''
         : '';
+    
+    console.log();
 
     const imageUrl = project.featured_image?.filename_disk
         ? `https://pub-88a719977b914c0dad108c74bdee01ff.r2.dev/${project.featured_image.filename_disk}`

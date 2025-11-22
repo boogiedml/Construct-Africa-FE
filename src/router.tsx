@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from "react-router-dom";
-import { Login, Favourites, Companies, Home, News, Projects, Tenders, Events, ExpertOpinions, RecentlyViewed, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact, PublicPressReleases, PublicExpertOpinion, PublicEventDetails, PublicExpertOpinionsDetails, ExpertOpinionDetails, BookADemo, BookADemoPayment } from "./pages";
+import { Login, Favourites, Companies, Home, News, Projects, Tenders, Events, ExpertOpinions, RecentlyViewed, PublicHome, AdvisoryBoard, InsightDetails, EventDetails, ProjectDetails, PublicInsights, PublicEvents, CompanyDetails, NewsDetails, TenderDetails, PublicProjects, PublicNews, PublicNewsDetails, PublicTenders, PublicGetListed, PublicBlog, PublicBlogDetails, PublicFAQ, PublicTerms, PublicPrivacy, PublicRefund, PublicGDPR, PublicAbout, PublicContact, PublicPressReleases, PublicExpertOpinion, PublicEventDetails, PublicExpertOpinionsDetails, ExpertOpinionDetails, BookADemo, BookADemoPayment, AdvisoryBoardDetails } from "./pages";
 import { RootLayout, NonSubscriberLayout } from "./components/templates";
 
 export const routes: RouteObject[] = [
@@ -13,6 +13,7 @@ export const routes: RouteObject[] = [
       { path: "events", element: <PublicEvents /> },
       { path: "events/:id", element: <PublicEventDetails /> },
       { path: "advisory-board", element: <AdvisoryBoard /> },
+      { path: "advisory-board/:id", element: <AdvisoryBoardDetails /> },
       { path: "projects", element: <PublicProjects /> },
       { path: "tenders", element: <PublicTenders /> },
       { path: "get-listed", element: <PublicGetListed /> },

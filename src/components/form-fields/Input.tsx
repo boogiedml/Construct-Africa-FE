@@ -7,6 +7,7 @@ export interface InputProps {
   label?: string;
   labelFor?: string;
   icon?: ReactNode
+  isRequired?: boolean;
   attributes?: InputHTMLAttributes<HTMLInputElement>;
   passwordInput?: boolean;
   error?: string;
@@ -17,6 +18,7 @@ const Input = ({
   label,
   labelFor,
   icon,
+  isRequired,
   attributes,
   passwordInput,
   error,
@@ -40,7 +42,7 @@ const Input = ({
         className="text-[#414651] text-sm font-medium"
         htmlFor={labelFor}
       >
-        {label}
+        {label} {isRequired && <span className="text-[#E0891E]">*</span>}
       </label>}
       <div className="relative mt-1">
         <span className="text-[#A4A7AE] text-lg absolute left-2.5 top-1/2 -translate-y-1/2">{icon}</span>

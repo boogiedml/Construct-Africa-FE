@@ -51,12 +51,12 @@ const PublicRefund = () => {
 
     const filteredContent = useMemo(() => {
         if (!searchQuery.trim()) return refundContent;
-        
+
         const query = searchQuery.toLowerCase();
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = refundContent;
         const text = tempDiv.textContent || tempDiv.innerText || '';
-        
+
         if (text.toLowerCase().includes(query)) {
             return refundContent;
         }
@@ -66,9 +66,9 @@ const PublicRefund = () => {
     return (
         <div className="min-h-screen bg-[#FAFAFA]">
             {/* Header Section */}
-            <section className="py-10 max-md:pt-20 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
+            <section className="py-10  max-md:pt-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
                 <div className="max-w-5xl mx-auto text-center">
-                    <p className="text-sm text-[#AE6A19] font-semibold mb-2 uppercase tracking-wide">
+                    <p className="text-sm sm:text-base text-[#414651] mb-2 uppercase tracking-wide">
                         Refund Policy
                     </p>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[48px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">
@@ -99,7 +99,7 @@ const PublicRefund = () => {
             <section className="py-10 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20">
                 <div className="max-w-4xl mx-auto">
                     {filteredContent ? (
-                        <div 
+                        <div
                             className="prose prose-lg max-w-none text-base text-[#535862] leading-relaxed [&>h2]:text-xl [&>h2]:sm:text-2xl [&>h2]:font-semibold [&>h2]:text-[#181D27] [&>h2]:mt-8 [&>h2]:mb-4 [&>h2]:first:mt-0 [&>p]:mb-4 [&>p]:text-[#535862] [&>a]:text-[#E0891E] [&>a]:underline [&>a]:hover:no-underline"
                             dangerouslySetInnerHTML={{ __html: filteredContent }}
                         />

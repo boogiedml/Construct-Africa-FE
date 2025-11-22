@@ -9,6 +9,7 @@ interface ExpertCardProps {
     opinion: string;
     expertId: string | number;
     isLoading?: boolean;
+    link?: string;
 }
 
 const ExpertCard: React.FC<ExpertCardProps> = ({
@@ -18,19 +19,22 @@ const ExpertCard: React.FC<ExpertCardProps> = ({
     opinion,
     expertId,
     isLoading = false,
+    link
 }) => {
     const navigate = useNavigate();
 
-    const handleClick = (id: number | string ) => {
+    const handleClick = (id: number | string) => {
         if (id) {
-            navigate(`/admin/expert-opinions/${id}`);
+            if (link) {
+                navigate(link);
+            } else {
+                navigate(`/admin/expert-opinions/${id}`);
+            }
         }
     };
 
     if (isLoading) {
-        return (
-            <ExpertCardSkeleton />
-        );
+        return <ExpertCardSkeleton />;
     }
 
     return (

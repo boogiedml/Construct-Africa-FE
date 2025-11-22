@@ -67,9 +67,9 @@ const PublicFAQ = () => {
     return (
         <div className="min-h-screen bg-[#FAFAFA]">
             {/* Header Section */}
-            <section className="py-10 max-md:pt-20 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
+            <section className="py-10  max-md:pt-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 xl:px-20 bg-white">
                 <div className="max-w-5xl mx-auto text-center">
-                    <p className="text-sm text-[#AE6A19] font-semibold mb-2 uppercase tracking-wide">
+                    <p className="text-sm sm:text-base text-[#414651] mb-2 uppercase tracking-wide">
                         FAQs
                     </p>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[48px] font-bitter font-semibold text-[#181D27] mb-3 leading-tight">
@@ -175,6 +175,7 @@ const PublicFAQ = () => {
                             width="full"
                             paddingX="px-8"
                             backgroundColor='#E0891E'
+                            link="https://www.linkedin.com/newsletters/constructafrica-insights-7367564550356840448/"
                         />
                     </div>
                 </div>

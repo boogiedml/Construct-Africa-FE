@@ -235,6 +235,7 @@ export const featuredOpinions = [
 
 export const teamMembers = [
   {
+    id: 1,
     name: "Amélie Laurent",
     role: "Founder & CEO",
     description:
@@ -242,30 +243,35 @@ export const teamMembers = [
     image: "https://randomuser.me/api/portraits/women/45.jpg",
   },
   {
+    id: 2,
     name: "Nikolas Gibbons",
     role: "Engineering Manager",
     description: "Lead engineering teams at Figma, Pitch, and Protocol Labs.",
     image: "https://randomuser.me/api/portraits/men/75.jpg",
   },
   {
+    id: 3,
     name: "Sienna Hewitt",
     role: "Product Manager",
     description: "Former PM for Linear, Lambda School, and On Deck.",
     image: "https://randomuser.me/api/portraits/women/32.jpg",
   },
   {
+    id: 4,
     name: "Lily-Rose Chedjou",
     role: "Frontend Developer",
     description: "Former frontend dev for Linear, Coinbase, and Postscript.",
     image: "https://randomuser.me/api/portraits/women/68.jpg",
   },
   {
+    id: 5,
     name: "Zahra Christensen",
     role: "Backend Developer",
     description: "Lead backend dev at Clearbit. Former Clearbit and Loom.",
     image: "https://randomuser.me/api/portraits/women/28.jpg",
   },
   {
+    id: 6,
     name: "Caitlyn King",
     role: "Product Designer",
     description:

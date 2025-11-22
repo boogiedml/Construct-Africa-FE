@@ -49,8 +49,8 @@ const Login = () => {
     <div className="min-h-screen flex flex-col">
       <NsNavbar />
 
-      <div className="md:flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[360px] w-full space-y-8">
+      <div className="md:flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 max-md:pt-28">
+        <div className="sm:max-w-[360px] w-full space-y-8">
           <div className="text-center">
             <h1 className="text-lg md:text-xl lg:text-[30px] font-semibold text-[#181D27] font-bitter mb-1">
               Welcome back
@@ -87,17 +87,19 @@ const Login = () => {
                 error={formik.touched.password && formik.errors.password ? formik.errors.password : undefined}
               />
 
-              <ActionButton
-                attributes={{
-                  type: "button",
-                  disabled: !formik.isValid || isLoading,
-                  onClick: () => formik.handleSubmit()
-                }}
-                buttonText={isLoading ? "Signing in..." : "Sign in"}
-                loading={isLoading}
-                textSize='sm'
-                width='full'
-              />
+              <div className='max-md:mt-6'>
+                <ActionButton
+                  attributes={{
+                    type: "button",
+                    disabled: !formik.isValid || isLoading,
+                    onClick: () => formik.handleSubmit()
+                  }}
+                  buttonText={isLoading ? "Signing in..." : "Sign in"}
+                  loading={isLoading}
+                  textSize='sm'
+                  width='full'
+                />
+             </div>
             </div>
           </div>
         </div>

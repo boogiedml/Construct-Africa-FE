@@ -1,6 +1,6 @@
 import React from "react";
-// import { FiArrowUpRight, FiLock } from "react-icons/fi";
-// import { LuUser } from "react-icons/lu";
+import { FiCalendar } from "react-icons/fi";
+import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 
 interface ProjectCard2Props {
@@ -9,10 +9,12 @@ interface ProjectCard2Props {
     region: string;
     title: string;
     description: string;
-    author: string;
-    date: string;
+    author?: string;
+    date?: string;
+    location?: string;
     isPaid?: boolean;
     linkPath?: string;
+    isEvent?: boolean;
 }
 
 const ProjectCard2: React.FC<ProjectCard2Props> = ({
@@ -22,8 +24,10 @@ const ProjectCard2: React.FC<ProjectCard2Props> = ({
     description,
     author,
     date,
+    location,
     // isPaid = false,
     linkPath,
+    isEvent = false,
 }) => {
     const navigate = useNavigate();
 
@@ -37,7 +41,7 @@ const ProjectCard2: React.FC<ProjectCard2Props> = ({
         <div className="bg-transparent overflow-hidden cursor-pointer" onClick={handleCardClick}>
             {/* Image Container */}
             <div className="relative">
-                <div className="relative h-[240px] overflow-hidden rounded-xl">
+                <div className="relative h-[240px] overflow-hidden rounded-2xl">
                     <img
                         src={image}
                         alt={title}
@@ -58,23 +62,31 @@ const ProjectCard2: React.FC<ProjectCard2Props> = ({
                     <h3 className="font-semibold flex-1 text-[#181D27] text-base md:text-lg mb-2 line-clamp-2 leading-tight group-hover:text-[#F89822] transition-colors duration-200">
                         {title}
                     </h3>
-                    {/* <div className="cursor-pointer">
-                        <FiArrowUpRight color="#A4A7AE" size={20} />
-                    </div> */}
                 </div>
                 <p className="text-[#535862] text-sm md:text-base mb-3 line-clamp-3 leading-relaxed">
                     {description}
                 </p>
 
-                <div className="flex items-center gap-2">
-                    {/* <div className="w-[38px] h-[38px] bg-[#F5F5F5] border border-[#E9EAEB] rounded-full flex items-center justify-center">
-                        <LuUser color="#A4A7AE" size={25} />
-                    </div> */}
+                {isEvent ? <div className="flex flex-col gap-2">
+                    {location && (
+                        <div className="flex items-center text-gray-500 text-xs">
+                            <GrLocation color="#717680" size={16} className="mr-2 flex-shrink-0" />
+                            <span className="truncate text-sm md:text-base text-[#535862]">{location}</span>
+                        </div>
+                    )}
+
+                    {date && (
+                        <div className="flex items-center text-gray-500 text-xs">
+                            <FiCalendar color="#717680" size={16} className="mr-2 flex-shrink-0" />
+                            <span className="truncate text-sm md:text-base text-[#535862]">{date}</span>
+                        </div>
+                    )}
+                </div> : <div className="flex items-center gap-2">
                     <div className="flex flex-col">
-                        <span className="text-[#181D27] text-sm font-medium">{author}</span>
-                        <span className="text-[#535862] text-xs font-normal">{date}</span>
+                        <span className="text-[#181D27] text-sm md:text-base font-medium">{author}</span>
+                        <span className="text-[#535862] text-sm md:text-base font-normal">{date}</span>
                     </div>
-                </div>
+                </div>}
             </div>
         </div>
     );
