@@ -200,10 +200,7 @@ const ProjectDetails = () => {
         { key: 'quantity_surveyor', label: 'Quantity Surveyor' },
     ];
 
-    const hasAnyCompanies = companyRoles.some(role => {
-        const companies = project[role.key as keyof typeof project] as any[];
-        return companies && companies.length > 0;
-    });
+    const hasAnyCompanies = project.companies && project.companies.length > 0;
 
     const handleToggleFavorite = async () => {
         try {
@@ -300,7 +297,7 @@ const ProjectDetails = () => {
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center gap-2">
                                         <PiCurrencyCircleDollar size={18} className="text-[#535862]" />
-                                        <span className="text-base text-[#535862]">Value</span>
+                                        <span className="text-base text-[#535862]">Value (USD)</span>
                                     </div>
                                     <span className="text-base text-[#181D27] ml-7 font-semibold">{formatCurrency(project.contract_value_usd)}</span>
                                 </div>
@@ -396,71 +393,63 @@ const ProjectDetails = () => {
                                     Companies and Contacts
                                 </h3>
 
-                                {companyRoles.map(role => {
-                                    const companies = project[role.key as keyof typeof project] as any[];
-                                    if (!companies || companies.length === 0) return null;
-
-                                    return companies.map((companyRelation, index) => {
-                                        const company = companyRelation.companies_id;
-                                        if (!company) return null;
-
-                                        return (
-                                            <div
-                                                key={`${role.key}-${index}`}
-                                                className='flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-0 border-b border-[#E9EAEB] pb-6 md:py-8'
-                                            >
-                                                <h4 className='text-base text-[#535862] leading-relaxed md:text-center font-medium md:font-normal'>
-                                                    {role.label}
-                                                </h4>
-                                                <div className='md:col-span-2'>
-                                                    <p className='text-lg font-semibold text-[#181D27] mb-3'>{company.name}</p>
-                                                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                                        {company.website && (
-                                                            <div className='flex items-center gap-2'>
-                                                                <IoEarthOutline size={18} color="#535862" />
-                                                                <a href={company.website} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors truncate'>
-                                                                    {company.website}
-                                                                </a>
-                                                            </div>
-                                                        )}
-                                                        {company.phone && (
-                                                            <div className='flex items-center gap-2'>
-                                                                <FiPhone size={18} color="#535862" />
-                                                                <a href={`tel:${company.phone}`} className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
-                                                                    {company.phone}
-                                                                </a>
-                                                            </div>
-                                                        )}
-                                                        {company.email && (
-                                                            <div className='flex items-center gap-2'>
-                                                                <CiMail size={18} color="#535862" />
-                                                                <a href={`mailto:${company.email}`} className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors truncate'>
-                                                                    {company.email}
-                                                                </a>
-                                                            </div>
-                                                        )}
-                                                        {company.facebook && (
-                                                            <div className='flex items-center gap-2'>
-                                                                <SlSocialFacebook size={18} color="#535862" strokeWidth={0.5} />
-                                                                <a href={company.facebook} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
-                                                                    {company.name}
-                                                                </a>
-                                                            </div>
-                                                        )}
-                                                        {company.linkedin && (
-                                                            <div className='flex items-center gap-2'>
-                                                                <FiLinkedin size={18} color="#535862" strokeWidth={1} />
-                                                                <a href={company.linkedin} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
-                                                                    {company.name}
-                                                                </a>
-                                                            </div>
-                                                        )}
+                                {project?.companies?.map((company, index) =>
+                                (
+                                    <div
+                                        key={`company-${index}`}
+                                        className='flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-0 border-b border-[#E9EAEB] pb-6 md:py-8'
+                                    >
+                                        <h4 className='text-base text-[#535862] leading-relaxed md:text-center font-medium md:font-normal'>
+                                            {company?.company_role?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                        </h4>
+                                        <div className='md:col-span-2'>
+                                            <p className='text-lg font-semibold text-[#181D27] mb-3'>{company.name}</p>
+                                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                                {company.website && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <IoEarthOutline size={18} color="#535862" />
+                                                        <a href={company.website} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors truncate'>
+                                                            {company.website}
+                                                        </a>
                                                     </div>
-                                                </div>
+                                                )}
+                                                {company.phone && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <FiPhone size={18} color="#535862" />
+                                                        <a href={`tel:${company.phone}`} className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
+                                                            {company.phone}
+                                                        </a>
+                                                    </div>
+                                                )}
+                                                {company.email && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <CiMail size={18} color="#535862" />
+                                                        <a href={`mailto:${company.email}`} className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors truncate'>
+                                                            {company.email}
+                                                        </a>
+                                                    </div>
+                                                )}
+                                                {company.facebook && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <SlSocialFacebook size={18} color="#535862" strokeWidth={0.5} />
+                                                        <a href={company.facebook} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
+                                                            {company.name}
+                                                        </a>
+                                                    </div>
+                                                )}
+                                                {company.linkedin && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <FiLinkedin size={18} color="#535862" strokeWidth={1} />
+                                                        <a href={company.linkedin} target='_blank' rel='noopener noreferrer' className='text-base leading-relaxed text-[#535862] hover:text-[#E0891E] transition-colors'>
+                                                            {company.name}
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
-                                        );
-                                    });
-                                })}
+                                        </div>
+                                    </div>
+                                )
+                                )}
                             </div>
                         )}
 
