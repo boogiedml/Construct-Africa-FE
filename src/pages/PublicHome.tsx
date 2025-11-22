@@ -1,6 +1,6 @@
 import { ActionButton, ExpertCard, Input, ProjectCard3, Select } from "../components";
 import Marquee from "react-fast-marquee";
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { teamMembers } from "../data/home.data";
 import TeamMemberCard from "../components/TeamMemberCard";
 import { useLocation } from 'react-router-dom';
@@ -169,6 +169,138 @@ const ContactForm = () => {
     );
 };
 
+interface FeatureItemProps {
+    feature: {
+        id: string;
+        title: string;
+        description: string;
+        image: string;
+        headerBadge?: string;
+        headerText?: string;
+    };
+    index: number;
+    isActive: boolean;
+    progress: number;
+    onFeatureClick: (index: number) => void;
+    setProgress: (value: number) => void;
+}
+
+const FeatureItem = ({ feature, index, isActive, progress, onFeatureClick, setProgress }: FeatureItemProps) => {
+    const contentRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLDivElement>(null);
+    const [contentHeight, setContentHeight] = useState<number>(0);
+    const [imageHeight, setImageHeight] = useState<number>(0);
+
+    // Measure content height when active or when switching
+    useEffect(() => {
+        if (contentRef.current) {
+            if (isActive) {
+                // Measure and set height when becoming active
+                const height = contentRef.current.scrollHeight;
+                setContentHeight(height);
+            } else {
+                // Reset height when becoming inactive
+                setContentHeight(0);
+            }
+        }
+    }, [isActive]);
+
+    // Measure mobile image height
+    useEffect(() => {
+        if (imageRef.current) {
+            if (isActive) {
+                const height = imageRef.current.scrollHeight;
+                setImageHeight(height);
+            } else {
+                setImageHeight(0);
+            }
+        }
+    }, [isActive]);
+
+    return (
+        <div className="mb-3 relative">
+            <div className="border-b-2 border-[#D5D7DA]">
+                <div
+                    className="w-full text-left py-3 sm:py-4 cursor-pointer select-none"
+                    onClick={() => {
+                        const isMobile = window.innerWidth < 768;
+                        onFeatureClick(index);
+
+                        if (isMobile) {
+                            // On mobile, set progress to 100 immediately
+                            setProgress(100);
+                        } else {
+                            // On desktop, reset progress to restart animation
+                            setProgress(0);
+                        }
+                    }}
+                >
+                    <h3 className={`text-base sm:text-lg md:text-[20px] font-semibold transition-colors duration-500 ${isActive ? "text-[#181D27]" : "text-[#A4A7AE]"
+                        }`}>
+                        {feature.title}
+                    </h3>
+                </div>
+
+                {/* Description with measured height transition */}
+                <div
+                    ref={contentRef}
+                    className="overflow-hidden transition-all duration-500 ease-in-out"
+                    style={{
+                        maxHeight: `${contentHeight}px`,
+                        opacity: isActive ? 1 : 0,
+                        paddingBottom: isActive ? '0.75rem' : '0',
+                    }}
+                >
+                    <p className="text-sm sm:text-base text-[#414651] leading-relaxed pt-0 pb-3 sm:pb-4">
+                        {feature.description}
+                    </p>
+                </div>
+            </div>
+
+            {isActive && (
+                <div
+                    className="hidden md:block absolute bottom-0 left-0 h-[2px] bg-[#E0891E] transition-all duration-75 ease-linear"
+                    style={{ width: `${progress}%` }}
+                />
+            )}
+
+            {/* Mobile Image Section - Always in DOM, transitions smoothly */}
+            <div
+                ref={imageRef}
+                className="md:hidden overflow-hidden transition-all duration-500 ease-in-out"
+                style={{
+                    maxHeight: `${imageHeight}px`,
+                    marginTop: isActive ? '1rem' : '0',
+                    marginBottom: isActive ? '2rem' : '0',
+                    opacity: isActive ? 1 : 0,
+                }}
+            >
+                <div style={{
+                    background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
+                }} className="rounded-2xl pt-6 px-6 min-h-[300px] flex flex-col">
+                    <div className="flex flex-col items-center gap-3 justify-center mb-4">
+                        <div className="bg-white text-[#181D27] px-3 py-1 rounded-full text-sm font-medium">
+                            {feature.headerBadge || 'Email inbox'}
+                        </div>
+                        <span className="text-white text-sm text-center">
+                            {feature.headerText || 'Email notifications for all projects'}
+                        </span>
+                    </div>
+
+                    <div className="flex-1 border-[#a2a6ac] border-4 rounded-t-3xl border-b-0 p-2 pb-0 min-h-[200px]">
+                        <img
+                            src={feature.image}
+                            alt={feature.title}
+                            className="w-full h-full object-cover transition-opacity duration-500 rounded-t-xl"
+                            style={{ opacity: 1 }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const PublicHome = () => {
     const location = useLocation();
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
@@ -208,10 +340,12 @@ const PublicHome = () => {
     }, [location.hash, location.pathname]);
 
     const brandLogos = [
-        { id: 1, name: "Aksa", logo: "/logos/aksa.svg" },
-        { id: 2, name: "Yb", logo: "/logos/yb.svg" },
-        { id: 3, name: "House Matic", logo: "/logos/house-matic.svg" },
-        { id: 4, name: "EH", logo: "/logos/eh.svg" },
+        { id: 1, name: "Arab Contractors", logo: "/logos/Client 01_Arab Contractors.png" },
+        { id: 2, name: "Aksa Energy Company Ghana Ltd", logo: "/logos/Client 02_Aksa Energy Company Ghana Ltd.png" },
+        { id: 3, name: "House Matic", logo: "/logos/Client 03_House Matic.png" },
+        { id: 4, name: "EquipmentHub", logo: "/logos/Client 04_EquipmentHub.png" },
+        { id: 5, name: "Kuulbreeze", logo: "/logos/Client 05_Kuulbreeze.png" },
+        { id: 6, name: "Damian James", logo: "/logos/Client 06_Damian James.png" },
     ];
 
     const features = useMemo(() => [
@@ -382,10 +516,10 @@ const PublicHome = () => {
             </section>
 
             {/* Trusted by Section */}
-            <section className="py-10 sm:py-12 md:py-16 px-4 sm:px-6">
-                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <section className="py-10 sm:py-12 md:py-16">
+                <div className="text-center mb-8 sm:mb-10 md:mb-12 px-4 sm:px-6">
                     <h2 className="text-sm sm:text-base md:text-lg text-[#414651] mb-2 px-2">
-                        Trusted by over <span className="font-semibold">1,000</span> of the world's leading contractors, consultants, and investors
+                        Trusted by international contractors, consultants, and investors
                     </h2>
                 </div>
 
@@ -399,7 +533,7 @@ const PublicHome = () => {
                     >
                         {brandLogos.map((brand) => (
                             <div key={brand.id} className="flex items-center justify-center mx-8 sm:mx-12 md:mx-16">
-                                <img src={brand.logo} alt={brand.name} className="w-auto h-8 sm:h-10 md:h-12 object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+                                <img src={brand.logo} alt={brand.name} className="w-auto h-8 sm:h-10 md:h-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         ))}
                     </Marquee>
@@ -446,9 +580,9 @@ const PublicHome = () => {
             </section>
 
             {/* Features Section */}
-            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-20">
-                <div className="flex flex-col items-start lg:flex-row gap-8 sm:gap-12 md:gap-16 lg:gap-20">
-                    <div className="w-full lg:basis-[40%]">
+            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-10 xl:px-28">
+                <div className="flex flex-col items-start lg:flex-row lg:items-end gap-8 sm:gap-12 md:gap-16 lg:gap-20">
+                    <div className="w-full lg:basis-1/2 ">
                         <p className="text-sm sm:text-base text-[#414651] uppercase tracking-wide mb-3 sm:mb-4">
                             BUILT FOR RESULTS. POWERED BY INSIGHTS.
                         </p>
@@ -460,86 +594,22 @@ const PublicHome = () => {
                         </p>
 
                         <div className="space-y-0 max-w-md w-full">
-                            {features.map((feature, index) => {
-                                const isActive = index === activeFeatureIndex;
-                                return (
-                                    <div
-                                        key={feature.id}
-                                        className="mb-3 relative"
-                                    >
-                                        <div className="border-b-2 border-[#D5D7DA]">
-                                            <div
-                                                className="w-full text-left py-3 sm:py-4 cursor-pointer select-none"
-                                                onClick={() => {
-                                                    const isMobile = window.innerWidth < 768;
-                                                    setActiveFeatureIndex(index);
-
-                                                    if (isMobile) {
-                                                        // On mobile, set progress to 100 immediately
-                                                        setProgress(100);
-                                                    } else {
-                                                        // On desktop, reset progress to restart animation
-                                                        setProgress(0);
-                                                    }
-                                                }}
-                                            >
-                                                <h3 className={`text-base sm:text-lg md:text-[20px] font-semibold transition-colors duration-500 ${isActive ? "text-[#181D27]" : "text-[#A4A7AE]"
-                                                    }`}>
-                                                    {feature.title}
-                                                </h3>
-                                            </div>
-
-                                            <div
-                                                className={`pb-3 sm:pb-4 transition-all duration-500 overflow-hidden ${isActive ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                                    }`}
-                                            >
-                                                <p className="text-sm sm:text-base text-[#414651] leading-relaxed">
-                                                    {feature.description}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {isActive && (
-                                            <div
-                                                className="hidden md:block absolute bottom-0 left-0 h-[2px] bg-[#E0891E] transition-all duration-75 ease-linear"
-                                                style={{ width: `${progress}%` }}
-                                            />
-                                        )}
-
-                                        {/* Mobile Image Section - Show below description when active */}
-                                        {isActive && (
-                                            <div className="md:hidden mt-4 mb-8">
-                                                <div style={{
-                                                    background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
-                                                }} className="rounded-2xl pt-6 px-6 min-h-[300px] flex flex-col">
-                                                    <div className="flex flex-col items-center gap-3 justify-center mb-4">
-                                                        <div className="bg-white text-[#181D27] px-3 py-1 rounded-full text-sm font-medium">
-                                                            {feature.headerBadge || 'Email inbox'}
-                                                        </div>
-                                                        <span className="text-white text-sm text-center">
-                                                            {feature.headerText || 'Email notifications for all projects'}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="flex-1 border-[#a2a6ac] border-4 rounded-t-3xl border-b-0 p-2 pb-0 min-h-[200px]">
-                                                        <img
-                                                            src={feature.image}
-                                                            alt={feature.title}
-                                                            className="w-full h-full object-cover transition-opacity duration-500 rounded-t-xl"
-                                                            style={{ opacity: 1 }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                            {features.map((feature, index) => (
+                                <FeatureItem
+                                    key={feature.id}
+                                    feature={feature}
+                                    index={index}
+                                    isActive={index === activeFeatureIndex}
+                                    progress={progress}
+                                    onFeatureClick={setActiveFeatureIndex}
+                                    setProgress={setProgress}
+                                />
+                            ))}
                         </div>
                     </div>
 
                     {/* Desktop Image Section - Hidden on mobile (below md) */}
-                    <div className="hidden md:flex flex-1">
+                    <div className="hidden md:flex flex-1 w-full lg:basis-1/2">
                         <div style={{
                             background: "linear-gradient(45deg, #101828 0%, #535862 100%)",
                         }} className="rounded-4xl pt-10 px-16 h-full flex flex-col">

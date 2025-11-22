@@ -9,6 +9,8 @@ interface CarouselProps {
 export const Carousel = ({ children }: CarouselProps) => {
     const [active, setActive] = useState(0);
     const [slidesPerView, setSlidesPerView] = useState(3); // Default to desktop (3 slides)
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
     const count = React.Children.count(children);
 
     // Detect screen size and set slides per view
@@ -48,15 +50,46 @@ export const Carousel = ({ children }: CarouselProps) => {
         setActive((prev) => (prev - 1 + count) % count);
     };
 
+    // Swipe handlers
+    const minSwipeDistance = 50; // Minimum distance in pixels to trigger a swipe
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        setTouchEnd(null); // Reset touch end
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe && count > 1) {
+            goNext();
+        }
+        if (isRightSwipe && count > 1) {
+            goPrev();
+        }
+
+        // Reset touch positions
+        setTouchStart(null);
+        setTouchEnd(null);
+    };
+
     // Calculate which cards to show based on slidesPerView
     const getCardIndices = () => {
         // If only one item, just return it
         if (count === 1) {
             return [0];
         }
-        
+
         const indices = [];
-        
+
         if (slidesPerView === 1) {
             // Small screens: 1 main card, with prev/next stacked behind
             indices.push(getIndex(active - 1)); // Previous (stacked behind)
@@ -76,7 +109,7 @@ export const Carousel = ({ children }: CarouselProps) => {
             indices.push(getIndex(active + 1)); // Third main card
             indices.push(getIndex(active + 2)); // Next (stacked behind)
         }
-        
+
         return indices;
     };
 
@@ -88,7 +121,7 @@ export const Carousel = ({ children }: CarouselProps) => {
         const cardWidth = slidesPerView === 1 ? 280 : slidesPerView === 2 ? 300 : 320;
         const gap = slidesPerView === 1 ? 16 : slidesPerView === 2 ? 20 : 24;
         const centerOffset = 0;
-        
+
         let translateX: number;
         let scale: number;
         let zIndex: number;
@@ -105,7 +138,7 @@ export const Carousel = ({ children }: CarouselProps) => {
                 // Tablet/Desktop: position on the left
                 // For 2 slides per view, position at left of the two-card layout
                 // For 3 slides per view, position at left of the three-card layout
-                translateX = slidesPerView === 2 
+                translateX = slidesPerView === 2
                     ? centerOffset - (cardWidth / 2) - (gap / 2)
                     : centerOffset - cardWidth - gap;
             }
@@ -231,8 +264,8 @@ export const Carousel = ({ children }: CarouselProps) => {
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 lg:px-20">
             {/* LEFT BUTTON - Hide when only one item */}
             {count > 1 && (
-                <button 
-                    onClick={goPrev} 
+                <button
+                    onClick={goPrev}
                     className="swiper-button-prev-custom absolute left-0 sm:left-[-20px] md:left-[-40px] lg:left-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 sm:p-2.5 md:p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                     aria-label="Previous slide"
                 >
@@ -241,7 +274,12 @@ export const Carousel = ({ children }: CarouselProps) => {
             )}
 
             {/* CARDS CONTAINER */}
-            <div className="relative w-full h-[350px] sm:h-[380px] md:h-[400px] flex items-center justify-center overflow-visible">
+            <div
+                className="relative w-full h-[350px] sm:h-[380px] md:h-[400px] flex items-center justify-center overflow-visible touch-none"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+            >
                 {React.Children.map(children, (child, i) => {
                     const indexInDisplay = cardIndices.indexOf(i);
 
@@ -272,8 +310,8 @@ export const Carousel = ({ children }: CarouselProps) => {
 
             {/* RIGHT BUTTON - Hide when only one item */}
             {count > 1 && (
-                <button 
-                    onClick={goNext} 
+                <button
+                    onClick={goNext}
                     className="swiper-button-next-custom absolute right-0 sm:right-[-20px] md:right-[-40px] lg:right-[-80px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 sm:p-2.5 md:p-3 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                     aria-label="Next slide"
                 >
