@@ -242,155 +242,158 @@ const NsNavbar = () => {
                             )}
                         </button>
 
-                        {/* Mobile Menu - Floating Dropdown */}
+                        {/* Mobile Menu - Full Screen */}
                         <div
                             ref={mobileMenuRef}
-                            className={`lg:hidden absolute right-0 top-full mt-3 w-[280px] bg-white rounded-lg shadow-xl border border-[#E9EAEB] z-50 overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen
+                            className={`lg:hidden fixed inset-0 bg-white z-50 overflow-y-auto transition-all duration-300 ease-in-out ${isMobileMenuOpen
                                 ? 'opacity-100 translate-y-0 pointer-events-auto'
                                 : 'opacity-0 -translate-y-2 pointer-events-none'
                                 }`}
+                            style={{ top: '60px' }}
                         >
-                            {/* Navigation Items */}
-                            <div className="py-2">
-                                {navItems.map((item) => {
-                                    const isInsights = item.name === 'Insights';
-                                    const isActive = item.href === location.pathname || (isInsights && location.pathname.startsWith('/insights'));
+                            <div className="px-4 sm:px-6 py-6 max-w-md mx-auto h-full flex flex-col justify-between">
+                                {/* Navigation Items */}
+                                <div className="py-2">
+                                    {navItems.map((item) => {
+                                        const isInsights = item.name === 'Insights';
+                                        const isActive = item.href === location.pathname || (isInsights && location.pathname.startsWith('/insights'));
 
-                                    return (
-                                        <div key={item.name} className="w-full">
-                                            {isInsights ? (
-                                                <div className="w-full overflow-hidden">
-                                                    <button
-                                                        onClick={() => setShowMobileInsightsDropdown(!showMobileInsightsDropdown)}
-                                                        className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors rounded-md mx-2 ${isActive
-                                                            ? 'bg-[#E0891E] text-white font-semibold'
+                                        return (
+                                            <div key={item.name} className="w-full">
+                                                {isInsights ? (
+                                                    <div className="w-full overflow-hidden mb-5">
+                                                        <button
+                                                            onClick={() => setShowMobileInsightsDropdown(!showMobileInsightsDropdown)}
+                                                            className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors rounded-md mx-2 ${isActive
+                                                                ? 'bg-[#E0891E] text-white font-medium'
+                                                                : 'text-[#181D27] font-normal hover:bg-gray-50'
+                                                                }`}
+                                                        >
+                                                            <span className="text-xl">{item.name}</span>
+                                                            <FiChevronDown
+                                                                size={18}
+                                                                className={`transition-transform ${showMobileInsightsDropdown ? 'rotate-180' : ''
+                                                                    } ${isActive ? 'text-white' : 'text-[#717680]'}`}
+                                                            />
+                                                        </button>
+                                                        <div className={`px-2 pr-4 overflow-hidden transition-all duration-300 space-y-1 ease-in-out mt-1 ${showMobileInsightsDropdown
+                                                            ? 'max-h-96 opacity-100'
+                                                            : 'max-h-0 opacity-0'
+                                                            }`}>
+                                                            {insightsDropdownItems.map((dropdownItem) => {
+                                                                const Icon = dropdownItem.icon;
+                                                                const isDropdownActive = location.pathname === dropdownItem.href;
+
+                                                                return (
+                                                                    <a
+                                                                        key={dropdownItem.name}
+                                                                        href={dropdownItem.href}
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            setIsMobileMenuOpen(false);
+                                                                            setShowMobileInsightsDropdown(false);
+                                                                            // Small delay to allow animation to start before navigation
+                                                                            setTimeout(() => {
+                                                                                navigate(dropdownItem.href);
+                                                                            }, 150);
+                                                                        }}
+                                                                        className={`flex items-start gap-3 pl-4 pr-2 py-2.5 rounded-md transition-colors hover:bg-gray-50 ${isDropdownActive
+                                                                            ? 'text-[#E0891E]'
+                                                                            : 'text-[#181D27]'
+                                                                            }`}
+                                                                    >
+                                                                        <Icon
+                                                                            size={18}
+                                                                            className={`mt-0.5 flex-shrink-0 ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#717680]'
+                                                                                }`}
+                                                                        />
+                                                                        <div className="flex-1">
+                                                                            <div className={`font-medium text-sm ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#181D27]'
+                                                                                }`}>
+                                                                                {dropdownItem.name}
+                                                                            </div>
+                                                                        </div>
+                                                                    </a>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <a
+                                                        href={item.href}
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setIsMobileMenuOpen(false);
+                                                            // Small delay to allow animation to start before navigation
+                                                            setTimeout(() => {
+                                                                navigate(item.href);
+                                                            }, 150);
+                                                        }}
+                                                        className={`px-4 py-3 mx-2 rounded-lg text-xl transition-colors block mb-5 ${isActive
+                                                            ? 'bg-[#E0891E] text-white font-medium'
                                                             : 'text-[#181D27] font-normal hover:bg-gray-50'
                                                             }`}
                                                     >
-                                                        <span>{item.name}</span>
-                                                        <FiChevronDown
-                                                            size={18}
-                                                            className={`transition-transform ${showMobileInsightsDropdown ? 'rotate-180' : ''
-                                                                } ${isActive ? 'text-white' : 'text-[#717680]'}`}
-                                                        />
-                                                    </button>
-                                                    <div className={`px-2 pr-4 overflow-hidden transition-all duration-300 space-y-1 ease-in-out mt-1 ${showMobileInsightsDropdown
-                                                        ? 'max-h-96 opacity-100'
-                                                        : 'max-h-0 opacity-0'
-                                                        }`}>
-                                                        {insightsDropdownItems.map((dropdownItem) => {
-                                                            const Icon = dropdownItem.icon;
-                                                            const isDropdownActive = location.pathname === dropdownItem.href;
+                                                        {item.name}
+                                                    </a>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
-                                                            return (
-                                                                <a
-                                                                    key={dropdownItem.name}
-                                                                    href={dropdownItem.href}
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        setIsMobileMenuOpen(false);
-                                                                        setShowMobileInsightsDropdown(false);
-                                                                        // Small delay to allow animation to start before navigation
-                                                                        setTimeout(() => {
-                                                                            navigate(dropdownItem.href);
-                                                                        }, 150);
-                                                                    }}
-                                                                    className={`flex items-start gap-3 pl-4 pr-2 py-2.5 rounded-md transition-colors hover:bg-gray-50 ${isDropdownActive
-                                                                        ? 'text-[#E0891E]'
-                                                                        : 'text-[#181D27]'
-                                                                        }`}
-                                                                >
-                                                                    <Icon
-                                                                        size={18}
-                                                                        className={`mt-0.5 flex-shrink-0 ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#717680]'
-                                                                            }`}
-                                                                    />
-                                                                    <div className="flex-1">
-                                                                        <div className={`font-medium text-sm ${isDropdownActive ? 'text-[#E0891E]' : 'text-[#181D27]'
-                                                                            }`}>
-                                                                            {dropdownItem.name}
-                                                                        </div>
-                                                                    </div>
-                                                                </a>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <a
-                                                    href={item.href}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        setIsMobileMenuOpen(false);
-                                                        // Small delay to allow animation to start before navigation
-                                                        setTimeout(() => {
-                                                            navigate(item.href);
-                                                        }, 150);
-                                                    }}
-                                                    className={`px-4 py-3 mx-2 rounded-lg text-sm transition-colors block mb-2 ${isActive
-                                                        ? 'bg-[#E0891E] text-white font-semibold'
-                                                        : 'text-[#181D27] font-normal hover:bg-gray-50'
-                                                        }`}
-                                                >
-                                                    {item.name}
-                                                </a>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Divider */}
-                            <div className="border-t border-[#E9EAEB] mb-3" />
-
-                            {/* Action Buttons */}
-                            <div className="px-3 pb-3 space-y-2">
-                                {location.pathname !== '/login' && (
-                                    <ActionButton
-                                        buttonText="Login"
-                                        width="full"
-                                        outline
-                                        paddingX="px-4"
-                                        attributes={{
-                                            onClick: () => {
-                                                setIsMobileMenuOpen(false);
-                                                setTimeout(() => {
-                                                    navigate('/login');
-                                                }, 150);
-                                            }
-                                        }}
-                                    />
-                                )}
-                                {location.pathname !== '/login' && location.pathname !== '/book-a-demo' && (
-                                    <ActionButton
-                                        buttonText="Book a Demo"
-                                        width="full"
-                                        paddingX="px-4"
-                                        attributes={{
-                                            onClick: () => {
-                                                setIsMobileMenuOpen(false);
-                                                setTimeout(() => {
-                                                    navigate('/book-a-demo');
-                                                }, 150);
-                                            }
-                                        }}
-                                    />
-                                )}
-                                {location.pathname === '/login' && (
-                                    <ActionButton
-                                        buttonText="Contact us"
-                                        width="full"
-                                        paddingX="px-4"
-                                        attributes={{
-                                            onClick: () => {
-                                                setIsMobileMenuOpen(false);
-                                                setTimeout(() => {
-                                                    navigate('/contact');
-                                                }, 150);
-                                            }
-                                        }}
-                                    />
-                                )}
+                                {/* Action Buttons */}
+                                <div className="space-y-2">
+                                    {location.pathname !== '/login' && (
+                                        <ActionButton
+                                            buttonText="Login"
+                                            width="full"
+                                            outline
+                                            paddingX="px-4 py-4"
+                                            textSize='base'
+                                            attributes={{
+                                                onClick: () => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setTimeout(() => {
+                                                        navigate('/login');
+                                                    }, 150);
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    {location.pathname !== '/login' && location.pathname !== '/book-a-demo' && (
+                                        <ActionButton
+                                            buttonText="Book a Demo"
+                                            width="full"
+                                            paddingX="px-4 py-4"
+                                            textSize='base'
+                                            attributes={{
+                                                onClick: () => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setTimeout(() => {
+                                                        navigate('/book-a-demo');
+                                                    }, 150);
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    {location.pathname === '/login' && (
+                                        <ActionButton
+                                            buttonText="Contact us"
+                                            width="full"
+                                            paddingX="px-4 py-4"
+                                            textSize='base'
+                                            attributes={{
+                                                onClick: () => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setTimeout(() => {
+                                                        navigate('/contact');
+                                                    }, 150);
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
